@@ -1,0 +1,16 @@
+# Trust anchor for Causeway release signatures. See decisions/0019.
+#
+# tools/verify-release.sh checks a release statement against this file with
+# `ssh-keygen -Y verify`. One file of trusted keys, no keyring, no agent, no
+# network, no transparency log — which is what lets an egress-restricted
+# consumer verify a release at all.
+#
+# The first column is a principal: a label the verifier prints as the signer.
+# It names the release role rather than a person, so rotating the key or the
+# maintainer does not change what a consumer trusts.
+#
+# This file is covered by the bundle digest (tools/build-bundle.sh BUNDLE_FILES)
+# and vendored into consuming projects (tools/sync.sh). An anchor a project
+# could swap without moving the digest would not be an anchor. Rotating the key
+# is therefore a release of the standard, not a settings change.
+release@causeway ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKMCAPc9eWhQbasSdY+kgDldI6g6osDWSVecNHEHsTJo

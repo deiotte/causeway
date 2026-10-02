@@ -1,0 +1,116 @@
+# This repository's own field-note form, for notes about the standard itself.
+# Adapted from templates/field-note-issue-form.yml, which sync.sh seeds into
+# consuming projects; the prompts are the same on purpose. ADR 0038.
+name: Field note
+description: Something you know from practice that the Causeway standard needs to get right.
+title: "Field note: "
+labels: ["field-note", "needs-disposition"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **You do not need to know anything about software to fill this in.**
+
+        This form is for notes about **the Causeway standard itself** — a rule that
+        breaks on contact with practice, two cases it treats as one, a failure it
+        does not see coming. For a project that adopted Causeway, use that
+        project's own form.
+
+        One thing you know, per note. If you have two, that is two notes — a note
+        carrying several ideas tends to get read as none of them.
+
+        Answer what you can and leave the rest. A blank is information too.
+
+  - type: textarea
+    id: what-happens
+    attributes:
+      label: What happens
+      description: >-
+        The situation, concretely. Where you are, what you are doing, what the
+        system is doing. One specific occurrence you actually remember beats a
+        general description — the specific one carries detail the general one loses.
+      placeholder: Last March, reconciling the quarterly submission, the intake form accepted…
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-goes-wrong
+    attributes:
+      label: What goes wrong
+      description: >-
+        The failure. Be exact about the moment it goes wrong, which is usually
+        earlier and quieter than the moment anybody notices. If it has happened
+        more than once, say how many times.
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-it-should-do
+    attributes:
+      label: What it should do instead
+      description: >-
+        The correct behavior. If it depends on something — a condition, a
+        threshold, who is asking, the time of year — that dependency is the
+        valuable half. "It depends, and here is what on" is a complete answer.
+        "It depends" on its own is not.
+    validations:
+      required: true
+
+  - type: textarea
+    id: the-tell
+    attributes:
+      label: How you would know it was wrong
+      description: >-
+        If the system handed you an answer, what would make you distrust it
+        without checking anything else? This is the one that most often becomes
+        an automated test. Spend your time here.
+    validations:
+      required: false
+
+  - type: textarea
+    id: what-it-costs
+    attributes:
+      label: What it costs when this is missed
+      description: >-
+        In whatever unit is real — money, time, a reportable event, a safety
+        margin, somebody's afternoon, a finding at audit. An estimate with a
+        stated basis beats a blank, and beats a confident number with no basis.
+        This is how your note gets ranked against everything else competing for
+        the same week of engineering time.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: confidence
+    attributes:
+      label: How sure are you
+      description: >-
+        All three are useful and they are not the same claim. Nobody will hold
+        the difference against you. Not stating it is the only thing that causes
+        damage downstream.
+      options:
+        - I have watched this happen
+        - I am fairly sure, but have not seen it directly
+        - I suspect it, and it is worth someone checking
+    validations:
+      required: true
+
+  - type: input
+    id: years
+    attributes:
+      label: How long you have worked in this domain
+      description: The credential that matters here. Not a formality.
+      placeholder: "e.g. 30 years"
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        **What happens next.** Somebody reads this and it becomes a design
+        decision, an automated test, a permanent constraint on how this gets
+        built, or a pointer to where it is already handled. You will be told
+        which one — including when the answer is "already handled", because you
+        are the person best placed to check that the existing handling is
+        actually right.

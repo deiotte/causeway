@@ -1,0 +1,9 @@
+Causeway Standard
+Copyright 2026 Karl Deiotte
+
+Licensed under the Apache License, Version 2.0. The full text is in LICENSE,
+and a vendored copy of the standard carries it at bundle/LICENSE.
+
+"Causeway" is the name of this standard. The license grants no right to use the
+name for a modified copy (Apache License 2.0, section 6). A fork is welcome; it
+should say it is a fork, and say which release of Causeway it diverged from.

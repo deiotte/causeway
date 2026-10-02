@@ -1,0 +1,44 @@
+# Seeded once by tools/sync.sh into .github/CODEOWNERS, then owned by the
+# project. Replace every @ORG/TEAM before this does anything.
+#
+# This file is half of the Practitioner role's guardrail, and it is the half
+# that does nothing on its own.
+#
+#   CODEOWNERS nominates reviewers. It does not require them.
+#
+# Until "Require a pull request before merging" and "Require review from Code
+# Owners" are both on for the default branch, this file is a suggestion and a
+# practitioner with write access can merge their own note. That is the same
+# shape ADR 0016 records for the gate: a check that is not required by
+# repository settings is a check that passes and blocks nothing. Turn both on,
+# then confirm it by trying to merge something without a review.
+#
+# Get that right and the honest answer to a practitioner's "am I allowed to
+# touch this?" becomes yes, permanently, because the repository is what stops
+# them rather than their own carefulness.
+
+# Everything needs an engineering review. Start restrictive; widen deliberately.
+*                               @ORG/ENGINEERING
+
+# The field-note register. Two owners on purpose.
+#
+# Engineering is here because a note can become an ADR, a test or a constraint,
+# and somebody has to write it. The domain leads are here because the
+# disposition obligation in Build DNA's Practitioner role is theirs to notice
+# going unmet — a note sitting at `status: new` for a month is visible to
+# whoever gets the review request and to nobody else.
+/domain/field-notes/            @ORG/ENGINEERING @ORG/DOMAIN-LEADS
+
+# The decision record and the index of what it left open. Maintainer ground:
+# an ADR is where a note's argument ends up load-bearing.
+/decisions/                     @ORG/ENGINEERING
+
+# The vendored standard. Nothing here is editable in a consuming project —
+# check-drift.sh fails the build if it moved — so a pull request touching these
+# paths is either a re-sync or a mistake, and both want a maintainer's eyes.
+/AGENTS.md                      @ORG/ENGINEERING
+/gate/                          @ORG/ENGINEERING
+/skills/                        @ORG/ENGINEERING
+/rules/                         @ORG/ENGINEERING
+/bundle/                        @ORG/ENGINEERING
+/.causeway-lock                 @ORG/ENGINEERING

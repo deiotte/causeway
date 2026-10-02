@@ -1,0 +1,90 @@
+{
+  "$comment": "Derived profile resolution and check inventory. See gate/gate-configuration.md.",
+  "$authority": "spine_version here is what APPLIES. system.json spine.closed_against is history. See gate-configuration.md §4.",
+  "spine_version": "0.8",
+  "resolution": {
+    "default_criticality_class": "C1",
+    "tier_required": true,
+    "matrix": {
+      "operational": { "C3": "G0", "C2": "G1", "C1": "G1" },
+      "mission":     { "C3": "G1", "C2": "G2", "C1": "G2" },
+      "core":        { "C3": "G2", "C2": "G3", "C1": "G3" }
+    }
+  },
+  "release_state": {
+    "$comment": "Derived lifecycle marker read by tests-with-source. See gate-configuration.md §4. oneway-closure listed it as evidence from v0.5 to v0.7 and never reached a verdict through it; v0.8 removed the listing — ADR 0034.",
+    "$redefined": "v0.7 replaced 'annotated tags only' with ranked release evidence. Tag topology is not a security property, and filtering on it excluded real releases while admitting forged ones — gate-configuration.md §4 property 3, ADR 0033.",
+    "default_tag_pattern": "^v?[0-9]+\\.[0-9]+\\.[0-9]+",
+    "override": "ato-gate.json spine.release_tag_pattern",
+    "$ordering": "First match wins. Ordered by how much each source proves; the receipt records release_proof beside release_state.",
+    "evidence": [
+      { "proof": "signed-statement", "reads": "bundle/release.statement verified against bundle/allowed-signers under the causeway-release namespace, naming this commit" },
+      { "proof": "annotated-tag",    "reads": "an annotated tag matching default_tag_pattern" },
+      { "proof": "lightweight-tag",  "reads": "a lightweight tag matching default_tag_pattern" },
+      { "proof": "platform-record",  "reads": "a release record published outside git", "supplied_by": null,
+        "$note": "No input class supplies this. Gate configuration v0.7 open item 14." }
+    ],
+    "values": ["pre_release", "released"],
+    "proof_values": ["signed-statement", "annotated-tag", "lightweight-tag", "platform-record", "none"]
+  },
+  "modifiers": {
+    "$comment": "A modifier downgrades a blocking cell to a finding under a stated condition. It never promotes a finding to a block and never adds a check.",
+    "adoption-horizon": {
+      "downgrades": "block -> warn",
+      "while": "the unclosed row is inside its adoption horizon",
+      "spec": "gate-configuration.md §4 (Adoption horizon — the arithmetic)"
+    },
+    "pre-release": {
+      "downgrades": "block -> warn",
+      "while": "release_state(repo) == pre_release",
+      "spec": "gate-configuration.md §4 (release_state)"
+    }
+  },
+  "checks": [
+    { "id": "sbom-drift",            "G0": "block", "G1": "block", "G2": "block", "G3": "block" },
+    { "id": "secrets-scan",          "G0": "block", "G1": "block", "G2": "block", "G3": "block" },
+    { "id": "named-approvers",       "G0": "block", "G1": "block", "G2": "block", "G3": "block" },
+    { "id": "as-built-notification", "G0": "block", "G1": "block", "G2": "block", "G3": "block" },
+    { "id": "waiver-expiry",         "G0": "block", "G1": "block", "G2": "block", "G3": "block" },
+    { "id": "dependency-provenance", "G0": "block", "G1": "block", "G2": "block", "G3": "block" },
+    { "id": "install-scripts",       "G0": "block", "G1": "block", "G2": "block", "G3": "block" },
+    { "id": "shortform-closure",     "G0": "block", "G1": "block", "G2": "block", "G3": "block", "modifiers": ["adoption-horizon"] },
+    { "id": "composition-state",     "G0": "block", "G1": "block", "G2": "block", "G3": "block" },
+    { "id": "control-checks-800-53", "G0": "warn",  "G1": "block", "G2": "block", "G3": "block" },
+    { "id": "oneway-closure",        "G0": "warn",  "G1": "block", "G2": "block", "G3": "block", "modifiers": ["adoption-horizon"] },
+    { "id": "class-scoped-closure",  "G0": "skip",  "G1": "warn",  "G2": "block", "G3": "block", "modifiers": ["adoption-horizon"] },
+    { "id": "waiver-horizon-60d",    "G0": "warn",  "G1": "warn",  "G2": "warn",  "G3": "warn"  },
+    { "id": "tests-with-source",     "G0": "warn",  "G1": "warn",  "G2": "warn",  "G3": "warn",
+      "promotes_to": {
+        "$comment": "Decided, not yet active. Rows get an adoption horizon; checks get a warn cycle. See gate-configuration.md §9 step 8.",
+        "G2": "block", "G3": "block",
+        "modifiers": ["pre-release"],
+        "decided": "0.5",
+        "engages_after": "one warn cycle on the v0.5 definition"
+      } },
+    { "id": "adoption-horizon-60d",  "G0": "warn",  "G1": "warn",  "G2": "warn",  "G3": "warn"  },
+    { "id": "standard-currency",     "G0": "warn",  "G1": "warn",  "G2": "warn",  "G3": "warn"  },
+    { "id": "sandbox-tenant",        "G0": "skip",  "G1": "block", "G2": "skip",  "G3": "skip"  },
+    { "id": "ta-valid",              "G0": "skip",  "G1": "block", "G2": "skip",  "G3": "skip"  },
+    { "id": "promote-or-sunset",     "G0": "skip",  "G1": "block", "G2": "skip",  "G3": "skip"  },
+    { "id": "inheritance-resolves",  "G0": "skip",  "G1": "warn",  "G2": "block", "G3": "block" },
+    { "id": "evidence-emitting",     "G0": "skip",  "G1": "warn",  "G2": "block", "G3": "block" },
+    { "id": "contract-tests",        "G0": "skip",  "G1": "skip",  "G2": "block", "G3": "block" },
+    { "id": "dr-plan-of-record",     "G0": "skip",  "G1": "skip",  "G2": "block", "G3": "block" },
+    { "id": "dr-drill-cadence",      "G0": "skip",  "G1": "skip",  "G2": "warn",  "G3": "block" },
+    { "id": "exposure-review",       "G0": "skip",  "G1": "skip",  "G2": "skip",  "G3": "block" },
+    { "id": "promotion-review",      "G0": "skip",  "G1": "skip",  "G2": "skip",  "G3": "block" },
+    { "id": "ao-signature-sa510",    "G0": "skip",  "G1": "warn",  "G2": "warn",  "G3": "block" }
+  ],
+  "named_approver_rows": [
+    "SA-1.8", "SA-1.9", "SA-2.11", "SA-5.7", "SA-5.10", "SA-5.13", "SA-5.16",
+    "SA-9.4"
+  ],
+  "exit_codes": {
+    "0": "pass",
+    "1": "blocking check failed",
+    "2": "expired waiver or exclusion",
+    "3": "promote-or-sunset block",
+    "4": "configuration error"
+  }
+}

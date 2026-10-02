@@ -1,0 +1,13 @@
+# Python bytecode. Build output, never source.
+#
+# A stray tools/__pycache__/*.pyc was staged during the work that added
+# bundle/scope.json, and the scope check caught it on its first run. The check
+# is the backstop; this file is the reason it should not have to fire.
+__pycache__/
+*.py[cod]
+
+# Release archives. Build output of tools/build-archive.sh, and untracked
+# build output is not harmless here: sign-release.sh refuses to sign a dirty
+# tree and sync.sh marks one, so a maintainer who built an archive locally
+# would find the next release blocked by files the build had just made.
+dist/

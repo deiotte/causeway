@@ -1,0 +1,199 @@
+# The standard's own gate.
+#
+# Closes gate-configuration.md §10 item 6, which read: "The real fix is a release
+# check in the standard's own CI, and this repository has no CI at all. That gap
+# is upstream of this item and of several others."
+#
+# Actions are pinned to commit SHAs, not tags. A tag is a moveable pointer, and a
+# repository whose dependency-provenance check blocks at every profile does not
+# get to resolve its own supply chain from one.
+#
+# One job, on purpose. GitHub bills each *job* rounded up to the whole minute, so
+# three jobs finishing in eleven seconds each cost three minutes, not one. The
+# three were never independent — they check out the same tree and run the same
+# scripts — so the split bought parallelism worth seconds and cost 3x. What the
+# split did buy was seeing every failure in one run instead of only the first,
+# and `if: '!cancelled()'` on the checks below keeps that.
+#
+# `push` is narrowed to main. It was "**", which meant every push to a branch
+# with an open pull request ran the whole gate twice: once for the push, once for
+# the pull_request event, on the same commit. Branch work is covered by the
+# pull_request trigger; main is covered here.
+name: standard
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    # Branch protection matches required checks by this name. Renaming it without
+    # updating the ruleset leaves every pull request waiting on a check that will
+    # never report.
+    name: The standard holds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # validate.py reads the last commit that touched VERSION to verify
+          # RELEASED did not fall behind it. A shallow clone hides that.
+          fetch-depth: 0
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Validate
+        if: '!cancelled()'
+        run: ./tools/validate.py
+
+      - name: Bundle manifest is current
+        if: '!cancelled()'
+        run: ./tools/build-bundle.sh --check
+
+      - name: Adapters point at AGENTS.md and name every skill
+        if: '!cancelled()'
+        run: ./tools/render-adapters.sh
+
+      # sync.sh and check-drift.sh are the two halves of the distribution
+      # mechanism and neither has ever been executed by anything but a person.
+      # ADR 0001 exists because a copy of the standard went missing; the scripts
+      # that prevent a recurrence are worth running on every push.
+      - name: Sync into a scratch project and verify the lock
+        if: '!cancelled()'
+        run: |
+          set -euo pipefail
+          PROJECT="$(mktemp -d)"
+          ./tools/sync.sh "$PROJECT"
+
+          test -f "$PROJECT/.causeway-lock" || { echo "no lock written"; exit 1; }
+          grep -q '^digest=sha256:' "$PROJECT/.causeway-lock" \
+            || { echo "lock carries no bundle digest"; exit 1; }
+          grep -q '^released=' "$PROJECT/.causeway-lock" \
+            || { echo "lock carries no released date"; exit 1; }
+
+          # The contributor front door and the reviewer checklist (ADR 0035).
+          test -f "$PROJECT/CONTRIBUTING.md" || { echo "no CONTRIBUTING.md seeded"; exit 1; }
+          test -f "$PROJECT/.github/pull_request_template.md" \
+            || { echo "no pull request template seeded"; exit 1; }
+
+          # The lock's digest must be the one the bundle actually published.
+          LOCK_DIGEST="$(grep '^digest=' "$PROJECT/.causeway-lock" | cut -d= -f2-)"
+          BUNDLE_DIGEST="$(python3 -c \
+            'import json;print(json.load(open("bundle/manifest.json"))["digest"])')"
+          [ "$LOCK_DIGEST" = "$BUNDLE_DIGEST" ] \
+            || { echo "lock digest $LOCK_DIGEST != bundle $BUNDLE_DIGEST"; exit 1; }
+
+          # A freshly synced project has not drifted.
+          ( cd "$PROJECT" && bash "$GITHUB_WORKSPACE/tools/check-drift.sh" )
+
+      - name: Drift detection actually detects drift
+        if: '!cancelled()'
+        run: |
+          set -euo pipefail
+          PROJECT="$(mktemp -d)"
+          ./tools/sync.sh "$PROJECT" >/dev/null
+          echo "locally edited" >> "$PROJECT/gate/profiles.json"
+
+          # A check that never fails is decorative — the same rule the standard
+          # applies to its own checks applies to the script that enforces them.
+          if ( cd "$PROJECT" && bash "$GITHUB_WORKSPACE/tools/check-drift.sh" ); then
+            echo "check-drift.sh passed an edited vendored copy"
+            exit 1
+          fi
+          echo "drift correctly detected"
+
+      # The archive is a published install path, so it is exercised on every
+      # push like the clone path is. Both properties below are ones a person
+      # cannot notice by reading: whether two builds agree byte for byte, and
+      # whether the install works on a machine that has no git. Nobody testing
+      # this on a workstation would ever be in the second situation, which is
+      # exactly why it has to be CI that is.
+      - name: The release archive is byte-reproducible
+        if: '!cancelled()'
+        run: |
+          set -euo pipefail
+          ./tools/build-archive.sh --out "$RUNNER_TEMP/arch-a" >/dev/null
+          ./tools/build-archive.sh --out "$RUNNER_TEMP/arch-b" >/dev/null
+          for a in "$RUNNER_TEMP"/arch-a/*.tar.gz "$RUNNER_TEMP"/arch-a/*.zip; do
+            b="$RUNNER_TEMP/arch-b/$(basename "$a")"
+            cmp -s "$a" "$b" || { echo "$(basename "$a") is not reproducible"; exit 1; }
+          done
+          ( cd "$RUNNER_TEMP/arch-a" && sha256sum -c ./*.sha256 )
+          echo "archives reproduce byte for byte, and their sidecars check out"
+
+      # ADR 0030. Until v1.14.0 this path did not exist: --require-release read
+      # `git describe`, so a machine without git could not satisfy the one flag
+      # the standard tells you to use for anything that ships, and the refusal
+      # told it to run `git checkout` in a directory with no git in it.
+      #
+      # git is hidden by PATH rather than uninstalled, so the step proves the
+      # install needs no git without breaking the rest of the job for the steps
+      # after it.
+      - name: Install from an extracted archive with no git
+        if: '!cancelled()'
+        run: |
+          set -euo pipefail
+          NOGIT="$RUNNER_TEMP/nogit"; mkdir -p "$NOGIT"
+          for d in /usr/local/bin /usr/bin /bin /usr/sbin /sbin; do
+            [ -d "$d" ] || continue
+            for f in "$d"/*; do
+              b="$(basename "$f")"
+              case "$b" in git|git-*) continue ;; esac
+              [ -e "$NOGIT/$b" ] || ln -s "$f" "$NOGIT/$b" 2>/dev/null || true
+            done
+          done
+          if PATH="$NOGIT" command -v git >/dev/null 2>&1; then
+            echo "the no-git shim still has git on PATH — the test below would prove nothing"
+            exit 1
+          fi
+
+          ./tools/build-archive.sh --out "$RUNNER_TEMP/dist" >/dev/null
+          VERSION="$(cat VERSION)"
+          EXTRACT="$RUNNER_TEMP/extract"; mkdir -p "$EXTRACT"
+          tar -xzf "$RUNNER_TEMP/dist/causeway-$VERSION.tar.gz" -C "$EXTRACT"
+          STD="$EXTRACT/causeway-$VERSION"
+
+          PROJECT="$(mktemp -d)"
+          PATH="$NOGIT" bash "$STD/tools/sync.sh" "$PROJECT"
+
+          # The two install paths must produce the same pin. An archive that
+          # installed successfully and vendored different bytes would be a
+          # second standard wearing the first one's version number.
+          ARCHIVE_DIGEST="$(grep '^digest=' "$PROJECT/.causeway-lock" | cut -d= -f2-)"
+          BUNDLE_DIGEST="$(python3 -c \
+            'import json;print(json.load(open("bundle/manifest.json"))["digest"])')"
+          [ "$ARCHIVE_DIGEST" = "$BUNDLE_DIGEST" ] \
+            || { echo "archive lock $ARCHIVE_DIGEST != bundle $BUNDLE_DIGEST"; exit 1; }
+
+          CLONE_PROJECT="$(mktemp -d)"
+          ./tools/sync.sh "$CLONE_PROJECT" >/dev/null
+          diff <(grep -v '^synced=' "$PROJECT/.causeway-lock" | grep -vE '^(commit|tag|release_proof)=') \
+               <(grep -v '^synced=' "$CLONE_PROJECT/.causeway-lock" | grep -vE '^(commit|tag|release_proof)=') \
+            || { echo "archive and clone vendor different content"; exit 1; }
+
+          # And the vendored copy passes its own drift check, still with no git.
+          ( cd "$PROJECT" && PATH="$NOGIT" bash tools/check-drift.sh )
+          echo "installed from archive with no git, and the pin matches the clone"
+
+      - name: Every overlay vendors and locks
+        if: '!cancelled()'
+        run: |
+          set -euo pipefail
+          for overlay in overlays/*.md; do
+            name="$(basename "$overlay" .md)"
+            [ "$name" = "README" ] && continue
+            PROJECT="$(mktemp -d)"
+            ./tools/sync.sh "$PROJECT" --overlay "$name" >/dev/null
+            grep -q "^overlay=$name$" "$PROJECT/.causeway-lock" \
+              || { echo "$name: not recorded in the lock"; exit 1; }
+            test -f "$PROJECT/overlays/$name.md" \
+              || { echo "$name: not vendored"; exit 1; }
+            ( cd "$PROJECT" && bash "$GITHUB_WORKSPACE/tools/check-drift.sh" >/dev/null )
+            echo "  $name ok"
+          done

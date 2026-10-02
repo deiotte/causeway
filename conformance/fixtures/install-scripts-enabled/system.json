@@ -1,0 +1,7 @@
+{
+  "id": "g2-compliant",
+  "tier": "mission",
+  "criticality_class": "C2",
+  "composition-state": "catalog-composed",
+  "spine": { "closed_against": "0.8", "closure_ref": "decisions/" }
+}

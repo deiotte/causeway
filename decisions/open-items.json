@@ -1,0 +1,592 @@
+{
+  "$comment": "The open-items index. Every numbered open item this repository carries, in one place, with its state. Build DNA §8 states the rule; tools/validate.py §17 checks this file against the four registers it names.",
+  "$authority": "This file owns an item's STATE — status, the ADRs that opened and closed it, the version each happened in, its register and number. It does not own the item's ARGUMENT, which stays in the prose entry and is the reason the entry keeps its number when it closes. Where this file and a prose entry disagree about status, the disagreement is a build failure rather than a precedence rule: one of the two is wrong and a commit that moved only one of them is the defect.",
+  "$not_gate_input": "No gate check reads this file. The gate has 27 checks and none of them is 'the index is current' — see AGENTS.md open item 6, which records that gap rather than closing it by assertion.",
+  "$attribution": "opened_by and closed_by are null where the record does not state them: null for 21 items of 41, across 4 registers whose history predates this index. Two rounds of renumbering ran through that history, and inventing an attribution to fill a cell would be manufacturing exactly the evidence this repository refuses to manufacture elsewhere. Null means 'not attributable from the record', not 'nobody opened it'. Every item opened from v1.10.0 forward carries its ADR. These three numbers are anchored in tools/validate.py and derive from the items below — the first version of this sentence said six registers, a count left over from a draft that included two README lists deliberately excluded from the index, and nothing checked it. ADR 0027.",
+  "schema_version": "1.0",
+  "standard_version": "2.2.0",
+  "registers": {
+    "build-dna": {
+      "document": "AGENTS.md",
+      "section": "Open items",
+      "label": "Build DNA",
+      "numbers_stable_since": "1.6"
+    },
+    "gate-config": {
+      "document": "gate/gate-configuration.md",
+      "section": "10. Open items",
+      "label": "Gate configuration",
+      "numbers_stable_since": "v0.5"
+    },
+    "overlay-servicenow": {
+      "document": "overlays/servicenow.md",
+      "section": "10. Open items",
+      "label": "ServiceNow overlay",
+      "numbers_stable_since": "1.0"
+    },
+    "spine": {
+      "document": "skills/decision-spine/reference/spine.md",
+      "section": "Open questions for v0.9",
+      "label": "Decision Spine",
+      "numbers_stable_since": null
+    }
+  },
+  "$relations": "An item may name its relationship to another item, or to the document that answered it. Relations are edges the build enforces, not annotations: each type below states an invariant and tools/validate.py §18 fails when it does not hold. They exist because the first release of this index made cross-register entanglement visible and did nothing about it — eight of the twenty-seven open items turned out to be duplicates, settled questions, or findings filed against the wrong register, and a reader had to notice that by hand. ADR 0026.",
+  "relation_types": {
+    "duplicate_of": "The same question, asked in another register. Mutual: both items name each other. Both must carry the same status — you cannot close half a duplicate, which is the failure this type exists for.",
+    "superseded_by": "Another item settled this one's question. Directional. When the target closes, this item must close too: a question settled in one register and left open in another is a register describing a standard that no longer exists.",
+    "upstream_of": "This item's resolution belongs to another register's item — the 'the finding belongs upstream' case. A list; an item may point at several. Every target must exist and be in a different register, and when a target closes this item must close or be re-read, because the thing it was waiting on has happened. An item that says its finding belongs upstream and names no target is a finding with no home, which is why the field is checked rather than optional prose.",
+    "answered_by": "A document outside this item's own register supplied the answer to the question this item asks. {document, section, summary}. The document must exist and still carry that heading. This is the carry-back record: evidence filed against one document that bears on an item in another, which before ADR 0026 had no representation at all and went unnoticed for three releases.",
+    "blocked_on": "Keys from the blockers vocabulary below. A list. Every key must be declared. This is what turns 'several items are waiting on the same thing' from a pattern somebody noticed into a fact somebody can query."
+  },
+  "blockers": {
+    "first-adopter-evidence": "No team that did not author this standard has run it. Every number these items want is a number only an outside adopter produces.",
+    "portfolio-count": "Needs a count across the registered portfolio that nobody has taken.",
+    "warn-cycle-measurement": "Needs one completed warn cycle on the current definition, through receipt fields that exist but have not accumulated data.",
+    "conformance-schema": "Needs conformance/expectations.json to be able to express something it cannot currently say. A schema decision that deserves its own ADR.",
+    "gate-check-decision": "The standard states the rule and nothing checks it. Each of these names a candidate gate check that has not been decided on — promoting one is a decision about cost, not a cleanup."
+  },
+  "$numbering": "number is null for an item its register closed by renumbering, before that register made numbers stable. Those items have no slot to sit in and are carried here so the closure is still findable — inventing a number for one now would be a third numbering scheme, which gate/gate-configuration.md §10 declines to do in prose and this file declines to do in data. Only numbered items are position-checked against the prose.",
+  "items": [
+    {
+      "id": "build-dna-1",
+      "register": "build-dna",
+      "number": 1,
+      "title": "Managed policy tier",
+      "status": "open",
+      "opened_by": null,
+      "opened_in": null,
+      "closed_by": null,
+      "closed_in": null
+    },
+    {
+      "id": "build-dna-2",
+      "register": "build-dna",
+      "number": 2,
+      "title": "Reconciliation against a document of record that could not be retrieved",
+      "status": "closed",
+      "opened_by": null,
+      "opened_in": null,
+      "closed_by": "0021",
+      "closed_in": "Build DNA 1.6"
+    },
+    {
+      "id": "build-dna-3",
+      "register": "build-dna",
+      "number": 3,
+      "title": "The .claude/rules/ set has no rule for the CI surface",
+      "status": "open",
+      "opened_by": null,
+      "opened_in": null,
+      "closed_by": null,
+      "closed_in": null
+    },
+    {
+      "id": "build-dna-4",
+      "register": "build-dna",
+      "number": 4,
+      "title": "The adoption contract is unmeasured",
+      "status": "open",
+      "opened_by": "0022",
+      "opened_in": "Build DNA 1.6",
+      "closed_by": null,
+      "closed_in": null,
+      "blocked_on": [
+        "first-adopter-evidence"
+      ]
+    },
+    {
+      "id": "build-dna-5",
+      "register": "build-dna",
+      "number": 5,
+      "title": "Nothing enforces the offline test path",
+      "status": "open",
+      "opened_by": "0022",
+      "opened_in": "Build DNA 1.6",
+      "closed_by": null,
+      "closed_in": null,
+      "blocked_on": [
+        "gate-check-decision"
+      ]
+    },
+    {
+      "id": "build-dna-6",
+      "register": "build-dna",
+      "number": 6,
+      "title": "Nothing enforces the index in a consuming project",
+      "status": "open",
+      "opened_by": "0025",
+      "opened_in": "Build DNA 1.7",
+      "closed_by": null,
+      "closed_in": null,
+      "blocked_on": [
+        "gate-check-decision"
+      ]
+    },
+    {
+      "id": "build-dna-7",
+      "register": "build-dna",
+      "number": 7,
+      "title": "Nothing checks a count stated in an ADR",
+      "status": "open",
+      "opened_by": "0027",
+      "opened_in": "Build DNA 1.9",
+      "closed_by": null,
+      "closed_in": null,
+      "$note": "Carries no blocker. It is not waiting on evidence somebody else must produce; it is deferred on judgment, pending one more release of watching whether ADRs keep stating derived counts now that the index exists to point at instead. The candidate design is in the entry."
+    },
+    {
+      "id": "build-dna-8",
+      "register": "build-dna",
+      "number": 8,
+      "title": "The Practitioner floor is unmeasured",
+      "status": "open",
+      "opened_by": "0028",
+      "opened_in": "Build DNA 1.10",
+      "closed_by": null,
+      "closed_in": null,
+      "blocked_on": [
+        "first-adopter-evidence"
+      ]
+    },
+    {
+      "id": "build-dna-9",
+      "register": "build-dna",
+      "number": 9,
+      "title": "A pointer is not discovery",
+      "status": "open",
+      "opened_by": "0029",
+      "opened_in": "Build DNA 1.10",
+      "closed_by": null,
+      "closed_in": null,
+      "blocked_on": [
+        "first-adopter-evidence"
+      ]
+    },
+    {
+      "id": "build-dna-10",
+      "register": "build-dna",
+      "number": 10,
+      "title": "Intake is stated and unenforced",
+      "status": "open",
+      "opened_by": "0031",
+      "opened_in": "Build DNA 1.12",
+      "closed_by": null,
+      "closed_in": null,
+      "blocked_on": [
+        "gate-check-decision"
+      ],
+      "$note": "Opened by the release that added the Survey. Three §8 rules — a READY verdict before recording, a non-empty forces list, and a supersession_cause on every superseding ADR — have no check behind them. survey-present and adr-forces-nonempty are the candidate checks and are deferred to a release that has a warn cycle to run them through; the cycle needs the cause-code distribution, which these rules are what start collecting."
+    },
+    {
+      "id": "gate-config-1",
+      "register": "gate-config",
+      "number": 1,
+      "title": "Who increments renewal_count",
+      "status": "open",
+      "opened_by": null,
+      "opened_in": null,
+      "closed_by": null,
+      "closed_in": null
+    },
+    {
+      "id": "gate-config-2",
+      "register": "gate-config",
+      "number": 2,
+      "title": "Catalog items are systems too",
+      "status": "open",
+      "opened_by": null,
+      "opened_in": null,
+      "closed_by": null,
+      "closed_in": null,
+      "duplicate_of": "spine-3",
+      "$note": "Near-verbatim with spine-3: one question recorded in the enforcement layer and the design layer, neither citing the other. Kept as two items rather than merged, because the layers close independently and a single item would have to live in one of them. The edge is what makes closing only one of them fail the build."
+    },
+    {
+      "id": "gate-config-3",
+      "register": "gate-config",
+      "number": 3,
+      "title": "Portfolio rollup should stratify by gate profile",
+      "status": "open",
+      "opened_by": null,
+      "opened_in": null,
+      "closed_by": null,
+      "closed_in": null
+    },
+    {
+      "id": "gate-config-4",
+      "register": "gate-config",
+      "number": 4,
+      "title": "tests-with-source promotion",
+      "status": "closed",
+      "opened_by": null,
+      "opened_in": null,
+      "closed_by": "0006",
+      "closed_in": "gate configuration v0.5"
+    },
+    {
+      "id": "gate-config-5",
+      "register": "gate-config",
+      "number": 5,
+      "title": "standard-currency promotion",
+      "status": "open",
+      "opened_by": null,
+      "opened_in": null,
+      "closed_by": null,
+      "closed_in": null,
+      "blocked_on": [
+        "portfolio-count"
+      ]
+    },
+    {
+      "id": "gate-config-6",
+      "register": "gate-config",
+      "number": 6,
+      "title": "RELEASED has no guard",
+      "status": "closed",
+      "opened_by": null,
+      "opened_in": null,
+      "closed_by": "0010",
+      "closed_in": "gate configuration v0.6"
+    },
+    {
+      "id": "gate-config-7",
+      "register": "gate-config",
+      "number": 7,
+      "title": "Does the tightened tests-with-source definition hold",
+      "status": "open",
+      "opened_by": "0006",
+      "opened_in": "gate configuration v0.5",
+      "closed_by": null,
+      "closed_in": null,
+      "blocked_on": [
+        "warn-cycle-measurement"
+      ]
+    },
+    {
+      "id": "gate-config-8",
+      "register": "gate-config",
+      "number": 8,
+      "title": "Nothing verifies a release tag was cut honestly",
+      "status": "closed",
+      "opened_by": "0006",
+      "opened_in": "gate configuration v0.5",
+      "closed_by": "0033",
+      "closed_in": "gate configuration v0.7",
+      "answered_by": {
+        "document": "overlays/servicenow.md",
+        "section": "`release_state` on a platform that does not tag",
+        "summary": "The item's condition is met. It asks whether the 'G2/G3 and never released' set is small; the overlay states that on ServiceNow it is not, by construction rather than oversight, because nothing in the delivery path asks git for a version. The overlay says so as 'this overlay's contribution is the evidence' and has said it since overlay 1.1, three releases, with nothing carrying it back."
+      },
+      "$note": "Closed at gate configuration v0.7, having been ripe rather than answered for two releases. The item's conditional resolved first — the untagged set is not small, so by its own terms the marker was wrong for both checks — and ADR 0026 carried that evidence back from the ServiceNow overlay while explicitly declining to decide the remedy, because replacing release_state changes what an engine reads. ADR 0033 is that remedy: §4 now reads ranked release evidence rather than tag topology. The condition was met twice in the end, the second time by this repository, whose nine releases are all lightweight tags because the GitHub web interface cannot create any other kind. What stays open is the platform input class, split out as gate-config-14."
+    },
+    {
+      "id": "gate-config-9",
+      "register": "gate-config",
+      "number": 9,
+      "title": "Is oneway-closure blocking pre-release systems it should only warn",
+      "status": "closed",
+      "opened_by": "0006",
+      "opened_in": "gate configuration v0.5",
+      "closed_by": "0034",
+      "closed_in": "gate configuration v0.8",
+      "$note": "Closed as a correction rather than a choice, and the correction ran opposite to the direction the item expected. It asked which of two readings of the gate was right, on the premise that its row set a release-tag deadline. The row does not: the spine says before writing production code, and so do spine.md's one-way section, AGENTS.md's Maintainer floor and the decision-spine skill. The release-tag phrase existed only in the check's question string and this document's inventory row. The blocking column — warn at G0, block above — was already the spine's deadline compiled against something readable, because a system at G1 holds a TA and a sandbox tenant. So the question string moved to meet the blocking column. oneway-closure stops declaring repo-git and stops listing release_state as evidence it never read; no system's verdict changes."
+    },
+    {
+      "id": "gate-config-10",
+      "register": "gate-config",
+      "number": 10,
+      "title": "A digest proves consistency, not authenticity",
+      "status": "open",
+      "opened_by": "0009",
+      "opened_in": "gate configuration v0.6",
+      "closed_by": null,
+      "closed_in": null,
+      "$note": "Half-closed at standard v1.8.0 by ADR 0019 — the signature, the key and the vendored trust anchor exist. Open on the half it named last: rotation policy, revocation story, and no gate requiring a consumer to verify. ADR 0023 amended it in place. ADR 0025 relocated it from the tail of §11 into §10, where three ADRs had already described it as living. Half-closed is not a status: an item is open until every half of it is closed.",
+      "blocked_on": [
+        "gate-check-decision"
+      ]
+    },
+    {
+      "id": "gate-config-11",
+      "register": "gate-config",
+      "number": 11,
+      "title": "No engine has declared its input classes against any platform",
+      "status": "open",
+      "opened_by": "0026",
+      "opened_in": "gate configuration v0.6",
+      "closed_by": null,
+      "closed_in": null,
+      "blocked_on": [
+        "first-adopter-evidence"
+      ],
+      "$note": "Opened because overlays/servicenow.md open item 6 said its finding belonged upstream and there was no upstream item to send it to. The overlay is right that which classes an engine supplies for a platform-shaped system is unknown; that is a question about the engine contract §11 publishes, so it belongs here rather than in a platform translation. A finding filed against an overlay is a finding one overlay's readers see."
+    },
+    {
+      "id": "gate-config-12",
+      "register": "gate-config",
+      "number": 12,
+      "title": "`expectations.json` cannot say that an engine lacks an input class",
+      "status": "open",
+      "opened_by": "0026",
+      "opened_in": "gate configuration v0.6",
+      "closed_by": null,
+      "closed_in": null,
+      "blocked_on": [
+        "conformance-schema"
+      ],
+      "$note": "Opened for the same reason as item 11. overlays/servicenow.md open item 5 names it precisely: a fixture representing a system whose engine cannot supply the repo-* classes is the interesting case, and the conformance format has no way to express it, so the exit-4 arithmetic in the overlay's §8 is derived from checks.json rather than observed. The overlay says this is a core contribution needing its own ADR. It now has a core item to be that ADR's subject."
+    },
+    {
+      "id": "gate-config-13",
+      "register": "gate-config",
+      "number": 13,
+      "title": "A declared placement and a defaulted one are byte-identical to the gate",
+      "status": "open",
+      "opened_by": "0032",
+      "opened_in": "standard v1.16.0",
+      "closed_by": null,
+      "closed_in": null,
+      "blocked_on": [
+        "gate-check-decision",
+        "warn-cycle-measurement"
+      ],
+      "$note": "Opened alongside skills/decision-spine/reference/placement.md, which supplies the procedure and deliberately no check. §3 resolves the profile from tier and criticality_class and never reads criticality_authority, so the C1 default — the loudest thing in the configuration — cannot be distinguished from a declaration, and nothing can count how much of the portfolio is running on it. placement-argued is the candidate check. Pricing it needs a warn cycle over a portfolio that has run the procedure at least once, and none has."
+    },
+    {
+      "id": "gate-config-14",
+      "register": "gate-config",
+      "number": 14,
+      "title": "A platform that publishes versions outside git has no input class for it",
+      "status": "open",
+      "opened_by": "0033",
+      "opened_in": "gate configuration v0.7",
+      "closed_by": null,
+      "closed_in": null,
+      "upstream_of": [],
+      "blocked_on": [
+        "first-adopter-evidence"
+      ],
+      "$note": "Split out of gate-config-8 so that item could close. §4's fourth release-evidence source names a platform release record and nothing supplies it: repo-git is git metadata by definition, and an application version field is not a git object of any kind. overlays/servicenow.md §8 has described this since overlay 1.1. Same question as gate-config-11 one layer down — that asks which classes an engine supplies, this asks for a class that does not exist to supply — so they are related, not merged. Narrowed at gate configuration v0.8 by ADR 0034: oneway-closure no longer declares repo-git, so a platform with no git can run it on repo-decisions and system-record. What still wants a platform release record is tests-with-source alone, which warns at all four profiles and whose promotion has not engaged. Same question, no longer on a critical path."
+    },
+    {
+      "id": "gate-config-spine-version-drift",
+      "register": "gate-config",
+      "number": null,
+      "title": "spine.version drift",
+      "status": "closed",
+      "opened_by": null,
+      "opened_in": null,
+      "closed_by": "0005",
+      "closed_in": "gate configuration v0.4",
+      "$note": "Item 4 through v0.3. Closed by renumbering, which is the practice v0.5 ended; it carries no number because inventing one now would be a third numbering scheme in three revisions. Its old number is why ADR 0003's pointer to '§10 item 5' came to reference a different item than the one it closed."
+    },
+    {
+      "id": "overlay-servicenow-1",
+      "register": "overlay-servicenow",
+      "number": 1,
+      "title": "Should SA-8.8 be one-way",
+      "status": "open",
+      "opened_by": "0007",
+      "opened_in": "overlay 1.0",
+      "closed_by": null,
+      "closed_in": null
+    },
+    {
+      "id": "overlay-servicenow-2",
+      "register": "overlay-servicenow",
+      "number": 2,
+      "title": "Instance-class dependency availability is asserted, not verified",
+      "status": "open",
+      "opened_by": null,
+      "opened_in": null,
+      "closed_by": null,
+      "closed_in": null
+    },
+    {
+      "id": "overlay-servicenow-3",
+      "register": "overlay-servicenow",
+      "number": 3,
+      "title": "tests-with-source on this platform is untested",
+      "status": "open",
+      "opened_by": null,
+      "opened_in": null,
+      "closed_by": null,
+      "closed_in": null,
+      "upstream_of": [
+        "gate-config-7",
+        "gate-config-14"
+      ],
+      "blocked_on": [
+        "first-adopter-evidence"
+      ],
+      "$note": "Re-read against gate-config-8's closure at gate configuration v0.7 and re-pointed rather than closed. A lightweight tag now counts, so a source-controlled scoped app that tags at all leaves pre_release and the tests-with-source promotion would reach it. What survives is update-set-only delivery, where no release evidence is reachable at all — which is gate-config-14, not the marker question gate-config-8 was."
+    },
+    {
+      "id": "overlay-servicenow-4",
+      "register": "overlay-servicenow",
+      "number": 4,
+      "title": "Now Assist is moving faster than this overlay",
+      "status": "open",
+      "opened_by": null,
+      "opened_in": null,
+      "closed_by": null,
+      "closed_in": null
+    },
+    {
+      "id": "overlay-servicenow-5",
+      "register": "overlay-servicenow",
+      "number": 5,
+      "title": "Nothing conformance-tests this platform's shape",
+      "status": "open",
+      "opened_by": "0011",
+      "opened_in": "overlay 1.1",
+      "closed_by": null,
+      "closed_in": null,
+      "upstream_of": [
+        "gate-config-12"
+      ],
+      "blocked_on": [
+        "conformance-schema"
+      ]
+    },
+    {
+      "id": "overlay-servicenow-6",
+      "register": "overlay-servicenow",
+      "number": 6,
+      "title": "No engine has declared itself against this platform",
+      "status": "open",
+      "opened_by": "0011",
+      "opened_in": "overlay 1.1",
+      "closed_by": null,
+      "closed_in": null,
+      "upstream_of": [
+        "gate-config-11"
+      ],
+      "blocked_on": [
+        "first-adopter-evidence"
+      ]
+    },
+    {
+      "id": "overlay-servicenow-7",
+      "register": "overlay-servicenow",
+      "number": 7,
+      "title": "The inherited-row ADRs should be written once, not once per project",
+      "status": "open",
+      "opened_by": "0013",
+      "opened_in": "overlay 1.2",
+      "closed_by": null,
+      "closed_in": null
+    },
+    {
+      "id": "overlay-servicenow-8",
+      "register": "overlay-servicenow",
+      "number": 8,
+      "title": "Platform-impact escalation is described, not derived",
+      "status": "open",
+      "opened_by": "0013",
+      "opened_in": "overlay 1.2",
+      "closed_by": null,
+      "closed_in": null
+    },
+    {
+      "id": "spine-1",
+      "register": "spine",
+      "number": 1,
+      "title": "Build DNA reconciliation",
+      "status": "closed",
+      "opened_by": null,
+      "opened_in": null,
+      "closed_by": "0026",
+      "closed_in": "Decision Spine v0.8",
+      "$note": "Closed by the relation rather than by a fresh argument. ADR 0021 settled that this repository is the document of record and that waiting for a Drive copy to diff against was the error, not the remedy; build-dna-2 closed on exactly that. This row asked the design layer's version of the same question and kept waiting for the same diff. The first release of this index carried it open with a note saying it had not been re-read against that closure — which was honest and was also the whole problem. ADR 0026. It closes in place with its number, which is the spine's first closure that does not renumber.",
+      "superseded_by": "build-dna-2"
+    },
+    {
+      "id": "spine-2",
+      "register": "spine",
+      "number": 2,
+      "title": "Gate implementation",
+      "status": "open",
+      "opened_by": null,
+      "opened_in": null,
+      "closed_by": null,
+      "closed_in": null
+    },
+    {
+      "id": "spine-3",
+      "register": "spine",
+      "number": 3,
+      "title": "Catalog items as systems",
+      "status": "open",
+      "opened_by": null,
+      "opened_in": null,
+      "closed_by": null,
+      "closed_in": null,
+      "$note": "The enforcement-layer twin is gate-config-2. See the note there; the pair closes together or not at all.",
+      "duplicate_of": "gate-config-2"
+    },
+    {
+      "id": "spine-4",
+      "register": "spine",
+      "number": 4,
+      "title": "The fourth library entry",
+      "status": "open",
+      "opened_by": null,
+      "opened_in": null,
+      "closed_by": null,
+      "closed_in": null
+    },
+    {
+      "id": "spine-5",
+      "register": "spine",
+      "number": 5,
+      "title": "Where AI-system rows stop",
+      "status": "open",
+      "opened_by": null,
+      "opened_in": null,
+      "closed_by": null,
+      "closed_in": null
+    },
+    {
+      "id": "spine-6",
+      "register": "spine",
+      "number": 6,
+      "title": "Does the adoption horizon survive its first expiry",
+      "status": "open",
+      "opened_by": null,
+      "opened_in": null,
+      "closed_by": null,
+      "closed_in": null,
+      "$note": "Nothing expires until 2027-02-04. This is the one item in the index with a date attached and no owner."
+    },
+    {
+      "id": "spine-sa-3-13-answer-set",
+      "register": "spine",
+      "number": null,
+      "title": "SA-3.13's answer set",
+      "status": "closed",
+      "opened_by": null,
+      "opened_in": null,
+      "closed_by": "0008",
+      "closed_in": "Decision Spine v0.8"
+    },
+    {
+      "id": "spine-version-drift",
+      "register": "spine",
+      "number": null,
+      "title": "Spine version drift",
+      "status": "closed",
+      "opened_by": null,
+      "opened_in": null,
+      "closed_by": "0005",
+      "closed_in": "Decision Spine v0.7",
+      "$note": "Carried since v0.4 and deferred twice. The same question gate-config-spine-version-drift closed on the gate side, closed by the same ADR."
+    }
+  ],
+  "counts": {
+    "open": 32,
+    "closed": 9,
+    "total": 41
+  }
+}

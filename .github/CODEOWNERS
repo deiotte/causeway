@@ -1,0 +1,4 @@
+# This repository has one maintainer (GOVERNANCE.md, ADR 0038). Every path is
+# theirs to review. When a second maintainer is added, this file changes in the
+# same commit as the ADR that adds them.
+* @deiotte

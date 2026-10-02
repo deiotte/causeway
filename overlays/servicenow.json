@@ -1,0 +1,959 @@
+{
+  "$comment": "Machine-readable projection of overlays/servicenow.md. Generated content is checked against the prose by tools/validate.py; where the two disagree the prose is the overlay and this file is the defect.",
+  "$authority": "No gate check reads this file. An overlay may not change what any check does (overlays/README.md, containment rules), and publishing dispositions in JSON does not make them gate input. This exists so an engine, a register scaffold or a dashboard can consume the mapping without parsing markdown.",
+  "schema_version": "1.0",
+  "overlay": "servicenow",
+  "overlay_version": "1.12",
+  "ratified_against": {
+    "spine": "0.8",
+    "gate_config": "0.8",
+    "build_dna": "1.13"
+  },
+  "reconciled_at_standard": "2.1.0",
+  "counts": {
+    "inherited": 11,
+    "shared": 39,
+    "project_answered": 44,
+    "total": 94
+  },
+  "dispositions": {
+    "SA-1.1": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Unchanged. The platform says nothing about what failure costs."
+    },
+    "SA-1.2": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Bounded contexts become scopes. Closing this first is what makes SA-3.1 answerable rather than arbitrary."
+    },
+    "SA-1.3": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Bounded above by the instance SLA. Cite it; the target is still yours."
+    },
+    "SA-1.4": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Bounded by transaction quotas and by ACL evaluation cost on the critical path."
+    },
+    "SA-1.5": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Same bound. Peak *shape* matters more than baseline here — quotas bite per transaction."
+    },
+    "SA-1.6": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": null
+    },
+    "SA-1.7": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": true,
+      "note": "Domain separation. One-way."
+    },
+    "SA-1.8": {
+      "disposition": "P",
+      "named_approver": true,
+      "platform_vocabulary": false,
+      "note": "Unchanged."
+    },
+    "SA-1.9": {
+      "disposition": "S",
+      "named_approver": true,
+      "platform_vocabulary": false,
+      "note": "The instance's authorization is inherited and cited. Whether this app rides it is yours."
+    },
+    "SA-1.10": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "License units are the unit of account. Custom tables, integration transactions, and license-bearing features all land here."
+    },
+    "SA-1.11": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Evidence can be the service-owner record in the instance rather than a separate document."
+    },
+    "SA-1.12": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Usually the platform: a quota, ACL evaluation, or a synchronous integration. Rarely compute."
+    },
+    "SA-1.13": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Table growth drives license posture. This row feeds SA-1.10."
+    },
+    "SA-1.14": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Unchanged."
+    },
+    "SA-2.1": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": true,
+      "note": "Table strategy. One-way, short form. The single highest-consequence decision on this platform."
+    },
+    "SA-2.2": {
+      "disposition": "I",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Platform-managed. There is no shard control to exercise."
+    },
+    "SA-2.3": {
+      "disposition": "I",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "One transactional store, strong consistency. Where async breaks that assumption, the answer is at SA-3.4."
+    },
+    "SA-2.4": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Column adds are online. Type changes and reference re-pointing are not."
+    },
+    "SA-2.5": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Platform caching is inherited. Cache-heavy patterns you build are yours."
+    },
+    "SA-2.6": {
+      "disposition": "I",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Sessions are platform-managed."
+    },
+    "SA-2.7": {
+      "disposition": "I",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Instance-level. State held in flight by an integration is a separate answer at SA-7.2."
+    },
+    "SA-2.8": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Backups are platform. Clone cadence, and what a clone preserves, are yours — see SA-8.2."
+    },
+    "SA-2.9": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Short form. Table rotation, archiving, destruction. Nothing here has a safe default."
+    },
+    "SA-2.10": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "`sys_audit` exists. Which tables it covers, and whether the audit record is readable by the roles it audits, are yours."
+    },
+    "SA-2.11": {
+      "disposition": "S",
+      "named_approver": true,
+      "platform_vocabulary": false,
+      "note": "Instance datacenter is an instance-owner fact — cite it. Integration egress destinations are yours."
+    },
+    "SA-2.12": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Short form. Covers what you put in tables *and* what reaches `syslog` — see SA-6.8."
+    },
+    "SA-3.1": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": true,
+      "note": "Scope model. One-way. Build DNA §2, translated."
+    },
+    "SA-3.2": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Table API, Scripted REST, or GraphQL. The choice constrains SA-3.6."
+    },
+    "SA-3.3": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Event queue, scheduled jobs, MID Server, or Flow. **None of these is a durable broker.** Name which one, and name what it does not guarantee."
+    },
+    "SA-3.4": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "The platform gives you no idempotency. Import-set coalesce is a matching rule, not a delivery guarantee. This is where ServiceNow integrations actually fail."
+    },
+    "SA-3.5": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Event-queue ordering is not guaranteed across workers. Say what you need before you find out."
+    },
+    "SA-3.6": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": null
+    },
+    "SA-3.7": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": null
+    },
+    "SA-3.8": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": true,
+      "note": "Integration pattern and adapter boundary. One-way. Build DNA §3, translated: a spoke is a vendor SDK."
+    },
+    "SA-3.9": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Platform REST calls ship with defaults. A default is not a decision, and this row is `P` rather than `S` for that reason."
+    },
+    "SA-3.10": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "There is no DLQ. An error table with a triage owner and a replay path is something you build."
+    },
+    "SA-3.11": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Bounded by quotas rather than by your design, which is not the same as handled."
+    },
+    "SA-3.12": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Inbound rate-limit rules exist. Outbound is yours."
+    },
+    "SA-3.13": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Short form. Answer set corrected in spine v0.8 — `catalog-composed` · `wrapped` · `unmanaged`. A Store app you configured is `wrapped`. **The Store is not the Causeway catalog and neither is the Service Catalog**, so `catalog-composed` is rarer here than the word suggests. See §8."
+    },
+    "SA-3.14": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": null
+    },
+    "SA-4.1": {
+      "disposition": "I",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Vendor-operated SaaS. One-way, short form — still closes with an ADR. See §3."
+    },
+    "SA-4.2": {
+      "disposition": "I",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Instance pair, vendor-operated. Cite the datacenter pair."
+    },
+    "SA-4.3": {
+      "disposition": "I",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": null
+    },
+    "SA-4.4": {
+      "disposition": "I",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "There is no mesh to decide about. C1 only."
+    },
+    "SA-4.5": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Instance networking is inherited. **MID Server placement and its egress are yours**, and are the one place you own network posture on this platform."
+    },
+    "SA-4.6": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Source-controlled scoped apps are the nearest thing to IaC here. Coupled to SA-8.8."
+    },
+    "SA-4.7": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Short form, one-way. **Plugin and spoke availability differs by instance class.** Gov and FedRAMP-authorized instances do not carry everything the commercial documentation describes. Verify per dependency; do not assume."
+    },
+    "SA-4.8": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Instance certificates are platform. Certificates for mutual-auth integrations are yours to own and rotate."
+    },
+    "SA-5.1": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Platform supplies SAML/OIDC. The federation path and the **local-account fallback** are yours. The fallback is the part that gets forgotten."
+    },
+    "SA-5.2": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "ACLs and roles are the mechanism, not the model. The most-gotten-wrong row on this platform: name where enforcement happens and what a role actually grants."
+    },
+    "SA-5.3": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": null
+    },
+    "SA-5.4": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Connection & Credential aliases carry the mechanism. Lifetime and rotation are yours."
+    },
+    "SA-5.5": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Short form. Credential store or alias — never a system property, never a script include."
+    },
+    "SA-5.6": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Inbound TLS is platform. Outbound integration TLS posture is yours."
+    },
+    "SA-5.7": {
+      "disposition": "S",
+      "named_approver": true,
+      "platform_vocabulary": false,
+      "note": "Platform encryption at rest is inherited. Column-level encryption and key-management options are decisions with real cost. The name is still required."
+    },
+    "SA-5.8": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Short form. **Store apps and third-party spokes are supply chain.** Reads together with SA-5.14."
+    },
+    "SA-5.9": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "§4 of this document *is* this row's artifact. Cite it alongside the instance's authorization package."
+    },
+    "SA-5.10": {
+      "disposition": "S",
+      "named_approver": true,
+      "platform_vocabulary": false,
+      "note": "The instance boundary is inherited and cited. Where this app sits inside it, and what it reaches outside it, is yours."
+    },
+    "SA-5.11": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": null
+    },
+    "SA-5.12": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Short form. The platform UI carries a vendor conformance report — cite it. **Custom UI pages, portal widgets, and UI Builder pages are not covered by it** and are yours."
+    },
+    "SA-5.13": {
+      "disposition": "P",
+      "named_approver": true,
+      "platform_vocabulary": false,
+      "note": null
+    },
+    "SA-5.14": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": true,
+      "note": "Short form, one-way. Store apps, third-party spokes, and any npm build sitting behind a portal widget or UI Builder page."
+    },
+    "SA-5.15": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Now Assist skills and any LLM spoke are a tool surface. A skill with generalized table access is a generalized interface, and the row's answer set already covers it."
+    },
+    "SA-5.16": {
+      "disposition": "P",
+      "named_approver": true,
+      "platform_vocabulary": false,
+      "note": "Short form, one-way. **Now Assist and every LLM spoke send record data to a provider.** Answer this before enabling the feature, not after."
+    },
+    "SA-6.1": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": null
+    },
+    "SA-6.2": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": null
+    },
+    "SA-6.3": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": null
+    },
+    "SA-6.4": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "`syslog` rotates, and retention there is shorter than most teams assume. Check the number before relying on it for anything."
+    },
+    "SA-6.5": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": null
+    },
+    "SA-6.6": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Routing beyond email usually means a license-bearing product. That cost lands at SA-1.10."
+    },
+    "SA-6.7": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": null
+    },
+    "SA-6.8": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Logging a record object writes record data into a table with broad read access. This row is not theoretical here — it is the most common quiet spill on the platform."
+    },
+    "SA-7.1": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Scope and domain are the blast-radius units you actually control."
+    },
+    "SA-7.2": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "What the app does when an integration is down. The platform has no opinion and no default."
+    },
+    "SA-7.3": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": null
+    },
+    "SA-7.4": {
+      "disposition": "I",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Instance-level, vendor-operated."
+    },
+    "SA-7.5": {
+      "disposition": "I",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "C1 only. Vendor-run."
+    },
+    "SA-7.6": {
+      "disposition": "I",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "C1 only. Not available to you."
+    },
+    "SA-7.7": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Quota headroom, not compute headroom."
+    },
+    "SA-8.1": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Instances exist; **parity is the gap.** Sub-production instances are clones of varying age with integrations pointed at test endpoints, or at nothing."
+    },
+    "SA-8.2": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Short form. **A clone carries production data.** Clone exclusions and data preservers are the mechanism; deciding what must never reach sub-production is the row."
+    },
+    "SA-8.3": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "ATF is the mechanism. Coverage of business rules, flows, and ACLs is the decision."
+    },
+    "SA-8.4": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Back-out depends on SA-8.8. An update set backs out; a customized out-of-box record often does not, cleanly."
+    },
+    "SA-8.5": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "The platform is frequently the change-control system of record for the whole organization. Say whether this app's own changes ride it."
+    },
+    "SA-8.6": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "System properties are the flag mechanism, and they are editable in production by role. Say who holds that role."
+    },
+    "SA-8.7": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Short form. Derived, never declared. See §7."
+    },
+    "SA-8.8": {
+      "disposition": "S",
+      "named_approver": false,
+      "platform_vocabulary": true,
+      "note": "Source control versus update sets."
+    },
+    "SA-8.9": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": null
+    },
+    "SA-9.1": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Every out-of-box customization is a lock-in purchase. This row carries the *policy*; the exceptions register carries the per-artifact instances."
+    },
+    "SA-9.2": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Table export is easy. **Exporting the logic is not.** Flows, business rules, client scripts, and ACLs do not leave. Say so in the exit plan rather than discovering it during one."
+    },
+    "SA-9.3": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "Short form."
+    },
+    "SA-9.4": {
+      "disposition": "P",
+      "named_approver": true,
+      "platform_vocabulary": false,
+      "note": "Short form."
+    },
+    "SA-9.5": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": null
+    },
+    "SA-9.6": {
+      "disposition": "P",
+      "named_approver": false,
+      "platform_vocabulary": false,
+      "note": "The app repository, not the instance."
+    }
+  },
+  "one_way_vocabulary": {
+    "SA-3.1": {
+      "reads_as": "Architecture pattern -> scope model",
+      "answers": [
+        "scoped application",
+        "global scope",
+        "multiple scoped apps with declared cross-scope privileges",
+        "Store app extended in place"
+      ],
+      "default": "scoped application"
+    },
+    "SA-2.1": {
+      "reads_as": "Storage paradigm -> table strategy",
+      "answers": [
+        "extend Task",
+        "extend cmdb_ci",
+        "extend another out-of-box table",
+        "new custom table",
+        "data held outside the platform and integrated"
+      ],
+      "default": null
+    },
+    "SA-1.7": {
+      "reads_as": "Tenancy model -> domain separation",
+      "answers": [
+        "no domain separation",
+        "domain separation",
+        "separate instance"
+      ],
+      "default": "no domain separation"
+    },
+    "SA-3.8": {
+      "reads_as": "Adapter boundary -> integration pattern",
+      "answers": [
+        "IntegrationHub spoke",
+        "Scripted REST API",
+        "Table API consumed directly",
+        "MID Server",
+        "import set with transform map"
+      ],
+      "default": null
+    },
+    "SA-5.14": {
+      "reads_as": "Package ecosystem -> what you install",
+      "answers": [
+        "ServiceNow Store applications",
+        "third-party spokes",
+        "npm behind a portal widget or UI Builder build",
+        "none"
+      ],
+      "default": null
+    }
+  },
+  "input_classes": {
+    "repo-decisions": {
+      "source_controlled": "decisions/ in the app repository.",
+      "update_set_only": "Only where a documentation repository exists. Frequently none does."
+    },
+    "repo-tree": {
+      "source_controlled": "App source — script includes, business rules, client scripts, widget code.",
+      "update_set_only": null
+    },
+    "repo-manifests": {
+      "source_controlled": "The widget or UI Builder build's package.json and lockfile.",
+      "update_set_only": null
+    },
+    "repo-changeset": {
+      "source_controlled": "git diff against the base.",
+      "update_set_only": null
+    },
+    "repo-lock": {
+      "source_controlled": ".causeway-lock in the app repository.",
+      "update_set_only": null
+    },
+    "repo-git": {
+      "source_controlled": "The app repository's annotated tags.",
+      "update_set_only": null
+    },
+    "system-record": {
+      "source_controlled": "The portfolio record. Not cmdb_ci_service unless someone decided it was and wrote that down.",
+      "update_set_only": "Same."
+    },
+    "gate-config": {
+      "source_controlled": "ato-gate.json, wherever the org keeps it.",
+      "update_set_only": "Same."
+    },
+    "ta-record": {
+      "source_controlled": "The Tactical Authorization record. Often held in ServiceNow itself, which does not make it self-certifying.",
+      "update_set_only": "Same."
+    },
+    "catalog": {
+      "source_controlled": "The Causeway catalog. Not the Service Catalog, not the Store.",
+      "update_set_only": "Same."
+    },
+    "evidence-store": {
+      "source_controlled": "Emitted receipts.",
+      "update_set_only": "Same."
+    },
+    "ci-results": {
+      "source_controlled": "ATF run results and Instance Scan findings — the definition of green in section 7.",
+      "update_set_only": "Same. ATF runs on the instance regardless of how the app got there."
+    },
+    "sbom": {
+      "source_controlled": "Application version manifest plus the pinned spoke and Store app inventory.",
+      "update_set_only": "Same."
+    },
+    "baseline": {
+      "source_controlled": "The approved inventory for the system.",
+      "update_set_only": "Same."
+    }
+  },
+  "check_evidence": {
+    "sbom-drift": {
+      "inputs": [
+        "sbom",
+        "baseline"
+      ],
+      "reads": "Application version manifest plus the pinned spoke and Store app inventory, compared against the approved baseline."
+    },
+    "secrets-scan": {
+      "inputs": [
+        "repo-tree"
+      ],
+      "reads": "Script includes, business rules, client scripts and system properties. Credential aliases are the correct answer; a password in a system property is the failure this catches."
+    },
+    "named-approvers": {
+      "inputs": [
+        "repo-decisions",
+        "gate-config"
+      ],
+      "reads": "ADR frontmatter in the app repository. A platform approval record is not a substitute: an entry in sysapproval_approver is a workflow step, not a named individual accountable for a decision."
+    },
+    "as-built-notification": {
+      "inputs": [
+        "repo-decisions"
+      ],
+      "reads": "ADR frontmatter. Where the declared exposure is an integration reaching outside the instance boundary, the notified party is a person — not a group inbox and not an assignment group."
+    },
+    "waiver-expiry": {
+      "inputs": [
+        "repo-decisions",
+        "gate-config"
+      ],
+      "reads": "Waiver ADRs in the app repository. The exceptions register doubles as the customization ledger here, so an expired waiver on a modified out-of-box artifact is the common shape of this failure."
+    },
+    "dependency-provenance": {
+      "inputs": [
+        "repo-manifests"
+      ],
+      "reads": "Store app and spoke inventory with pinned versions, plus the lockfile for any widget or UI Builder build."
+    },
+    "install-scripts": {
+      "inputs": [
+        "repo-manifests",
+        "repo-tree"
+      ],
+      "reads": "N/A for platform artifacts — nothing executes on install. Applies in full to a widget build's npm install. N/A is a verdict an engine reaches by reading manifests, not an exemption the platform grants."
+    },
+    "shortform-closure": {
+      "inputs": [
+        "repo-decisions",
+        "system-record"
+      ],
+      "reads": "decisions/ in the app repository, including the inherited-row ADRs. A register that skipped its I rows fails here."
+    },
+    "composition-state": {
+      "inputs": [
+        "system-record"
+      ],
+      "reads": "system.json, as everywhere. A configured Store app is wrapped; the Store is a registry, not the catalog this check means, and neither is the Service Catalog."
+    },
+    "control-checks-800-53": {
+      "inputs": [
+        "system-record",
+        "catalog",
+        "evidence-store"
+      ],
+      "reads": "The instance authorization package supplies inherited control evidence, and section 4 of this overlay is the allocation artifact for SA-5.9. Controls allocated to the application — ACL enforcement, column-level encryption, integration TLS — owe their own evidence and do not inherit from the platform's package."
+    },
+    "oneway-closure": {
+      "inputs": [
+        "repo-decisions",
+        "system-record"
+      ],
+      "reads": "decisions/ in the app repository. It stopped declaring repo-git at gate configuration v0.8 (ADR 0034), so on this platform it no longer depends on whether the app repository is tagged — what it depends on is whether decisions/ is reachable at all."
+    },
+    "class-scoped-closure": {
+      "inputs": [
+        "repo-decisions",
+        "system-record"
+      ],
+      "reads": "decisions/ in the app repository against the class the service owner declared. Scope and domain are the blast-radius units that make the class defensible here."
+    },
+    "waiver-horizon-60d": {
+      "inputs": [
+        "repo-decisions",
+        "gate-config"
+      ],
+      "reads": "The same waiver ADRs waiver-expiry reads, 60 days earlier. On a shop with a backfilled customization ledger this fires in bulk once and then settles."
+    },
+    "tests-with-source": {
+      "inputs": [
+        "repo-changeset",
+        "repo-git"
+      ],
+      "reads": "The app repository's changed-file set, with ATF definitions as the test partition. Under update-set-only delivery the repo-changeset class cannot be supplied at all."
+    },
+    "adoption-horizon-60d": {
+      "inputs": [
+        "system-record",
+        "repo-decisions"
+      ],
+      "reads": "spine.closed_against in the system record. An app registered before this overlay existed usually carries no value there, which resolves to owed-now rather than to a horizon."
+    },
+    "standard-currency": {
+      "inputs": [
+        "repo-lock"
+      ],
+      "reads": "released= in the app repository's .causeway-lock. No repository means the repo-lock class is unsupported, which on an advisory check files a finding; a lock without released= is a configuration error instead."
+    },
+    "sandbox-tenant": {
+      "inputs": [
+        "system-record"
+      ],
+      "reads": "A personal developer instance or a designated sandbox, named in the system record. A shared sub-production instance is not a sandbox tenant — clone cadence means it carries production data."
+    },
+    "ta-valid": {
+      "inputs": [
+        "ta-record"
+      ],
+      "reads": "The Tactical Authorization record. The platform is frequently the organization's change-control system of record, so the TA often lives in ServiceNow — an engine still reads it as a record, and the instance does not vouch for itself."
+    },
+    "promote-or-sunset": {
+      "inputs": [
+        "ta-record",
+        "repo-decisions"
+      ],
+      "reads": "renewal_count on the TA record plus the disposition ADR. This is the check that answers the platform's signature disease, the App Engine Studio app the mission quietly came to depend on."
+    },
+    "inheritance-resolves": {
+      "inputs": [
+        "system-record",
+        "catalog"
+      ],
+      "reads": "The Causeway catalog, not the Service Catalog. The 11 inherited rows resolve to the instance authorization package as provider; an inherited claim with no provider record is what this catches."
+    },
+    "evidence-emitting": {
+      "inputs": [
+        "evidence-store"
+      ],
+      "reads": "Emitted receipts. ATF run records and Instance Scan results are the platform-side inputs; the receipt is the artifact this check counts."
+    },
+    "contract-tests": {
+      "inputs": [
+        "ci-results"
+      ],
+      "reads": "ATF suites covering integration surfaces, with mocked endpoints."
+    },
+    "dr-plan-of-record": {
+      "inputs": [
+        "repo-decisions"
+      ],
+      "reads": "The ADR closing the SA-7 rows. Instance HA/DR is inherited and cited, so the ADR is short — but the vendor's DR posture is not a plan of record for this application's data and integrations."
+    },
+    "dr-drill-cadence": {
+      "inputs": [
+        "evidence-store",
+        "repo-decisions"
+      ],
+      "reads": "The vendor drills instance failover and does not drill yours. What is exercised here is the application's recovery path: clone-back, update-set reapplication, integration re-point."
+    },
+    "exposure-review": {
+      "inputs": [
+        "catalog"
+      ],
+      "reads": "Catalog review record. Outward exposure on this platform is usually a Scripted REST API, a portal page or a UI Builder page rather than a network boundary."
+    },
+    "promotion-review": {
+      "inputs": [
+        "catalog"
+      ],
+      "reads": "Catalog review record. The promotion path here is instance to instance, and sub-production parity is what makes it reviewable at all."
+    },
+    "ao-signature-sa510": {
+      "inputs": [
+        "repo-decisions",
+        "gate-config"
+      ],
+      "reads": "The ADR, not the instance. The platform models service ownership; it does not model an Authorizing Official."
+    }
+  },
+  "engine_exposure": {
+    "$comment": "Derived from gate/checks.json and gate/profiles.json, restated here so an adopter can see the cost before running anything. tools/validate.py recomputes it.",
+    "checks_total": 27,
+    "checks_reading_a_repo_class": [
+      "adoption-horizon-60d",
+      "ao-signature-sa510",
+      "as-built-notification",
+      "class-scoped-closure",
+      "dependency-provenance",
+      "dr-drill-cadence",
+      "dr-plan-of-record",
+      "install-scripts",
+      "named-approvers",
+      "oneway-closure",
+      "promote-or-sunset",
+      "secrets-scan",
+      "shortform-closure",
+      "standard-currency",
+      "tests-with-source",
+      "waiver-expiry",
+      "waiver-horizon-60d"
+    ],
+    "by_profile": {
+      "G0": {
+        "blocking": 9,
+        "blocking_needing_repo_class": [
+          "as-built-notification",
+          "dependency-provenance",
+          "install-scripts",
+          "named-approvers",
+          "secrets-scan",
+          "shortform-closure",
+          "waiver-expiry"
+        ]
+      },
+      "G1": {
+        "blocking": 14,
+        "blocking_needing_repo_class": [
+          "as-built-notification",
+          "dependency-provenance",
+          "install-scripts",
+          "named-approvers",
+          "oneway-closure",
+          "promote-or-sunset",
+          "secrets-scan",
+          "shortform-closure",
+          "waiver-expiry"
+        ]
+      },
+      "G2": {
+        "blocking": 16,
+        "blocking_needing_repo_class": [
+          "as-built-notification",
+          "class-scoped-closure",
+          "dependency-provenance",
+          "dr-plan-of-record",
+          "install-scripts",
+          "named-approvers",
+          "oneway-closure",
+          "secrets-scan",
+          "shortform-closure",
+          "waiver-expiry"
+        ]
+      },
+      "G3": {
+        "blocking": 20,
+        "blocking_needing_repo_class": [
+          "ao-signature-sa510",
+          "as-built-notification",
+          "class-scoped-closure",
+          "dependency-provenance",
+          "dr-drill-cadence",
+          "dr-plan-of-record",
+          "install-scripts",
+          "named-approvers",
+          "oneway-closure",
+          "secrets-scan",
+          "shortform-closure",
+          "waiver-expiry"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,74 @@
+# Adopting Causeway — and the one thing we are asking for
+
+Causeway has been used by the person who wrote it. That is the weakest evidence a
+standard can have, and the standard says so about itself: several of its own open
+items cannot close until a project that did **not** write Causeway runs it and
+reports what happened.
+
+This page is for that project. It says which kind of adoption you are doing, what
+we are asking you to measure, and what you get back.
+
+## First: which kind of use is this?
+
+Two kinds of use look the same from the outside and owe different things.
+
+| | **Trying it** | **Building under it** |
+|---|---|---|
+| What it is | Reading it, running the install path in a scratch directory, borrowing a rule or a template | A real project vendors Causeway, pins it, and is built and reviewed under it |
+| What you owe | Nothing | The four role floors in `AGENTS.md` *Adoption*, starting with the one you hold |
+| Pin and drift check | Optional | Required — `.causeway-lock`, and `check-drift.sh` in CI |
+| `system.json` with tier and criticality | Optional | Required before the first design decision (`skills/decision-spine/reference/placement.md`) |
+| A gate | None | An engine that evaluates `gate/checks.json`, or an honest record that you have none yet |
+| Deviations | Yours to make silently | Each one an ADR, indexed in your `CLAUDE.md` exceptions register |
+| Can you call it "Causeway-governed" | No | Yes, at the version you pinned |
+
+Both are welcome. Only the second produces the evidence below.
+
+## What we are asking a first adopter to measure
+
+One real project. One quarter. These numbers, as honestly as you can get them.
+Every one of them is currently an estimate by the people who wrote the standard.
+
+| Measure | Why it matters | The open item it closes |
+|---|---|---|
+| **How long the Contributor floor took** — from a developer first opening the seeded `CONTRIBUTING.md` to their first merged change under the standard | The standard claims *an afternoon* | Build DNA 4 |
+| **What the Maintainer floor costs per month** — pin upkeep, waiver reviews, closing spine rows | The standard claims *a standing obligation* and gives no size | Build DNA 4 |
+| **Field notes written, and how long each took a practitioner** | The standard claims *half an hour per note* | Build DNA 8 |
+| **Maintainer time to disposition a note, and how many waited more than two weeks** | The reciprocal obligation is the half most likely to lapse quietly | Build DNA 8, and the age threshold in item 6 |
+| **Did your AI agent find and use the skills without being told?** — Survey, Decision Spine, field note | A pointer in an adapter file is not discovery | Build DNA 9 |
+| **Supersessions and their cause codes** — every ADR you superseded, and which of S1–S5 it was | The only signal for whether the Survey's intake rules prevent churn | Build DNA 10 |
+| **What broke** — a rule you could not follow as written, a check that fired wrong, an instruction that assumed something about your environment | Everything else | Whichever item it turns out to be |
+
+You do not need all of it. A report that answers two rows honestly is worth more
+than one that answers every row with guesses.
+
+You do not need to name your organization, your customer, or your system. Describe
+its shape — tier, criticality class, platform, team size — and that is enough.
+
+## How to start
+
+1. **Install from a release**, following *Try the distribution path* in
+   [README.md](README.md). Use `--require-release` for anything you mean to keep.
+2. **Read your role's floor** in `AGENTS.md` *Adoption*, and stop there.
+3. **Place the system** before the first design decision:
+   `skills/decision-spine/reference/placement.md`.
+4. **Keep notes as you go.** The numbers above are cheap to record in the moment
+   and expensive to reconstruct at the end of a quarter.
+5. **Report** with the **Adopter report** issue form — once at the end, or as you
+   go. Partial reports are welcome.
+
+## What you get back
+
+- **An answer to everything you send**, on the same terms the standard puts on its
+  own adopters: each item becomes an ADR, a fix, a change to a rule or template, or
+  is closed with a pointer to where it is already handled.
+- **Credit.** Where your report decides something, the ADR that decides it says so.
+  Name or shape only, your choice.
+- **Someone reading closely.** A first adopter's report is the most important
+  input this project can receive, and it will be treated that way.
+
+## If you are thinking about it
+
+Open an ordinary issue that says so, or reach the maintainer through their GitHub
+profile. A conversation before you start is fine, and it is often where the most
+useful findings come from.

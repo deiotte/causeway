@@ -1,0 +1,100 @@
+# What a project that did not write Causeway found when it used it. The prompts
+# map to the measures in ADOPTING.md, which map to Build DNA open items 4, 6, 8,
+# 9 and 10. Every field but the first is optional: two honest answers beat seven
+# guesses, and the form says so.
+name: Adopter report
+description: You used Causeway on a real project. Tell us what it actually cost and what broke.
+title: "Adopter report: "
+labels: ["adopter-report", "needs-disposition"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you. This is the evidence the standard cannot produce about itself.
+
+        **You do not need to name your organization, customer, or system.** Its
+        shape is enough. Answer what you measured and leave the rest blank — a
+        blank is information, and a guess presented as a measurement is the one
+        thing that does damage. [ADOPTING.md](https://github.com/deiotte/causeway/blob/main/ADOPTING.md) explains
+        each question.
+
+  - type: textarea
+    id: shape
+    attributes:
+      label: The project's shape
+      description: >-
+        Tier and criticality class (from your system.json), platform, team size,
+        how long you ran Causeway, and which release you pinned.
+      placeholder: "Mission / C2, a Go service on Kubernetes, 4 developers + 1 practitioner, 11 weeks, pinned v2.1.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: contributor-floor
+    attributes:
+      label: How long the Contributor floor took
+      description: >-
+        From a developer first opening the seeded CONTRIBUTING.md to their first
+        merged change under the standard. The standard claims an afternoon.
+        Say whether this was measured or remembered.
+
+  - type: textarea
+    id: maintainer-floor
+    attributes:
+      label: What the Maintainer floor cost
+      description: >-
+        Roughly how much time per month went to pin upkeep, waiver reviews, closing
+        spine rows, and the exceptions register.
+
+  - type: textarea
+    id: field-notes
+    attributes:
+      label: Field notes and their dispositions
+      description: >-
+        How many notes practitioners wrote, how long one took them, how long a
+        disposition took the maintainer, and how many waited more than two weeks.
+
+  - type: dropdown
+    id: skill-discovery
+    attributes:
+      label: Did your AI agent find the skills without being told?
+      description: The Survey, Decision Spine, and field-note skills.
+      options:
+        - Yes, it used them when the moment came
+        - Sometimes
+        - Only when we named them
+        - No
+        - We did not use an AI agent
+
+  - type: textarea
+    id: supersessions
+    attributes:
+      label: ADRs you superseded, and why
+      description: >-
+        For each one, the cause code from AGENTS.md §8 — S1 outside information
+        changed, S2 learned by building, S3 a constraint you already had, S4 decided
+        before an upstream decision closed, S5 never actually contested.
+
+  - type: textarea
+    id: what-broke
+    attributes:
+      label: What broke
+      description: >-
+        A rule you could not follow as written, a check that fired wrong, an
+        instruction that assumed something about your environment, a place the
+        standard was silent when you needed it. One per line is fine.
+
+  - type: textarea
+    id: would-you-keep-it
+    attributes:
+      label: Would you keep using it, and what would change your mind?
+
+  - type: dropdown
+    id: credit
+    attributes:
+      label: Credit
+      description: Where your report decides something, the ADR that decides it says so.
+      options:
+        - Name me
+        - Describe the project's shape only
+        - No credit, please

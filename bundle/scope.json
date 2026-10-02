@@ -1,0 +1,122 @@
+{
+  "$comment": "Repository scope. Every tracked file is either digested by bundle/manifest.json or declared here with the reason it is not. tools/validate.py fails on any tracked path matching neither.",
+  "$why": "On 2026-08-21 an entire second product — a systems engineering kit, with source, a package manifest and no lockfile or tests — was committed to this repository and CI stayed green. Nothing was wrong with CI. build-bundle.sh digests an explicit BUNDLE_FILES allowlist and validate.py globs only decisions/ and overlays/, so no guard in this repository has ever looked at the tree as a whole. A directory that nothing enumerates is a directory that nothing governs, and the standard that blocks a product repository for shipping source without a lockfile had done exactly that to itself. This file exists so that the next unenumerated directory fails a check instead of a review.",
+  "ungoverned": [
+    {
+      "pattern": "README.md",
+      "reason": "The repository front door. Describes the standard; is not part of it. A consumer vendors the standard, never this."
+    },
+    {
+      "pattern": "CHANGELOG.md",
+      "reason": "The release history. Describes what changed between releases so a consumer can decide whether to re-sync; it is not content a consumer vendors, for the same reason README.md is not. A project keeps its own changelog."
+    },
+    {
+      "pattern": "LICENSE",
+      "reason": "The Apache License 2.0, verbatim (ADR 0037). At the root because that is where GitHub and every license scanner look. Not digested: vendored paths mirror source paths, and a digested LICENSE would land on a consumer's own root LICENSE. sync.sh copies it to bundle/LICENSE instead, and build-archive.sh ships it."
+    },
+    {
+      "pattern": "NOTICE",
+      "reason": "The Apache-2.0 attribution notice (ADR 0037). Not digested for the same reason as LICENSE, and copied to bundle/NOTICE by sync.sh."
+    },
+    {
+      "pattern": "ADOPTING.md",
+      "reason": "The guide for a first outside adopter: which kind of use is which, and the measurements the open items wait on. Describes adopting the standard; is not part of it, for the same reason README.md is not."
+    },
+    {
+      "pattern": "GOVERNANCE.md",
+      "reason": "Who maintains this repository and how it changes (ADR 0038). Governs the standard's source, not a consumer, so it is not vendored."
+    },
+    {
+      "pattern": "CONTRIBUTING.md",
+      "reason": "How to contribute to the standard itself (ADR 0038). Not vendored: a consumer's CONTRIBUTING.md is seeded from templates/contributor-START-HERE.md and is about that project."
+    },
+    {
+      "pattern": "SECURITY.md",
+      "reason": "How to report a vulnerability in the standard (ADR 0038). Governs this repository; a consumer keeps its own policy."
+    },
+    {
+      "pattern": ".github/CODEOWNERS",
+      "reason": "This repository's reviewer map (ADR 0038). A consumer's is seeded from templates/CODEOWNERS."
+    },
+    {
+      "pattern": ".github/ISSUE_TEMPLATE/*.yml",
+      "reason": "This repository's own issue forms (ADR 0038). A consumer's field-note form is seeded from templates/field-note-issue-form.yml."
+    },
+    {
+      "pattern": "bundle/manifest.json",
+      "reason": "The digest itself. A manifest cannot digest itself without changing the digest it just computed."
+    },
+    {
+      "pattern": "bundle/scope.json",
+      "reason": "This file. Listed rather than special-cased, because a scope declaration that exempts itself by hiding in the code is the failure it exists to catch."
+    },
+    {
+      "pattern": ".github/workflows/*.yml",
+      "reason": "The standard's own gate, per ADR 0010. It runs the standard against itself and is not content a consumer vendors."
+    },
+    {
+      "pattern": "decisions/*.md",
+      "reason": "ADRs governing the standard. They are this repository's decision record, not text a consumer inherits — a consumer keeps its own decisions/."
+    },
+    {
+      "pattern": "decisions/open-items.json",
+      "reason": "This repository's open-items index. Same reason as decisions/*.md above: it is this repository's record of its own open items, not text a consumer inherits — a consumer gets templates/open-items.json and keeps its own. Ungoverned by the digest and not ungoverned by the build: tools/validate.py §17 checks it against every register it names, which is the point of it existing."
+    },
+    {
+      "pattern": "tools/*.sh",
+      "reason": "Distribution and validation machinery. tools/check-drift.sh is the exception and is bundled, because it runs in consumer CI and its drift must be detectable."
+    },
+    {
+      "pattern": "tools/*.py",
+      "reason": "The standard's own validator. Verifies the source of truth against itself; deliberately not the same code as the consumer-facing check-drift.sh."
+    },
+    {
+      "pattern": "adapters/**",
+      "reason": "Generated from AGENTS.md by tools/render-adapters.sh, which CI re-runs and diffs. Digesting a generated file would pin a derivative of an input already under digest."
+    },
+    {
+      "pattern": "conformance/**",
+      "reason": "The engine conformance pack: fixtures and expected verdicts. Engines consume it to prove they implement the standard; product repositories do not vendor it."
+    },
+    {
+      "pattern": "overlays/README.md",
+      "reason": "The overlay index. Every overlay itself is digested by build-bundle.sh; this file only lists them."
+    },
+    {
+      "pattern": "templates/project-CLAUDE.md",
+      "reason": "Written into a consumer repository once by sync.sh and thereafter owned by that repository. Pinning it would make every consumer's local edits read as drift."
+    },
+    {
+      "pattern": "templates/open-items.json",
+      "reason": "Written into a consumer repository once by sync.sh and thereafter owned by that repository, exactly as templates/project-CLAUDE.md is. Pinning it would make every consumer's own items read as drift, which is the one thing an index of items must never do."
+    },
+    {
+      "pattern": "templates/practitioner-START-HERE.md",
+      "reason": "Written into a consumer repository once by sync.sh as START-HERE.md and thereafter owned by that repository, exactly as templates/project-CLAUDE.md is. It ships with bracketed placeholders a project must replace — who reviews a note, who to ask when stuck — so pinning it would make every filled-in name read as drift, and an on-ramp still carrying [NAME] tells a new practitioner they were not expected."
+    },
+    {
+      "pattern": "templates/contributor-START-HERE.md",
+      "reason": "Written into a consumer repository once by sync.sh as CONTRIBUTING.md and thereafter owned by that repository, exactly as templates/practitioner-START-HERE.md is. It ships with bracketed placeholders only the project can fill — its commands, its rules, who to ask — so pinning it would make every filled-in line read as drift. ADR 0035."
+    },
+    {
+      "pattern": "templates/pull_request_template.md",
+      "reason": "Seeded once into a consumer's .github/pull_request_template.md and thereafter owned by that repository. Its second section is the project's own checklist by construction, so the digest would pin the half a project has to replace. ADR 0035."
+    },
+    {
+      "pattern": "templates/field-note-issue-form.yml",
+      "reason": "Seeded once into a consumer's .github/ISSUE_TEMPLATE/ and thereafter owned by that repository. Its labels and assignee are per-project by construction, so the digest would pin the two fields a project has to change to make the browser path work at all."
+    },
+    {
+      "pattern": "templates/field-notes-README.md",
+      "reason": "Seeded once into a consumer's domain/field-notes/ and thereafter owned by that repository. It exists so the register is committable — git tracks files, not directories — and its links are relative to a layout the project may move."
+    },
+    {
+      "pattern": "templates/CODEOWNERS",
+      "reason": "Seeded once into a consumer's .github/CODEOWNERS and thereafter owned by that repository. It ships with @ORG/TEAM placeholders by construction, because a reviewer map naming teams that do not exist nominates nobody and fails silently; pinning it would make every project that filled in its real teams read as drift."
+    },
+    {
+      "pattern": ".gitignore",
+      "reason": "Excludes Python bytecode. Repository hygiene, not standard content; a consumer's ignore rules are its own."
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "$comment": "The project's open-items index. Build DNA §8 states the rule this file implements: an ADR that opens or closes an open item records it here. Written once by tools/sync.sh and owned by this project thereafter — sync.sh will not overwrite it, the way it will not overwrite CLAUDE.md.",
+  "$authority": "This file owns an item's STATE. The prose entry — wherever the ADR put it — owns the argument, and keeps its number and its entry when it closes. Where the two disagree about status, one of them is wrong; that is a defect to fix, not a precedence rule to apply.",
+  "$not_gate_input": "No gate check reads this file. Keeping it current is a discipline, not a control. See Build DNA open item 6.",
+  "schema_version": "1.0",
+  "standard_version": "REPLACE — the Causeway version in .causeway-lock when this register was last reviewed",
+  "$registers": "A register is any document in this project that carries a numbered list of open items. Most projects have one; some have one per governed document. A numbered list the index does not name is a register nothing counts, which is the state this file exists to end. Delete the example and add your own.",
+  "registers": {
+    "project": {
+      "document": "CLAUDE.md",
+      "section": "Open items",
+      "label": "Project",
+      "numbers_stable_since": null
+    }
+  },
+  "$numbering": "number is null only for an item closed by renumbering before this register made its numbers stable. Do not use null for a new item — give it the next number and never reuse one. Renumbering on close is how a pointer comes to reference a different item than the one it closed.",
+  "$item_shape": {
+    "id": "stable, unique, never reused — conventionally <register>-<number>",
+    "register": "a key in registers above",
+    "number": "the number in the prose list, or null (see $numbering)",
+    "title": "a short label. The argument stays in the prose entry; nothing checks this string, so rewording it is free",
+    "status": "open | closed. There is no half-closed: an item is open until every half of it is closed",
+    "opened_by": "ADR number as a quoted string, e.g. \"0007\", or null where the record does not state it",
+    "opened_in": "the version of the register's document, or null",
+    "closed_by": "ADR number, or null. An item closed by nothing lapsed rather than closed",
+    "closed_in": "the version it closed in, or null",
+    "$note": "optional. Anything a reader of this file needs that the prose entry does not carry"
+  },
+  "items": [
+    {
+      "id": "project-1",
+      "register": "project",
+      "number": 1,
+      "title": "REPLACE — delete this example once the register has a real item",
+      "status": "open",
+      "opened_by": null,
+      "opened_in": null,
+      "closed_by": null,
+      "closed_in": null,
+      "blocked_on": [
+        "REPLACE-a-real-blocker"
+      ]
+    }
+  ],
+  "$counts": "Derived from items. Every count stated anywhere in the project comes from here. Recompute it in the commit that changes items — a count nobody recomputes is the failure this index was built for.",
+  "counts": {
+    "open": 1,
+    "closed": 0,
+    "total": 1
+  },
+  "$relations": "An item may name its relationship to another item, or to the document that answered it. Build DNA §8 defines the five types and what each promises; the standard's own decisions/open-items.json is the worked example. They matter as soon as this project has more than one register, and the failures they catch — half a closed duplicate, a question settled elsewhere, a finding filed against the wrong document — are invisible to a count.",
+  "relation_types": {
+    "duplicate_of": "item id. Mutual; both halves must carry the same status.",
+    "superseded_by": "item id. When the target closes, this item must close.",
+    "upstream_of": "list of item ids in other registers. When one closes, re-read this item.",
+    "answered_by": "{document, section, summary}. The document must exist and still carry that heading.",
+    "blocked_on": "list of keys from `blockers` below. Every key must be declared."
+  },
+  "$blockers": "Name what an item is actually waiting on. Delete the example and use your own; a key no item cites fails the build, and so does an item citing a key nothing declares.",
+  "blockers": {
+    "REPLACE-a-real-blocker": "What this blocker is, and what would clear it."
+  }
+}
