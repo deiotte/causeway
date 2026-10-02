@@ -7,13 +7,13 @@
     "spine_version": "0.8",
     "gate_config_version": "0.8"
   },
-  "digest": "sha256:f9a6c96ccc1911c95129dedf213c85e6c5b27829effd4e4bd3ee06153728ea6c",
+  "digest": "sha256:7c83bdd0a349d0bea0ec702085cfb7df7ecfcc0d972ef864712778ed71d25905",
   "digest_algorithm": "sha256-of-sorted-file-digest-lines",
   "files": [
     { "path": "AGENTS.md", "sha256": "72fb5bfe3af3b6ccb7c3063e30670c7465206925b86ceb570ae63f87be509641" },
     { "path": "RELEASED", "sha256": "afbd5998972c57fb18dbc6bdf3d27fc7b08810871f043ba0e83eb828da1f751f" },
     { "path": "VERSION", "sha256": "c4a2383a03bdb6739d16a0e24058e4b9c7da4e63d203e0be2f448868cc03c530" },
-    { "path": "bundle/allowed-signers", "sha256": "d8aa835fef46dd0fff42b9c08344cbba403592a03590af1682faca2a8de9dfd5" },
+    { "path": "bundle/allowed-signers", "sha256": "d9be7aad26a53b72217b80080410430b2ea5e94f435a9f2ddaef008120f70e0e" },
     { "path": "gate/checks.json", "sha256": "c1a095c2adeac75f20de0c121a31b0a530b389780cc87571dacac6502453ba35" },
     { "path": "gate/gate-configuration.md", "sha256": "959550904e5976bae12cef16ac821c6beb493b2689b392f66f4115df4b9de8ab" },
     { "path": "gate/profiles.json", "sha256": "2d90f207069cb9f3e0abc9336b89d3db2a91afaff149cc21e163ef4490a45f0d" },

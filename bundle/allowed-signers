@@ -13,4 +13,4 @@
 # and vendored into consuming projects (tools/sync.sh). An anchor a project
 # could swap without moving the digest would not be an anchor. Rotating the key
 # is therefore a release of the standard, not a settings change.
-release@causeway ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKMCAPc9eWhQbasSdY+kgDldI6g6osDWSVecNHEHsTJo
+release@causeway ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIYlXYAaR/lib91vHKwqDtuHAE9UyHmfjvWgjbT1ZKJY
