@@ -35,6 +35,11 @@ nothing anyone owes changes. Build DNA stays at 1.13, the spine at 0.8, the gate
 configuration at 0.8. The bundle digest moves, so a pinned project re-syncs to pick
 it up.
 
+- **New release-signing key.** The private half of the key ADR 0019 issued could not
+  be recovered, so the trust anchor in `bundle/allowed-signers` is replaced before
+  anything is signed with it in public. New fingerprint
+  `SHA256:dsW8+Y3vfNpf7GJ4cNwzZWPz7MoeANQtjiZEFmW5iVY`. No published release was ever
+  signed by the old key in this repository, so no consumer has to re-anchor. ADR 0040.
 - **Published from a fresh history, as `deiotte/causeway`.** The public repository
   starts at this release; the history before it stays private in
   `deiotte/causeway-standard`, which keeps its name. Issues are renumbered —

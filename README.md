@@ -65,7 +65,7 @@ The table below is a dated review snapshot, not a claim about the current commit
 The current 29-file consumer bundle has digest:
 
 ```text
-sha256:f9a6c96ccc1911c95129dedf213c85e6c5b27829effd4e4bd3ee06153728ea6c
+sha256:7c83bdd0a349d0bea0ec702085cfb7df7ecfcc0d972ef864712778ed71d25905
 ```
 
 The bundle identifies a defined set of contract files. It does not cover every file in this repository or in the installation archive.
@@ -335,7 +335,7 @@ There is no ServiceNow connector, ATF runner, Instance Scan collector, or end-to
 
 | Evidence | What was established | What remains outside it |
 |---|---|---|
-| Internal validator | `tools/validate.py` completes 668 internal consistency checks; reproduced locally and reported by current CI | Product behavior, evaluator correctness, decision quality, and operational outcomes |
+| Internal validator | `tools/validate.py` completes 675 internal consistency checks; reproduced locally and reported by current CI | Product behavior, evaluator correctness, decision quality, and operational outcomes |
 | Bundle and adapters | The committed manifest reproduces; all four adapters name the three shipped skills | Whether an agent actually reads and follows those instructions |
 | Distribution probes | Clean sync, ServiceNow sync, drift rejection, byte-identical repeated tar/ZIP builds, valid checksum sidecars, and installation with Git absent from `PATH` | Independent adoption and target-environment usability |
 | Release workflow | Current release signing, signature verification, archive building and publication steps succeeded | Independent signing-key custody or verification of a separately downloaded archive by this review |
