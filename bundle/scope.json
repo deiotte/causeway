@@ -111,6 +111,10 @@
       "reason": "Seeded once into a consumer's domain/field-notes/ and thereafter owned by that repository. It exists so the register is committable — git tracks files, not directories — and its links are relative to a layout the project may move."
     },
     {
+      "pattern": "templates/decisions-README.md",
+      "reason": "Seeded once into a consumer's decisions/ and thereafter owned by that repository, exactly as templates/field-notes-README.md is. Its index by family and its list of unused numbers are the project's content by construction, so pinning it would make every row a project adds read as drift. ADR 0041."
+    },
+    {
       "pattern": "templates/CODEOWNERS",
       "reason": "Seeded once into a consumer's .github/CODEOWNERS and thereafter owned by that repository. It ships with @ORG/TEAM placeholders by construction, because a reviewer map naming teams that do not exist nominates nobody and fails silently; pinning it would make every project that filled in its real teams read as drift."
     },

@@ -1567,6 +1567,45 @@ check("the archive carries none of this repository's own decision record",
       not leaked, f"would ship to consumers as their own: {leaked}")
 
 
+# ── 20. The decision register's README indexes every ADR ────────────────────
+#
+# decisions/README.md is hand-maintained, because its index groups ADRs by family
+# and family is a judgment no frontmatter field carries (ADR 0041). A
+# hand-maintained index has one failure mode and §8 has already described it:
+# nothing counts it, so the next ADR lands in the directory and not on the page,
+# and the page goes on looking complete. So the build counts it. What is bound
+# here is structure — which numbers are on disk, which are linked, which are
+# missing — and never a title or a family name, for the reason §16 gives.
+
+decisions_readme_path = ROOT / "decisions" / "README.md"
+check("decisions/README.md exists", decisions_readme_path.is_file())
+decisions_readme = (decisions_readme_path.read_text(encoding="utf-8")
+                    if decisions_readme_path.is_file() else "")
+
+adr_on_disk = {p.name for p in (ROOT / "decisions").glob("[0-9]*.md")}
+adr_linked = {m.removeprefix("./")
+              for m in re.findall(r"\]\(((?:\./)?\d{4}-[^)\s]+\.md)\)", decisions_readme)}
+
+unindexed = sorted(adr_on_disk - adr_linked)
+check("every ADR is linked from decisions/README.md",
+      not unindexed, f"on disk, not in the index: {unindexed}")
+
+broken = sorted(adr_linked - adr_on_disk)
+check("every ADR link in decisions/README.md resolves",
+      not broken, f"linked, not on disk: {broken}")
+
+# The unused-numbers promise. A skipped number is legitimate — two branches, one
+# abandoned — and §8 forbids closing the gap by renumbering; what the README
+# promises is that the gap is explained. There are none today, so this passes on
+# nothing: green, not verified, in the sense §16 means.
+if adr_numbers:
+    gaps = sorted(set(range(1, max(adr_numbers) + 1)) - set(adr_numbers))
+    unexplained = [f"{n:04d}" for n in gaps
+                   if not re.search(rf"\b{n:04d}\b", decisions_readme)]
+    check("every skipped ADR number is named in decisions/README.md",
+          not unexplained, f"skipped and unexplained: {unexplained}")
+
+
 # The README advertises how many assertions this file makes. That number is the
 # one piece of prose about the validator that the validator can verify exactly,
 # and it went stale the first time a check was added.

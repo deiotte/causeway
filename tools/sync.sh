@@ -192,6 +192,21 @@ else
   echo "  decisions/open-items.json exists, left alone"
 fi
 
+# The register's own README, seeded on the same terms as the field-notes README
+# and for the same reason: a directory that explains itself. Build DNA §8 says
+# what the numbers mean and why an accepted record is never edited, deep in a
+# document the Contributor floor does not ask anyone to read end to end; this
+# puts the short version, and an index only the project can write, where a
+# contributor copying in a template will actually see it. Never overwritten —
+# the index by family and the unused-numbers list are the project's content by
+# construction. ADR 0041.
+if [ ! -f "$TARGET/decisions/README.md" ]; then
+  cp "$STANDARD_DIR/templates/decisions-README.md" "$TARGET/decisions/README.md"
+  echo "  created decisions/README.md from template — add each ADR to its index as you write it"
+else
+  echo "  decisions/README.md exists, left alone"
+fi
+
 # The practitioner front door, seeded on the same terms as CLAUDE.md: written
 # once, then owned by the project. It carries [BRACKET] placeholders a project
 # has to fill in — who reviews, who to ask, where the note template landed — so

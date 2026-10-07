@@ -144,7 +144,8 @@ and rewrite it into clean commits before it merges.)
 **4. A contested choice needs an ADR.** If you or your assistant weighed a real
 alternative — this library or that one, this data shape or that one — that
 weighing is the artifact. Copy `templates/adr-template.md` to `decisions/` with
-the next number, fill it in, and put it in the same PR as the code.
+the next number, fill it in, add a row to `decisions/README.md`, and put all of
+it in the same PR as the code.
 
 **5. Do not edit vendored files.** `AGENTS.md`, `skills/`, `gate/`, `rules/`,
 `templates/`, and `tools/check-drift.sh` came from the standard and are pinned.
@@ -180,7 +181,7 @@ CLAUDE.md          this project's stack, commands, constraints, exceptions
 CONTRIBUTING.md    this file
 START-HERE.md      the on-ramp for people who know the work and do not write code
 system.json        tier and criticality — the gate is derived from these
-decisions/         ADRs, and open-items.json
+decisions/         ADRs, their README index, and open-items.json
 domain/field-notes/  what the practitioners know
 skills/ gate/ rules/ templates/ tools/   vendored from the standard
 [PROJECT DIRECTORIES — one line each: what lives there and where to start reading]
