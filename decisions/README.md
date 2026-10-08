@@ -161,6 +161,7 @@ Pinning, signing, and installing — which copy, and how anyone would know if it
 | [0023](0023-reconcile-the-signing-state-prose.md) | Reconcile the signing-state prose, and guard the claim against the artifact | Accepted |
 | [0030](0030-install-without-git.md) | Install without git, and let the signature be the release proof | Accepted |
 | [0040](0040-issue-a-new-release-signing-key.md) | Issue a new release-signing key before the first public release | Accepted |
+| [0042](0042-install-completely-or-not-at-all.md) | Install completely or not at all — decide, plan, stage, then apply | Accepted |
 
 ### The standard's own CI and record-keeping
 

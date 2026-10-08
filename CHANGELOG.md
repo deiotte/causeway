@@ -27,6 +27,35 @@ at the time, because none were.
 
 ---
 
+## v2.3.1 — 2026-10-08
+
+An installation completes or changes nothing. Patch — `sync.sh` fixes the order it
+works in and stops calling a tampered copy a release; no check, input contract,
+verdict or profile moved, and nothing anyone owes changes. Build DNA stays at 1.13,
+the spine at 0.8, the gate configuration at 0.8. The bundle digest moves because
+`VERSION` does.
+
+- **`sync.sh` decides before it writes.** It used to copy the standard into the target
+  and then evaluate `--require-release`, so a refusal exited `7` with files already
+  overwritten and no new lock (#9). It now runs in four phases — decide, plan, stage,
+  apply — and only the last touches the target. Staged files are renamed into place
+  with the lock last; a failure restores what was overwritten and removes what was
+  created. ADR 0042.
+- **Two new exit codes.** `9` for a target conflict — a symlink, a directory where a
+  file goes, a file where a directory goes, or an unwritable path — reported all at
+  once before anything moves. `10` for an apply that failed and was rolled back.
+- **A release proof must match the bytes.** Every file in `bundle/manifest.json` is
+  hashed and the digest recomputed. A copy that does not match loses its release
+  proof: `--require-release` refuses it, and without the flag it installs as a
+  development copy with a warning. Previously an extracted archive with a genuine
+  signature and an edited `AGENTS.md` installed as `release_proof=signed-statement`.
+- **`tools/test-sync.sh`,** run in CI: seventeen cases against a target that already
+  holds a project, each refusal required to leave it byte-identical, plus a signed
+  no-git install using a throwaway key. Twelve of the seventeen fail against the
+  previous `sync.sh`.
+- **Not changed:** a successful sync still replaces `AGENTS.md` and the tool adapters
+  in an existing project. That is #10.
+
 ## v2.3.0 — 2026-10-07
 
 The decision register explains itself. Minor — `sync.sh` seeds one more project-owned

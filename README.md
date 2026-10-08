@@ -48,7 +48,7 @@ In plain English: **Causeway lets you use AI to move faster without making “th
 
 ## Current version
 
-Source now ships **2.3.0** (`RELEASED` 2026-10-07). Build DNA 1.13; gate configuration 0.8; ServiceNow overlay 1.12. The first public release was 2.2.0.
+Source now ships **2.3.1** (`RELEASED` 2026-10-08). Build DNA 1.13; gate configuration 0.8; ServiceNow overlay 1.12. The first public release was 2.2.0.
 
 The table below is a dated review snapshot, not a claim about the current commit: it records what was verified on **2026-09-18** against commit `93fbdd1`, at 1.15.0. That commit is in the standard's pre-publication history, which this repository does not carry ([ADR 0039](decisions/0039-publish-from-a-fresh-history.md)). What has moved since is in [CHANGELOG.md](CHANGELOG.md); 1.16.0 has not been through the same external review.
 
@@ -258,7 +258,7 @@ A release archive with valid signature material can satisfy `--require-release` 
 
 Run both verification commands: `verify-release.sh` authenticates the statement and compares declared digest/tag values; `check-drift.sh` recomputes the manifest identity and checks the installed content. Signature verification alone does not hash every installed file.
 
-**Installation caveat:** the current `sync.sh` copies files before applying the release requirement. A refusal can therefore return exit `7` after changing the target, without writing a new lock. In the local review probe it overwrote an existing `AGENTS.md` and created gate files. Inspect an installation in a scratch directory first, and preserve an existing project's state before syncing into it. See limit 10 below.
+**Installation behavior:** since 2.3.1 `sync.sh` decides, plans, stages and only then writes ([ADR 0042](decisions/0042-install-completely-or-not-at-all.md)). A refusal (exit `7`), a target conflict (exit `9`) or a failed apply (exit `10`, rolled back) leaves the target byte-identical, and the lock is written only by a complete install. Under `--require-release` the installed files must also match the bundle manifest, not only carry a valid tag or signature. A successful sync still replaces `AGENTS.md`, `GEMINI.md`, the Copilot instructions and the Cursor rule in an existing project — commit or back up those files before syncing into one ([#10](https://github.com/deiotte/causeway/issues/10)).
 
 ### See a deliberate edit rejected
 
@@ -335,7 +335,7 @@ There is no ServiceNow connector, ATF runner, Instance Scan collector, or end-to
 
 | Evidence | What was established | What remains outside it |
 |---|---|---|
-| Internal validator | `tools/validate.py` completes 686 internal consistency checks; reproduced locally and reported by current CI | Product behavior, evaluator correctness, decision quality, and operational outcomes |
+| Internal validator | `tools/validate.py` completes 693 internal consistency checks; reproduced locally and reported by current CI | Product behavior, evaluator correctness, decision quality, and operational outcomes |
 | Bundle and adapters | The committed manifest reproduces; all four adapters name the three shipped skills | Whether an agent actually reads and follows those instructions |
 | Distribution probes | Clean sync, ServiceNow sync, drift rejection, byte-identical repeated tar/ZIP builds, valid checksum sidecars, and installation with Git absent from `PATH` | Independent adoption and target-environment usability |
 | Release workflow | Current release signing, signature verification, archive building and publication steps succeeded | Independent signing-key custody or verification of a separately downloaded archive by this review |
@@ -373,7 +373,7 @@ Receipts are another boundary: Causeway specifies what an evaluator must report.
 7. **Release prose can lag publication.** At review time the prior README and current changelog called 1.15.0 unreleased despite the published release. Internal validation passed. Publication facts need a maintained external check or explicit release-review step ([#3](https://github.com/deiotte/causeway/issues/3)).
 8. **Independent adoption is not evidenced.** [ADOPTING.md](ADOPTING.md) says what a first adopter would measure. Setup effort, practitioner response load, false positives, evaluator compatibility, assessor acceptance, and delivery outcomes have not been demonstrated by an independent team in the reviewed evidence.
 9. **Public-use governance is partly open.** The standard is licensed under Apache-2.0 ([ADR 0037](decisions/0037-license-under-apache-2.0.md)). Governance, contribution and security reporting are written down in [`GOVERNANCE.md`](GOVERNANCE.md) ([ADR 0038](decisions/0038-govern-as-a-single-maintainer-in-public.md)); a second maintainer is not yet named ([#5](https://github.com/deiotte/causeway/issues/5)).
-10. **A refused installation can leave changes behind.** `--require-release` is checked after copying. Preflight validation, content verification, staging, and failure-before-write behavior need to become one tested installation path.
+10. **A successful installation still overwrites agent instructions.** Refused and failed installs no longer change the target ([ADR 0042](decisions/0042-install-completely-or-not-at-all.md), resolving [#9](https://github.com/deiotte/causeway/issues/9)). A completed sync still replaces an existing project's `AGENTS.md`, `GEMINI.md`, Copilot instructions and Cursor rule, and does not check that a preserved `CLAUDE.md` imports the standard ([#10](https://github.com/deiotte/causeway/issues/10)). A process killed mid-apply can leave a partial install, with the originals in the leftover `.causeway-sync.*` directory.
 11. **Several process obligations remain advisory.** Survey readiness, placement declaration, ADR forces and cause codes, consuming-project open-item maintenance, field-note disposition, and agent instruction discovery lack automated enforcement. The standard's own index tracks 32 open items across four registers; that is visibility into unfinished work, not proof the obligations are satisfied elsewhere.
 
 ## Repository map

@@ -340,7 +340,9 @@ check("every vendored file exists", not missing_on_disk, f"missing: {missing_on_
 # `tag` were invisible to it. It reported agreement between two lists while
 # silently comparing a subset, which is the shape of failure the conformance
 # fixtures exist to catch and this check had itself.
-lock_block = re.search(r"\{(.*?)\}\s*>\s*\"\$TARGET/\.causeway-lock\"",
+# The lock is written into the staging directory and moved into place last
+# (ADR 0042), so the redirect names the stage rather than the target.
+lock_block = re.search(r"\{(.*?)\}\s*>\s*\"\$STAGE/new/\$LOCK_DST\"",
                        sync_sh, re.DOTALL)
 check("sync.sh lock-writing block is parseable", bool(lock_block))
 lock_keys = set(re.findall(r'echo "([a-z_]+)=\$',
