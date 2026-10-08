@@ -57,6 +57,47 @@ its shape — tier, criticality class, platform, team size — and that is enoug
 5. **Report** with the **Adopter report** issue form — once at the end, or as you
    go. Partial reports are welcome.
 
+## Installing into a project that already has agent instructions
+
+Since 2.4.0, `sync.sh` keeps what a project already wrote for its agents
+([ADR 0043](decisions/0043-keep-a-projects-own-agent-instructions.md)):
+
+| File | What sync does when it already exists |
+|---|---|
+| `AGENTS.md` | Replaces it only if it is Causeway's — listed in the previous `.causeway-lock`, or identical to the standard. Otherwise it **refuses** (exit `9`) and changes nothing. |
+| `GEMINI.md`, `.github/copilot-instructions.md`, `.cursor/rules/causeway.mdc` | Keeps your text and adds one marked section between `<!-- causeway:begin … -->` and `<!-- causeway:end -->`. A re-sync rewrites only that section. A symlink to `AGENTS.md` is left alone. |
+| `CLAUDE.md` | Never edits it. Warns when it does not import the standard with an `@AGENTS.md` line. |
+
+If sync refuses because of your own `AGENTS.md`:
+
+1. Move it aside: `mv AGENTS.md AGENTS.project.md`
+2. Re-run `sync.sh`. It now installs the standard at `AGENTS.md`.
+3. In `CLAUDE.md`, import both, the standard first:
+   ```
+   @AGENTS.md
+   @AGENTS.project.md
+   ```
+4. Tools that read `AGENTS.md` directly (Codex, for example) will now read the
+   standard. If they also need your instructions, add a line to them in your own
+   part of `GEMINI.md`, or wherever that tool looks.
+
+**Recovering files an older sync overwrote.** Before 2.4.0, sync replaced
+`AGENTS.md`, `GEMINI.md`, `.github/copilot-instructions.md` and
+`.cursor/rules/causeway.mdc` outright. If your project had its own and they were
+committed, git still has them:
+
+1. Find the commit that last held your version, for example
+   `git log --oneline -- GEMINI.md`. The commit *before* the sync is the one.
+2. Write it beside the current file, not over it:
+   `git show <commit>:GEMINI.md > GEMINI.recovered.md`
+3. Copy your own text from the recovered file into `GEMINI.md`, *outside* the
+   Causeway markers. Do the same for each file. For `AGENTS.md`, use the
+   `AGENTS.project.md` steps above instead.
+4. Re-run `sync.sh`, and check that each file still holds your text once and the
+   Causeway section once. Then delete the `.recovered` files.
+
+Files that were never committed are not recoverable this way.
+
 ## What you get back
 
 - **An answer to everything you send**, on the same terms the standard puts on its

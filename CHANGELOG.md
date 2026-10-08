@@ -27,6 +27,35 @@ at the time, because none were.
 
 ---
 
+## v2.4.0 — 2026-10-08
+
+A sync keeps what a project already told its agents. Minor — `sync.sh` changes what
+it writes into an existing project, and a project with its own `AGENTS.md` that used
+to have it silently replaced is now refused instead; no check, input contract,
+verdict or profile moved, and nothing anyone owes changes. Build DNA stays at 1.13,
+the spine at 0.8, the gate configuration at 0.8. The bundle digest moves because
+`VERSION` does.
+
+- **`AGENTS.md` is replaced only when it is Causeway's** — listed in the previous lock
+  or identical to the standard. A project's own `AGENTS.md` is a conflict, exit `9`,
+  with the command to move it aside. An `AGENTS.md` the lock lists but that was edited
+  since is still restored, as `check-drift.sh` has always said it would be, and the
+  sync now says so. ADR 0043, #10.
+- **`GEMINI.md`, `.github/copilot-instructions.md` and `.cursor/rules/causeway.mdc`
+  hold a marked section,** between `<!-- causeway:begin … -->` and
+  `<!-- causeway:end -->`. A fresh install writes the section alone. An existing file
+  keeps its text with the section appended; a re-sync rewrites only the section, so it
+  never appears twice. A bare shim an earlier sync wrote becomes exactly what a fresh
+  install writes. A symlink to `AGENTS.md` is left alone. Damaged markers are a
+  conflict.
+- **`CLAUDE.md` is still never edited,** and a sync now warns when it does not import
+  the standard with `@AGENTS.md`.
+- **`ADOPTING.md` says how to install over existing instructions,** and how to recover
+  files a pre-2.4.0 sync overwrote.
+- **`tools/test-sync.sh` grows to 32 cases;** the fifteen new ones cover a customized
+  file for every adapter, a project's own `AGENTS.md`, re-sync idempotence, damaged
+  markers, legacy shims, symlinks and drift. Ten fail against v2.3.1.
+
 ## v2.3.1 — 2026-10-08
 
 An installation completes or changes nothing. Patch — `sync.sh` fixes the order it
