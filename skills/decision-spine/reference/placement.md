@@ -288,6 +288,23 @@ regardless because SA-1.1's evidence is a *signed* declaration.
 `templates/project-CLAUDE.md`, which is where an agent or a new engineer reads it
 without opening anything else.
 
+**What `tools/doctor.sh` reads from these three.** The gate cannot tell a declared
+placement from a defaulted one; doctor can, and says which, in one word. It is
+advisory and blocks nothing (ADR 0047):
+
+| State | What it means |
+|---|---|
+| `declared` | A class, and an authority with a name, one of the four roles, and a date |
+| `asserted` | A class, and no complete authority — to the gate a declaration, to a reader a value somebody typed |
+| `defaulted` | No class. The gate runs C1, and nothing records that anyone decided it |
+| `tier-missing`, `tier-invalid`, `class-invalid` | No profile can be derived honestly |
+
+It also reports whether an accepted ADR lists SA-1.1 and SA-1.14 in its
+`spine_rows`, whether the `CLAUDE.md` block agrees with `system.json`, and — from git
+history — whether a change of class kept to the rules below. A name in
+`criticality_authority` is a recorded assertion of who declared it. Neither doctor nor
+the gate can authenticate that the person approved it, and neither claims to.
+
 ---
 
 ## Reclassification
@@ -315,6 +332,13 @@ change from being an escape hatch:
   promote-or-sunset, and Mission → Core the first time another system's
   authorization package counts your controls — which is usually noticed by the
   other system's reviewer, not by you.
+
+`tools/doctor.sh` reads `system.json`'s git history against these rules. A raise is
+reported and passes. A lowering is incomplete unless the current declaration is
+newer than the last one, names the same authority, and an accepted SA-1.1 ADR is
+dated on or after it. A first class after running on the default is not a lowering.
+A lowered tier is reported unverified, because only the catalog can confirm it.
+None of this supplies an authority that is missing; it only says so.
 
 ---
 

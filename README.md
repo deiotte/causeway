@@ -79,7 +79,7 @@ Review snapshot: **2026-10-08**, commit [`b9f1de9`](https://github.com/deiotte/c
 
 | Artifact | State at review |
 |---|---|
-| Source version | 2.6.0; `RELEASED` contains 2026-10-08 |
+| Source version | 2.7.0; `RELEASED` contains 2026-10-08 |
 | Build DNA / Decision Spine / gate configuration | 1.13 / 0.8 / 0.8 |
 | ServiceNow overlay | 1.12 |
 | Published GitHub release | [v2.2.0](https://github.com/deiotte/causeway/releases/tag/v2.2.0), published 2026-10-02; the only published release returned at review |
@@ -89,7 +89,7 @@ The source version and `RELEASED` file are not proof that an archive has been pu
 The current 30-file consumer bundle has digest:
 
 ```text
-sha256:b85c89e39b297649eff3cfbf57cc2dc9d41e6f65e8deeaf57516bdf0fb06f117
+sha256:e4120d89505b7f1e791dc30f0a7af00f7709a9c7115d98bf59e63f71cdd15973
 ```
 
 That identifies the contract-file set in `bundle/manifest.json`, not every file in the repository or installation archive.
@@ -134,7 +134,7 @@ The review reproduced a clean drift result: **28 of 30 bundle files** verified, 
 
 This is the expected starting point. The standard is present and consistent, while placement, project details, reviewers, CI configuration, and evaluator selection still need attention. The development pin is also reported as incomplete. Repository settings remain unverified offline.
 
-`doctor.sh` is advisory: findings do not make it exit nonzero. A zero exit code is not an adoption pass or a gate verdict. Python 3 enables its structured placement checks; without Python, that portion is reported unverified.
+`doctor.sh` is advisory: findings do not make it exit nonzero. A zero exit code is not an adoption pass or a gate verdict. Python 3 enables its structured placement checks; without Python, that portion is reported unverified. Since 2.7.0 it names the placement state — `declared`, `asserted` (a class nobody is recorded as declaring) or `defaulted` (no class, so the gate runs C1) — looks for the ADRs closing SA-1.1 and SA-1.14, and reads `system.json`'s git history for a lowering made without a new declaration ([ADR 0047](decisions/0047-tell-a-declared-placement-from-a-defaulted-one.md)). A name in the declaration is a recorded assertion, not an authentication of approval.
 
 To see the drift check catch a change, use only the disposable directory above:
 
@@ -210,7 +210,7 @@ The review ran the following against the source commit above:
 
 | Evidence | Observed result | What it establishes |
 |---|---|---|
-| `tools/validate.py` | Completes 728 internal consistency checks | Agreement among the standard's artifacts, counts, references, and guarded rules |
+| `tools/validate.py` | Completes 735 internal consistency checks | Agreement among the standard's artifacts, counts, references, and guarded rules |
 | Bundle and adapter checks | Passed | Manifest reproduction and references to the three shipped skills |
 | `test-sync.sh` | 32 passed, 0 failed | Covered refusals, rollback, content checks, and preservation of agent instructions |
 | `test-doctor.sh` | 26 passed, 0 failed | Covered setup findings and read-only behavior |

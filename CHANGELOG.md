@@ -27,6 +27,39 @@ at the time, because none were.
 
 ---
 
+## v2.7.0 — 2026-10-08
+
+A project can see whether its placement was declared or defaulted. Minor —
+`doctor.sh` reports more, and the placement procedure says what it reads; no check,
+input contract, verdict or profile moved, and nothing anyone owes changes. Build DNA
+stays at 1.13, the spine at 0.8, the gate configuration at 0.8. The bundle digest moves
+because `VERSION`, `doctor.sh` and `placement.md` do.
+
+- **`doctor.sh` names the placement state:** `declared` (a class and a complete
+  authority), `asserted` (a class, no complete authority), `defaulted` (no class, so C1),
+  or `tier-missing`, `tier-invalid`, `class-invalid`. It is in the report and in
+  `--json` as `placement.state`. #15, ADR 0047.
+- **It looks for the argument:** an accepted ADR listing SA-1.1, and one listing SA-1.14,
+  in `spine_rows`. A superseded one does not count. The declaring role must be one of
+  PO, Service Owner, Customer or Sponsor, and the date may not be in the future.
+- **It checks the records agree:** `system.json` against the placement block in
+  `CLAUDE.md`, and an unfilled block is reported.
+- **It reads reclassification from git history.** A raise passes. A lowering is incomplete
+  unless the current declaration is newer, names the same authority, and an accepted
+  SA-1.1 ADR is dated on or after it. A first class after the default is not a lowering.
+  A lowered tier is `unverified`: the catalog moves tiers, and doctor cannot see it.
+  Without git, reclassification is `unverified`.
+- **It says what a name is:** a recorded assertion of who declared it, never an
+  authentication of their approval.
+- **The placement procedure, the contributor starter and ADOPTING.md say so too,** and
+  ADOPTING.md asks a first adopter for their placement state at the start and end of the
+  quarter — the measurement gate configuration item 13 is waiting for. Item 13 stays
+  open: the gate still cannot tell the two apart.
+- **`tools/test-doctor.sh` grows to 47 cases,** 21 of them new: each state, the ADR and
+  role rules, agreeing and disagreeing records, and seven histories — raised, lowered
+  without a declaration, lowered properly, lowered by a different authority, lowered with
+  no new ADR, a first declaration, and a lowered tier.
+
 ## v2.6.0 — 2026-10-08
 
 A project can take a later release's starter improvements without losing its own
