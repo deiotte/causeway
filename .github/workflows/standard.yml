@@ -122,6 +122,12 @@ jobs:
         if: '!cancelled()'
         run: ./tools/test-doctor.sh
 
+      # ADR 0046. A later release's starter changes reach a project without
+      # costing it its own edits: clean, merge, conflict, adopt and manual.
+      - name: Starter upgrades keep the project's edits
+        if: '!cancelled()'
+        run: ./tools/test-upgrade-starters.sh
+
       - name: Drift detection actually detects drift
         if: '!cancelled()'
         run: |

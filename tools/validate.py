@@ -1646,6 +1646,28 @@ check("release.yml: the gates run in order, publishing after acceptance",
       f"order found: {[g for _, g in sorted(zip(positions, gates))]}")
 
 
+# ── 22. upgrade-starters.sh knows every starter sync.sh seeds ───────────────
+#
+# ADR 0046. The upgrader carries its own template:project-path list so it can
+# run without parsing sync.sh. A starter added to sync.sh and not to the list
+# would be seeded with a baseline and then never offered an upgrade, silently.
+
+upgrade_sh = read("tools/upgrade-starters.sh")
+seeded_pairs = set(re.findall(
+    r'^plan_seed "\$STANDARD_DIR/([^"]+)" "([^"]+)"', sync_sh, re.MULTILINE))
+upgrade_block = re.search(r"^STARTERS=\((.*?)^\)", upgrade_sh, re.MULTILINE | re.DOTALL)
+upgrade_pairs = set(tuple(m.split(":", 1)) for m in
+                    re.findall(r'"([^"]+:[^"]+)"', upgrade_block.group(1) if upgrade_block else ""))
+check("sync.sh's seeded starters are parseable", bool(seeded_pairs))
+check("upgrade-starters.sh offers an upgrade for exactly the starters sync.sh seeds",
+      seeded_pairs == upgrade_pairs,
+      f"seeded only: {sorted(seeded_pairs - upgrade_pairs)}; "
+      f"upgrade only: {sorted(upgrade_pairs - seeded_pairs)}")
+check("the archive carries upgrade-starters.sh",
+      "tools/upgrade-starters.sh" in archive_files,
+      "a release that cannot upgrade starters from its archive")
+
+
 # The README advertises how many assertions this file makes. That number is the
 # one piece of prose about the validator that the validator can verify exactly,
 # and it went stale the first time a check was added.

@@ -165,6 +165,7 @@ Pinning, signing, and installing — which copy, and how anyone would know if it
 | [0043](0043-keep-a-projects-own-agent-instructions.md) | Keep a project's own agent instructions, and own a marked section rather than the file | Accepted |
 | [0044](0044-publish-only-what-was-verified.md) | Publish only what was verified, all at once, and withdraw on failure | Accepted |
 | [0045](0045-diagnose-adoption-without-evaluating-it.md) | Diagnose adoption without evaluating it — a read-only doctor every project gets | Accepted |
+| [0046](0046-offer-starter-upgrades-three-ways.md) | Offer starter upgrades three ways — record the baseline at seeding, merge only what is clean | Accepted |
 
 ### The standard's own CI and record-keeping
 

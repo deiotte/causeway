@@ -120,6 +120,8 @@ ARCHIVE_FILES=(
   "bundle/manifest.json"
   "bundle/allowed-signers"
   "tools/sync.sh"
+  # Run from the release being upgraded to, like sync.sh. ADR 0046.
+  "tools/upgrade-starters.sh"
   "tools/check-drift.sh"
   "tools/verify-release.sh"
   "tools/doctor.sh"

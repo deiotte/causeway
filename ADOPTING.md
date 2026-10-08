@@ -103,6 +103,44 @@ committed, git still has them:
 
 Files that were never committed are not recoverable this way.
 
+## Upgrading the starter files you own
+
+`sync.sh` seeds `CLAUDE.md`, `CONTRIBUTING.md`, `START-HERE.md`, the decisions
+README, the open-items index, `CODEOWNERS`, the PR template and the field-note form
+once, and never touches them again — they are yours. When a later release improves
+one of those templates, `tools/upgrade-starters.sh` offers the improvement without
+undoing your edits ([ADR 0046](decisions/0046-offer-starter-upgrades-three-ways.md)).
+Since 2.6.0, sync records the template each starter was seeded from under
+`.causeway/starters/`; commit that directory with the rest of the project.
+
+1. Get the new release, as for any re-sync.
+2. From the new release, see what it would change. This writes nothing to the project:
+   ```
+   ./causeway-<new>/tools/upgrade-starters.sh /path/to/project
+   ```
+3. Read the report. Each starter is one of:
+   - **up-to-date** — nothing changed upstream.
+   - **clean** — you never edited it; the new template replaces it.
+   - **merge** — you both changed it, in different places; the merge is clean.
+   - **conflict** — you both changed the same lines. Never applied.
+   - **adopt** — no baseline yet, but your file is exactly the new template.
+   - **manual** — no baseline yet (seeded before 2.6.0) and your file differs.
+   - **absent** — the project does not have it.
+4. Open the `.diff` files in the report directory it names, and check each proposal.
+5. Apply the clean, merge and adopt ones:
+   ```
+   ./causeway-<new>/tools/upgrade-starters.sh /path/to/project --apply
+   ```
+6. For each **conflict**, open the `.conflict` file in the report directory, copy the
+   parts you want into your own file, then record that you have:
+   ```
+   ./causeway-<new>/tools/upgrade-starters.sh /path/to/project --accept <file>
+   ```
+   Do the same for each **manual** file, working from its `.diff`. `--accept` changes
+   none of your files; it only records the new template as that file's baseline.
+7. Run step 2 again. Everything you applied or accepted now reads **up-to-date**.
+8. Review the result with `git diff` and commit it, including `.causeway/`.
+
 ## What you get back
 
 - **An answer to everything you send**, on the same terms the standard puts on its

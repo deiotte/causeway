@@ -27,6 +27,36 @@ at the time, because none were.
 
 ---
 
+## v2.6.0 — 2026-10-08
+
+A project can take a later release's starter improvements without losing its own
+edits. Minor — `sync.sh` records one more thing when it seeds, and the archive ships
+one more tool; no check, input contract, verdict or profile moved, and nothing anyone
+owes changes. Build DNA stays at 1.13, the spine at 0.8, the gate configuration at 0.8.
+The bundle digest moves because `VERSION` does.
+
+- **`sync.sh` records each starter's baseline when it seeds it:** the template exactly
+  as seeded, under `.causeway/starters/<file>.base`, and a line in
+  `.causeway/starters.txt` naming its checksum, template and release. Outside the lock
+  and outside `check-drift.sh`, because the starter is the project's. Written in the
+  same all-or-nothing install as everything else; a re-sync that seeds nothing leaves
+  them untouched. #11, ADR 0046.
+- **`tools/upgrade-starters.sh`,** run from the release being upgraded to. For each of
+  the nine starters it compares the baseline, the project's file and the new template,
+  and reports `up-to-date`, `clean`, `merge` (a clean three-way merge with `diff3`),
+  `conflict`, `adopt`, `manual` or `absent`. Report mode writes nothing to the project
+  — proposals, diffs and conflict files go to a report directory outside it.
+  `--apply` writes only `clean`, `merge` and `adopt`, and moves their baselines;
+  conflicts are never written into a project file. `--accept <file>` records a hand
+  merge. Running it again after an apply reports `up-to-date`.
+- **Projects synced before v2.6.0 have no baselines.** Their starters come back
+  `manual` — a diff to review and `--accept` — unless the file is exactly the new
+  template, which is `adopt`. Nothing is guessed.
+- **`ADOPTING.md` walks through an upgrade** in eight steps.
+- **`tools/test-upgrade-starters.sh`, 28 cases,** run in CI and the release gate,
+  against a "future" release with three templates changed. **`validate.py` §22** fails
+  if the upgrader's starter list and `sync.sh`'s seeded files ever differ.
+
 ## v2.5.0 — 2026-10-08
 
 A project can ask what adopting the standard still needs. Minor — one more vendored
