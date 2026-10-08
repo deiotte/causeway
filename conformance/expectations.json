@@ -1,7 +1,7 @@
 {
   "$comment": "Expected outcomes per fixture, defined by the standard and independent of any engine. An engine claiming Causeway conformance runs these and matches them exactly.",
   "schema_version": "1.0",
-  "standard_version": "2.4.0",
+  "standard_version": "2.4.1",
   "evaluated_at": "2026-08-09",
   "$evaluated_at": "Fixtures are evaluated as though today were this date. Without it the date-sensitive fixtures would change verdict as they age, and a conformance suite that drifts is worse than none. An engine MUST accept an evaluation date rather than reading the wall clock, which is also what makes a receipt reproducible.",
   "scope": {

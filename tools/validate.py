@@ -1608,6 +1608,44 @@ if adr_numbers:
           not unexplained, f"skipped and unexplained: {unexplained}")
 
 
+# ── 21. A release is published only after everything before it passed ───────
+#
+# ADR 0044. The release workflow used `if: '!cancelled()'` on its archive steps,
+# which runs a step after an earlier one failed, so an archive could be attached
+# to a release whose signature had not verified. The workflow is the control and
+# nothing executes it before a tag is pushed, so its shape is checked here: no
+# step overrides the default success() condition except the withdrawal, all
+# release changes go through tools/publish-release.sh, and the gates run in order
+# before it.
+
+release_yml = read(".github/workflows/release.yml")
+release_steps = [l for l in release_yml.splitlines()
+                 if not l.lstrip().startswith("#")]
+release_body = "\n".join(release_steps)
+
+overrides = [c.strip() for c in re.findall(r"^\s*if:\s*(.+?)\s*$", release_body, re.MULTILINE)
+             if re.search(r"(cancelled|always|failure)\(\)", c)]
+check("release.yml: no step runs after a failure except the withdrawal",
+      overrides == ["failure() && steps.tag.outputs.tag != ''"],
+      f"found step conditions {overrides}")
+check("release.yml: every change to a release goes through publish-release.sh",
+      not re.search(r"\bgh\s+release\s+(create|upload|edit|delete)", release_body),
+      "a gh release call in the workflow bypasses publish-release.sh's preconditions")
+
+gates = ["tools/validate.py", "tools/test-sync.sh", "tools/sign-release.sh",
+         "tools/verify-release.sh", "tools/build-archive.sh --out dist",
+         "tools/test-release-archive.sh --dist dist",
+         "tools/publish-release.sh --tag \"$TAG\" --dist dist",
+         "tools/publish-release.sh --tag \"$TAG\" --withdraw"]
+positions = [release_body.find(g) for g in gates]
+check("release.yml: every gate is present",
+      all(p >= 0 for p in positions),
+      f"missing: {[g for g, p in zip(gates, positions) if p < 0]}")
+check("release.yml: the gates run in order, publishing after acceptance",
+      all(p >= 0 for p in positions) and positions == sorted(positions),
+      f"order found: {[g for _, g in sorted(zip(positions, gates))]}")
+
+
 # The README advertises how many assertions this file makes. That number is the
 # one piece of prose about the validator that the validator can verify exactly,
 # and it went stale the first time a check was added.

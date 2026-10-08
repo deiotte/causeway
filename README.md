@@ -48,7 +48,7 @@ In plain English: **Causeway lets you use AI to move faster without making “th
 
 ## Current version
 
-Source now ships **2.4.0** (`RELEASED` 2026-10-08). Build DNA 1.13; gate configuration 0.8; ServiceNow overlay 1.12. The first public release was 2.2.0.
+Source now ships **2.4.1** (`RELEASED` 2026-10-08). Build DNA 1.13; gate configuration 0.8; ServiceNow overlay 1.12. The first public release was 2.2.0.
 
 The table below is a dated review snapshot, not a claim about the current commit: it records what was verified on **2026-09-18** against commit `93fbdd1`, at 1.15.0. That commit is in the standard's pre-publication history, which this repository does not carry ([ADR 0039](decisions/0039-publish-from-a-fresh-history.md)). What has moved since is in [CHANGELOG.md](CHANGELOG.md); 1.16.0 has not been through the same external review.
 
@@ -335,7 +335,7 @@ There is no ServiceNow connector, ATF runner, Instance Scan collector, or end-to
 
 | Evidence | What was established | What remains outside it |
 |---|---|---|
-| Internal validator | `tools/validate.py` completes 700 internal consistency checks; reproduced locally and reported by current CI | Product behavior, evaluator correctness, decision quality, and operational outcomes |
+| Internal validator | `tools/validate.py` completes 711 internal consistency checks; reproduced locally and reported by current CI | Product behavior, evaluator correctness, decision quality, and operational outcomes |
 | Bundle and adapters | The committed manifest reproduces; all four adapters name the three shipped skills | Whether an agent actually reads and follows those instructions |
 | Distribution probes | Clean sync, ServiceNow sync, drift rejection, byte-identical repeated tar/ZIP builds, valid checksum sidecars, and installation with Git absent from `PATH` | Independent adoption and target-environment usability |
 | Release workflow | Current release signing, signature verification, archive building and publication steps succeeded | Independent signing-key custody or verification of a separately downloaded archive by this review |
@@ -344,7 +344,7 @@ There is no ServiceNow connector, ATF runner, Instance Scan collector, or end-to
 
 The local distribution probes used the commit's source snapshot. Its 151 files were matched to their Git blob hashes before testing. A temporary Git index enabled source-tree validation, but original Git history was not reconstructed; the corresponding history-dependent check is covered by the linked upstream CI run.
 
-The no-Git install in the local review and standard CI used an **unsigned development archive without `--require-release`**. The release workflow separately verifies its signed statement. A mandatory signed-archive installation test combining those paths is still needed.
+The no-Git install in the local review and standard CI used an **unsigned development archive without `--require-release`**. The release workflow separately verified its signed statement. Since 2.4.1 the two paths are combined: the release workflow installs the signed archive it is about to publish with no git and `--require-release`, checks that tampered and unverifiable copies are refused, and publishes only the tarball that passed — after every earlier step succeeded ([ADR 0044](decisions/0044-publish-only-what-was-verified.md)). Standard CI runs the same test on every pull request against a copy signed with a throwaway key.
 
 The conformance slice covers `standard-currency`, `named-approvers`, `dependency-provenance`, `composition-state`, and `install-scripts`. Its evaluation date is fixed at `2026-08-09` so time-sensitive fixtures remain repeatable. `tools/validate.py` checks fixture structure and consistency; an external engine must execute the expectations.
 

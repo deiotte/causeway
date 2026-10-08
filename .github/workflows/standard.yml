@@ -104,6 +104,17 @@ jobs:
         if: '!cancelled()'
         run: ./tools/test-sync.sh
 
+      # ADR 0044. The two checks the release workflow relies on, run on every
+      # pull request against a copy signed with a throwaway key, so a broken
+      # release gate is found here and not on the day of a release.
+      - name: A signed archive installs as a consumer would, or is refused
+        if: '!cancelled()'
+        run: ./tools/test-release-archive.sh --throwaway
+
+      - name: Publishing contacts GitHub only after every check passed
+        if: '!cancelled()'
+        run: ./tools/test-publish-release.sh
+
       - name: Drift detection actually detects drift
         if: '!cancelled()'
         run: |

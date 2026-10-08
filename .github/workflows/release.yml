@@ -1,4 +1,16 @@
-# Sign a published release.
+# Sign, verify and publish a release.
+#
+# Every step runs only if every step before it succeeded — the default, and the
+# point. Until v2.4.1 the archive steps carried `if: '!cancelled()'`, which
+# means "run even after a failure", so a release whose signature had not
+# verified, or whose archive did not reproduce, could still have its archive
+# attached. The order is now: the source validates, the prerequisites exist,
+# the statement is signed and verified, the archive is built, rebuilt
+# identically, and installed the way a consumer installs it — and only then
+# does tools/publish-release.sh touch the release. If anything fails, the last
+# step withdraws a release that is already visible back to a draft. There is no
+# unsigned official release: a development archive is `tools/build-archive.sh`
+# on a workstation, and is never published from here. ADR 0044.
 #
 # Runs on a tag, not on a branch, so it is not a required check and does not
 # gate any pull request. One job per release, which at the tag rate of this
@@ -22,7 +34,7 @@ permissions:
 
 jobs:
   sign:
-    name: Sign the release
+    name: Sign and publish the release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -32,41 +44,69 @@ jobs:
           # tags to describe against.
           fetch-depth: 0
 
-      # Both halves are reported by name. A release workflow that quietly does
-      # nothing when its key is absent is the "check that can only pass" this
-      # repository keeps finding in its own tools.
-      - name: Are the prerequisites for signing in place
-        id: prereq
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+
+      # A tag that does not name this tree's VERSION would publish one version's
+      # bytes under another's name. Checked first, because nothing after it
+      # means anything if it fails.
+      - name: The tag names this tree's version
+        id: tag
+        run: |
+          set -euo pipefail
+          case "$GITHUB_REF" in
+            refs/tags/*) TAG="${GITHUB_REF#refs/tags/}" ;;
+            *) echo "::error::run this workflow on a tag, not $GITHUB_REF"; exit 1 ;;
+          esac
+          VERSION="$(cat VERSION)"
+          if [ "$TAG" != "v$VERSION" ]; then
+            echo "::error::tag $TAG does not match VERSION $VERSION"; exit 1
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      # The same gate a pull request passes, run again on the exact commit being
+      # released. A tag can be pushed to a commit that never went through one.
+      - name: The source validates
+        run: |
+          set -euo pipefail
+          ./tools/validate.py
+          ./tools/build-bundle.sh --check
+          ./tools/render-adapters.sh >/dev/null
+          ./tools/test-sync.sh
+          ./tools/test-release-archive.sh --throwaway
+          ./tools/test-publish-release.sh
+
+      # Missing prerequisites stop the release. Until v2.4.1 they produced a
+      # warning and an unsigned archive published as the official release.
+      - name: The prerequisites for signing are in place
         env:
           KEY: ${{ secrets.CAUSEWAY_RELEASE_KEY }}
         run: |
           set -euo pipefail
-          ready=1
+          missing=0
           if [ -z "${KEY:-}" ]; then
-            echo "::warning::secret CAUSEWAY_RELEASE_KEY is not set"; ready=0
+            echo "::error::secret CAUSEWAY_RELEASE_KEY is not set"; missing=1
           fi
           if [ ! -f bundle/allowed-signers ]; then
-            echo "::warning::bundle/allowed-signers does not exist"; ready=0
+            echo "::error::bundle/allowed-signers does not exist"; missing=1
           fi
-          echo "ready=$ready" >> "$GITHUB_OUTPUT"
-          if [ "$ready" -eq 0 ]; then
+          if [ "$missing" -ne 0 ]; then
             {
-              echo "### Release signing is not enabled"
+              echo "### Not released: signing is not set up"
               echo ""
-              echo "This release is **unsigned**. To enable signing, both halves are needed:"
+              echo "Nothing was published. A release is signed or it is not a release."
               echo ""
               echo '1. `ssh-keygen -t ed25519 -C causeway-release -f causeway-release`'
               echo "2. Put the **private** half in the repository secret \`CAUSEWAY_RELEASE_KEY\`."
               echo "3. Commit the **public** half as \`bundle/allowed-signers\`, in the form"
-              echo '   `<principal> ssh-ed25519 AAAA...` — then add `bundle/allowed-signers`'
-              echo '   to `BUNDLE_FILES` in `tools/build-bundle.sh` so the anchor is'
-              echo "   covered by the digest. \`validate.py\` fails if you do one and not"
-              echo "   the other."
+              echo '   `<principal> ssh-ed25519 AAAA...`, covered by `BUNDLE_FILES` in'
+              echo '   `tools/build-bundle.sh`. `validate.py` fails if you do one and not the other.'
             } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
           fi
 
       - name: Sign
-        if: steps.prereq.outputs.ready == '1'
         env:
           KEY: ${{ secrets.CAUSEWAY_RELEASE_KEY }}
         run: |
@@ -85,24 +125,19 @@ jobs:
       # signature nobody has checked would be shipping the one thing here whose
       # only purpose is to be checked.
       - name: Verify what was just signed
-        if: steps.prereq.outputs.ready == '1'
         run: ./tools/verify-release.sh
 
       # Built after signing, never before: build-archive.sh folds
       # bundle/release.statement and its .sig into the archive when they exist,
       # and an archive assembled first would be a published install path that
-      # cannot satisfy --require-release. Unconditional, so that a release with
-      # signing switched off still has an installable artifact — the script says
-      # loudly in its output when what it produced is unsigned.
+      # cannot satisfy --require-release.
       - name: Build the installable archive
-        if: '!cancelled()'
         run: ./tools/build-archive.sh --out dist
 
       # The checksum published beside the archive is only worth publishing if
       # someone else can arrive at it. Two builds of the same tree must agree,
       # or the sidecar describes one machine's afternoon rather than a release.
       - name: The archive is byte-reproducible
-        if: '!cancelled()'
         run: |
           set -euo pipefail
           ./tools/build-archive.sh --out dist-again >/dev/null
@@ -116,61 +151,31 @@ jobs:
           rm -rf dist-again
           echo "archives reproduce byte for byte"
 
-      - name: Attach the statement and signature to the release
-        if: steps.prereq.outputs.ready == '1'
+      # The artifact consumers will download, installed the way they install it:
+      # extracted, no git on PATH, --require-release. Then refused when its
+      # statement is altered, its content is altered, or ssh-keygen is missing.
+      # Writes dist/.accepted naming the tarball that passed; publish-release.sh
+      # publishes nothing else.
+      - name: Install the archive as a consumer would
+        run: ./tools/test-release-archive.sh --dist dist
+
+      - name: Publish the verified release
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.tag.outputs.tag }}
         run: |
           set -euo pipefail
-          TAG="${GITHUB_REF#refs/tags/}"
-          gh release view "$TAG" >/dev/null 2>&1 \
-            || gh release create "$TAG" --title "$TAG" --notes "Causeway $TAG"
-          gh release upload "$TAG" \
-            bundle/release.statement bundle/release.statement.sig --clobber
+          ./tools/publish-release.sh --tag "$TAG" --dist dist
+          VERSION="$(cat VERSION)"
           {
-            echo "### Signed \`$TAG\`"
+            echo "### Published \`$TAG\`"
             echo ""
             echo '```'
             cat bundle/release.statement
             echo '```'
             echo ""
-            echo "Consumers who cloned verify with:"
-            echo ""
-            echo '```sh'
-            echo "gh release download $TAG -p 'release.statement*' -D bundle/"
-            echo "./tools/verify-release.sh"
-            echo '```'
-            echo ""
-            echo "Consumers who installed from the archive already have both files."
-          } >> "$GITHUB_STEP_SUMMARY"
-
-      # The archive is attached whether or not the release was signed, because
-      # the alternative is a release whose only install path is `git clone` —
-      # which is the assumption ADR 0030 removed. What changes with signing is
-      # what the archive can prove about itself, and the summary says which.
-      - name: Attach the installable archive to the release
-        if: '!cancelled()'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          TAG="${GITHUB_REF#refs/tags/}"
-          gh release view "$TAG" >/dev/null 2>&1 \
-            || gh release create "$TAG" --title "$TAG" --notes "Causeway $TAG"
-          gh release upload "$TAG" dist/* --clobber
-
-          VERSION="$(cat VERSION)"
-          {
-            echo "### Install without git"
-            echo ""
-            if [ "${{ steps.prereq.outputs.ready }}" = "1" ]; then
-              echo "The archive carries the release statement and its signature, so"
-              echo "\`sync.sh --require-release\` is satisfiable on a machine with no git,"
-              echo "no credential for this repository, and no network."
-            else
-              echo "**This archive is unsigned.** It installs, and it cannot satisfy"
-              echo "\`--require-release\`, because nothing in it attests which release it is."
-            fi
+            echo "Install without git: the archive carries the statement and its signature,"
+            echo "so \`sync.sh --require-release\` works with no git, no credential and no network."
             echo ""
             echo '```sh'
             echo "curl -fsSLO <asset-url>/causeway-$VERSION.tar.gz"
@@ -180,9 +185,35 @@ jobs:
             echo "./causeway-$VERSION/tools/sync.sh /path/to/project --require-release"
             echo '```'
             echo ""
+            echo "Consumers who cloned verify with:"
+            echo ""
+            echo '```sh'
+            echo "gh release download $TAG -p 'release.statement*' -D bundle/"
+            echo "./tools/verify-release.sh"
+            echo '```'
+            echo ""
             echo "Checksums:"
             echo ""
             echo '```'
             cat dist/*.sha256
             echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # The failure policy. Runs only when a step above failed. A release a
+      # maintainer published from the web before this ran is turned back into a
+      # draft, so nobody downloads a release whose evidence did not hold. It
+      # uploads nothing.
+      - name: Withdraw the release after a failure
+        if: failure() && steps.tag.outputs.tag != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          set -euo pipefail
+          ./tools/publish-release.sh --tag "$TAG" --withdraw
+          {
+            echo "### Not released: \`$TAG\`"
+            echo ""
+            echo "A step above failed, so nothing was published. If a release for this"
+            echo "tag was already visible, it is now a draft. Fix the cause and re-run."
           } >> "$GITHUB_STEP_SUMMARY"
