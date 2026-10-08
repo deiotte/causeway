@@ -27,6 +27,32 @@ at the time, because none were.
 
 ---
 
+## v2.9.0 — 2026-10-08
+
+When a constraint changes, a project can find the decisions that rested on it. Minor —
+one more vendored tool; no check, input contract, verdict or profile moved, and nothing
+anyone owes changes. Build DNA stays at 1.13, the spine at 0.8, the gate configuration at
+0.8. The bundle grows from 31 to 32 files.
+
+- **`tools/impact.sh <ID>...`,** vendored into every project. Read-only, offline,
+  advisory. It follows the references a project already records — ADR `forces` and
+  `survey_rows`, and the Survey's Forces, Binds, Depends on and ADR columns — and lists
+  each ADR a changed row reaches, labelled **direct** (cited, or reached through a `DEC-`
+  row that cites or is bound by it), **indirect** (from a decision that depends on an
+  affected one) or **inferred** (mentioned in text only — uncertain). Every entry says
+  why, and shows the ADR's status and `revisit_if`. A superseded ADR points at the record
+  in force; a corrected one names its correction. `--json` prints `causeway-impact-v1`.
+  #17, ADR 0049.
+- **`--check`** lists references that point nowhere — a force or `DEC-` row the Survey
+  does not have, an ADR number not on disk — and counts accepted ADRs with no structured
+  reference, which is how much of the record the tool cannot see.
+- **It decides nothing.** No ADR is superseded or edited. The Survey skill says what to do
+  with the list: read each ADR against the new constraint, and supersede what no longer
+  holds with an S1 ADR. The ADR template's `revisit_if` comment says where it is shown.
+- **`tools/test-impact.sh`, 23 cases,** run in CI and the release gate, built on a worked
+  example: one constraint reaching five decisions at three levels through every kind of
+  reference, and an unrelated constraint reaching only its own.
+
 ## v2.8.0 — 2026-10-08
 
 A project can see who owes which practitioner an answer. Minor — one more vendored

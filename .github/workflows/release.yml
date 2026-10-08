@@ -79,6 +79,7 @@ jobs:
           ./tools/test-doctor.sh
           ./tools/test-upgrade-starters.sh
           ./tools/test-field-notes.sh
+          ./tools/test-impact.sh
 
       # Missing prerequisites stop the release. Until v2.4.1 they produced a
       # warning and an unsigned archive published as the official release.
