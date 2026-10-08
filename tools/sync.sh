@@ -425,11 +425,21 @@ STAGE=""
 trap 'rm -rf "$GEN"' EXIT
 
 plan_always() { PLAN_SRC+=("$1"); PLAN_DST+=("$2"); }
+
+# A seeded starter also records its baseline: the template exactly as seeded,
+# under .causeway/starters/, and a line in .causeway/starters.txt. That is what
+# lets tools/upgrade-starters.sh tell the project's edits from upstream's later,
+# three ways. Outside the lock on purpose: the starter is the project's, so its
+# baseline is the project's too, and check-drift.sh has no business with either.
+# ADR 0046.
+SEEDED=()
 plan_seed() {
   if [ -e "$TARGET/$2" ] || [ -L "$TARGET/$2" ]; then
     NOTES+=("${4-  $2 exists, left alone}")
   else
     PLAN_SRC+=("$1"); PLAN_DST+=("$2"); NOTES+=("$3")
+    plan_always "$1" ".causeway/starters/$2.base"
+    SEEDED+=("$(sha_of "$1")  $2  ${1#"$STANDARD_DIR"/}  v$VERSION")
   fi
 }
 
@@ -674,6 +684,25 @@ if [ -f "$STANDARD_DIR/bundle/release.statement" ] \
   plan_always "$STANDARD_DIR/bundle/release.statement.sig" "bundle/release.statement.sig"
   NOTES+=("  copied bundle/release.statement and .sig — tools/verify-release.sh can")
   NOTES+=("        now run in this project's CI with no network")
+fi
+
+# The baseline index: every line already there, except those this run replaces
+# by seeding the same file again, then the new ones. Untouched when nothing was
+# seeded, so a re-sync of an established project leaves it byte-identical.
+if [ "${#SEEDED[@]}" -gt 0 ]; then
+  {
+    if [ -f "$TARGET/.causeway/starters.txt" ]; then
+      while IFS= read -r line; do
+        dst="$(echo "$line" | awk '{print $2}')"
+        keep=1
+        for s in "${SEEDED[@]}"; do [ "$(echo "$s" | awk '{print $2}')" = "$dst" ] && keep=0; done
+        [ "$keep" -eq 1 ] && echo "$line"
+      done < <(grep -v '^#' "$TARGET/.causeway/starters.txt")
+    fi
+    printf '%s\n' "${SEEDED[@]}"
+  } | { echo "# sha256-of-baseline  project-file  template  seeded-from — tools/upgrade-starters.sh reads this. ADR 0046."; LC_ALL=C sort -k2; } \
+    > "$GEN/starters.txt"
+  plan_always "$GEN/starters.txt" ".causeway/starters.txt"
 fi
 
 # The lock is planned like any other file, and applied last.

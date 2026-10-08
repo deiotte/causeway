@@ -48,7 +48,7 @@ In plain English: **Causeway lets you use AI to move faster without making “th
 
 ## Current version
 
-Source now ships **2.5.0** (`RELEASED` 2026-10-08). Build DNA 1.13; gate configuration 0.8; ServiceNow overlay 1.12. The first public release was 2.2.0.
+Source now ships **2.6.0** (`RELEASED` 2026-10-08). Build DNA 1.13; gate configuration 0.8; ServiceNow overlay 1.12. The first public release was 2.2.0.
 
 The table below is a dated review snapshot, not a claim about the current commit: it records what was verified on **2026-09-18** against commit `93fbdd1`, at 1.15.0. That commit is in the standard's pre-publication history, which this repository does not carry ([ADR 0039](decisions/0039-publish-from-a-fresh-history.md)). What has moved since is in [CHANGELOG.md](CHANGELOG.md); 1.16.0 has not been through the same external review.
 
@@ -65,7 +65,7 @@ The table below is a dated review snapshot, not a claim about the current commit
 The current 30-file consumer bundle has digest:
 
 ```text
-sha256:9bf9e6fbbe1cf0b0a4e04cb0e839f2da10fce7445d94a27c2b1ecb41eff1d5f8
+sha256:b85c89e39b297649eff3cfbf57cc2dc9d41e6f65e8deeaf57516bdf0fb06f117
 ```
 
 The bundle identifies a defined set of contract files. It does not cover every file in this repository or in the installation archive.
@@ -338,7 +338,7 @@ There is no ServiceNow connector, ATF runner, Instance Scan collector, or end-to
 
 | Evidence | What was established | What remains outside it |
 |---|---|---|
-| Internal validator | `tools/validate.py` completes 718 internal consistency checks; reproduced locally and reported by current CI | Product behavior, evaluator correctness, decision quality, and operational outcomes |
+| Internal validator | `tools/validate.py` completes 728 internal consistency checks; reproduced locally and reported by current CI | Product behavior, evaluator correctness, decision quality, and operational outcomes |
 | Bundle and adapters | The committed manifest reproduces; all four adapters name the three shipped skills | Whether an agent actually reads and follows those instructions |
 | Distribution probes | Clean sync, ServiceNow sync, drift rejection, byte-identical repeated tar/ZIP builds, valid checksum sidecars, and installation with Git absent from `PATH` | Independent adoption and target-environment usability |
 | Release workflow | Current release signing, signature verification, archive building and publication steps succeeded | Independent signing-key custody or verification of a separately downloaded archive by this review |
