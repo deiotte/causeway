@@ -450,6 +450,44 @@ finding ci.required unverified "repository setting: required checks" \
   "Whether the drift check is required to pass before merge is a repository setting no file here records." \
   "Make the CI job that runs check-drift.sh a required status check on the default branch."
 
+# ── Field notes ──────────────────────────────────────────────────────────────
+#
+# The Practitioner role's reciprocal obligation: every note answered, and its
+# author told. tools/field-notes.sh keeps the queue; this is its one-line
+# summary. With no notes there is nothing owed. ADR 0048.
+
+if ls domain/field-notes/*.md 2>/dev/null | grep -qvi '/readme\.md$'; then
+  if [ ! -f tools/field-notes.sh ] || ! command -v python3 >/dev/null 2>&1; then
+    finding feedback.field_notes unverified "domain/field-notes/" \
+      "There are field notes, and tools/field-notes.sh or python3 is not here to read their state." \
+      "Re-sync to get tools/field-notes.sh, and run it on a machine with python3."
+  else
+    fn="$(bash tools/field-notes.sh --json . 2>/dev/null | python3 -c '
+import json, sys
+d = json.load(sys.stdin); n = d["numbers"]
+print(n["notes"], n["open"], "" if n["overdue"] is None else n["overdue"], n["unassigned"], len(d["problems"]),
+      "" if d["respond_within_days"] is None else d["respond_within_days"], sep="|")' 2>/dev/null)"
+    IFS='|' read -r fn_notes fn_open fn_overdue fn_unassigned fn_problems fn_target <<< "$fn"
+    if [ -z "$fn" ]; then
+      finding feedback.field_notes unverified "domain/field-notes/" \
+        "tools/field-notes.sh could not read the register." "Run tools/field-notes.sh to see why."
+    elif [ -z "$fn_target" ]; then
+      finding feedback.field_notes incomplete ".causeway/field-notes.json" \
+        "$fn_notes field note(s), $fn_open open, and no response target chosen — so nothing can be late, and nothing can be counted as on time." \
+        "Choose one: write {\"respond_within_days\": 14} (or your number) to .causeway/field-notes.json. Run tools/field-notes.sh for the queue."
+    elif [ "${fn_overdue:-0}" -gt 0 ] || [ "${fn_problems:-0}" -gt 0 ]; then
+      finding feedback.field_notes incomplete "domain/field-notes/" \
+        "${fn_overdue:-0} of $fn_open open note(s) past the ${fn_target}-day target, $fn_unassigned unassigned, $fn_problems disposition problem(s)." \
+        "Run tools/field-notes.sh for the queue and the problems. An author who is never answered stops writing."
+    else
+      finding feedback.field_notes ok "domain/field-notes/" \
+        "$fn_notes field note(s), $fn_open open, none past the ${fn_target}-day target, every disposition evidenced."
+    fi
+  fi
+else
+  finding feedback.field_notes ok "domain/field-notes/" "No field notes yet, so no answer is owed."
+fi
+
 # ── Gate evaluator ───────────────────────────────────────────────────────────
 #
 # ADOPTING.md asks for an engine that evaluates gate/checks.json, or an honest

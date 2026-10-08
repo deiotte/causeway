@@ -128,6 +128,12 @@ jobs:
         if: '!cancelled()'
         run: ./tools/test-upgrade-starters.sh
 
+      # ADR 0048. The field-note queue: who owes which practitioner an answer,
+      # and no disposition called done without its evidence.
+      - name: The field-note queue shows who owes whom an answer
+        if: '!cancelled()'
+        run: ./tools/test-field-notes.sh
+
       - name: Drift detection actually detects drift
         if: '!cancelled()'
         run: |

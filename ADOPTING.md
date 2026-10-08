@@ -34,7 +34,7 @@ Every one of them is currently an estimate by the people who wrote the standard.
 | **How long the Contributor floor took** — from a developer first opening the seeded `CONTRIBUTING.md` to their first merged change under the standard | The standard claims *an afternoon* | Build DNA 4 |
 | **What the Maintainer floor costs per month** — pin upkeep, waiver reviews, closing spine rows | The standard claims *a standing obligation* and gives no size | Build DNA 4 |
 | **Field notes written, and how long each took a practitioner** | The standard claims *half an hour per note* | Build DNA 8 |
-| **Maintainer time to disposition a note, and how many waited more than two weeks** | The reciprocal obligation is the half most likely to lapse quietly | Build DNA 8, and the age threshold in item 6 |
+| **Maintainer time to disposition a note, and how many waited past your target** — `tools/field-notes.sh --json` counts both, from `effort_minutes` and the dates | The reciprocal obligation is the half most likely to lapse quietly | Build DNA 8, and the age threshold in item 6 |
 | **Did your AI agent find and use the skills without being told?** — Survey, Decision Spine, field note | A pointer in an adapter file is not discovery | Build DNA 9 |
 | **Supersessions and their cause codes** — every ADR you superseded, and which of S1–S5 it was | The only signal for whether the Survey's intake rules prevent churn | Build DNA 10 |
 | **Your placement state over the quarter** — `placement.state` from `tools/doctor.sh --json` at the start and at the end, and every lowering it flagged with how it was resolved | Nothing counts how much of a portfolio runs on the C1 default, or how often a lowering skips its declaration | Gate configuration 13 |

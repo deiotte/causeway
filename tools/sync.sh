@@ -143,6 +143,9 @@ VENDORED=(
   # runs in the consuming project, and a project told to run it and not given
   # it could only follow the instruction with a clone of the standard. ADR 0045.
   "tools/doctor.sh"
+  # The field-note queue: who owes which practitioner an answer. Vendored for
+  # the reason doctor.sh is — it runs in the consuming project. ADR 0048.
+  "tools/field-notes.sh"
 )
 
 # The trust anchor for release signatures. Vendored so a consuming project can

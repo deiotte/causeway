@@ -36,7 +36,10 @@ own homework is not being reviewed.
 | `promoted_to` | Where it landed: an ADR, a test, a `CLAUDE.md` line, or the place it was already handled. |
 
 `status: new` sitting here for weeks is the process failing, and it is the first
-thing worth reporting. Every note reaches a disposition and its author gets told
+thing worth reporting. `tools/field-notes.sh` lists every open note with its age,
+owner and next action, and every disposition missing its evidence. Choose how
+quickly this project answers — `{"respond_within_days": 14}` in
+`.causeway/field-notes.json`, or your own number — and it will say which are late. Every note reaches a disposition and its author gets told
 which — including "already handled", which is a real outcome and still names
 where. The author is the one person qualified to check that the existing handling
 is actually right.
