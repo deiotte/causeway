@@ -134,6 +134,12 @@ jobs:
         if: '!cancelled()'
         run: ./tools/test-field-notes.sh
 
+      # ADR 0049. When a constraint changes, the decisions resting on it are
+      # found with their reason and confidence, and nothing else is.
+      - name: A changed constraint finds the decisions that rest on it
+        if: '!cancelled()'
+        run: ./tools/test-impact.sh
+
       - name: Drift detection actually detects drift
         if: '!cancelled()'
         run: |

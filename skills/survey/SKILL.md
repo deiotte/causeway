@@ -262,6 +262,17 @@ Name the code plainly and without blame. The count across builds is the only sig
 that says whether the intake is actually improving, and a team that reads the codes as
 blame stops recording them honestly — at which point the signal is gone.
 
+**When a constraint changes, find what rested on it before deciding anything.** A
+`GR-` row that moves — an environment newly permitted, a release rule tightened — is the
+S1 case: outside information changed. Update the row, then run
+`tools/impact.sh GR-n`. It lists every ADR that cites the row in `forces`, came from a
+`DEC-` row that cites or is bound by it, or depends on one that does. It labels each
+direct, indirect or inferred, and shows each one's `revisit_if`. Read those ADRs against
+the new constraint. A decision that no longer holds is superseded by a new ADR, coded
+S1, citing the same row. The tool changes nothing; it only finds what to read.
+`tools/impact.sh --check` lists references that point nowhere. Fix those first, because
+a broken reference is a decision this cannot find (ADR 0049).
+
 ---
 
 ## Hard rules

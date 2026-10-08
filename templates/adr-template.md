@@ -7,7 +7,8 @@ spine_rows: [SA-0.0]    # design-layer rows this ADR closes. Required.
 survey_rows: []         # the Survey DEC- row this came from. Optional; copied, not authored.
 forces: []              # the Survey rows that discriminated (GR-/LD-/IV-/FM-). Optional.
 door:                   # one-way | two-way. Read from the spine row's One-way column.
-revisit_if:             # the condition that would legitimately reopen this
+revisit_if:             # the condition that would legitimately reopen this. tools/impact.sh shows it
+                        # when a constraint this ADR cites in forces changes.
 approver:               # required only for the eight dagger rows
   name:
   role:

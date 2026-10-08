@@ -146,6 +146,8 @@ VENDORED=(
   # The field-note queue: who owes which practitioner an answer. Vendored for
   # the reason doctor.sh is — it runs in the consuming project. ADR 0048.
   "tools/field-notes.sh"
+  # Which accepted decisions rest on a constraint that just changed. ADR 0049.
+  "tools/impact.sh"
 )
 
 # The trust anchor for release signatures. Vendored so a consuming project can

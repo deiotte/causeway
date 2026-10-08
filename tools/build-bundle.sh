@@ -77,6 +77,7 @@ BUNDLE_FILES=(
   "tools/verify-release.sh"
   "tools/doctor.sh"
   "tools/field-notes.sh"
+  "tools/impact.sh"
   # The trust anchor. Digested so it cannot be swapped without moving the
   # bundle digest — validate.py §13 fails if this is added and sync.sh is not,
   # or the file is named here and does not exist.
