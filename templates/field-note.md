@@ -8,7 +8,20 @@ author:
 date: YYYY-MM-DD
 confidence: seen-it       # seen-it | fairly-sure | suspect
 status: new               # new | in-review | promoted | closed
-promoted_to: []           # filled in by the reviewer, never by the author
+source:                   # where it came from, if not written here — an issue URL
+# ── Below here is the reviewer's, never the author's. tools/field-notes.sh reads it. ──
+promoted_to: []
+owner:                    # the maintainer answering this note. Reassign by changing it.
+next_action:              # one line: what happens next, and who does it
+disposition:              # when status becomes promoted or closed
+  outcome:                # adr | test | constraint | already-handled
+  landed_at:              # ADR number, test path, file and section — or where it was already handled
+  date:                   # YYYY-MM-DD
+author_told:
+  date:                   # YYYY-MM-DD
+  evidence:               # link to the comment, message or meeting note that told them
+effort_minutes:           # reviewer time spent on it — the adoption trial counts this
+reopened: []              # YYYY-MM-DD, each time it comes back; set status back to in-review
 ---
 
 <!--
@@ -73,20 +86,18 @@ empty ranks last by default.
 <!--
   REVIEWER FILLS THIS IN. The author never does.
 
-  Every note reaches one of the four outcomes below and the author is told
-  which. A note that sits here with no disposition is the failure this whole
-  path exists to prevent: expertise collected, acknowledged, and then not used.
-  The person who wrote it will notice, and they will be right to stop writing
-  them.
+  Every note reaches one of four outcomes — ADR, test, constraint, or already
+  handled — and the author is told which. A note that sits here with no
+  disposition is the failure this whole path exists to prevent: expertise
+  collected, acknowledged, and then not used. The person who wrote it will
+  notice, and they will be right to stop writing them.
 -->
 
-- **Reviewed by:**
-- **Date:**
-- **Outcome:** ADR | test | `CLAUDE.md` constraint | closed as already handled
-- **Landed at:** <ADR number, test path, file and section, or where it was already handled>
-- **Told the author:** yes / no
+The disposition itself goes in the header above — `owner`, `disposition`,
+`author_told` — where `tools/field-notes.sh` can count it. Use this space for what
+the author should read: what you did with their note, and why.
 
 > Closed as already handled is a real outcome, not a polite no. It still needs a
-> `Landed at`, because the author is the one person qualified to check that the
+> `landed_at`, because the author is the one person qualified to check that the
 > existing handling is actually correct — and that check is worth more than the
 > note would have been.

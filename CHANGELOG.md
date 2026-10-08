@@ -27,6 +27,36 @@ at the time, because none were.
 
 ---
 
+## v2.8.0 — 2026-10-08
+
+A project can see who owes which practitioner an answer. Minor — one more vendored
+tool and more header fields in the field-note template; no check, input contract,
+verdict or profile moved, and nothing anyone owes changes. Build DNA stays at 1.13,
+the spine at 0.8, the gate configuration at 0.8. The bundle grows from 30 to 31 files.
+
+- **`tools/field-notes.sh`,** vendored into every project. Read-only, offline,
+  advisory. It lists every open note (new, in-review, or reopened) oldest first with
+  its age, owner, next action and source, and names every problem: a disposition with
+  no recognised outcome, no `landed_at` or no date; an author not recorded as told, or
+  recorded with no evidence of the telling; a note reopened after its disposition and
+  still marked closed; an unreadable header or unknown status. It counts open,
+  overdue, unassigned, disposed, median days to disposition, authors told with
+  evidence, and reviewer minutes. `--json` prints `causeway-field-notes-v1`. #16, ADR 0048.
+- **Overdue is the project's call.** `.causeway/field-notes.json`
+  (`{"respond_within_days": 14}`) or `--target-days`. With no target there is no
+  overdue, only ages.
+- **The field-note template's header carries the reviewer's half:** `owner`,
+  `next_action`, `disposition` (outcome, landed_at, date), `author_told` (date and
+  evidence), `effort_minutes`, `reopened`, and an optional `source` for notes that
+  arrived as issues. The prose Disposition block now holds what the author should
+  read. Notes written before v2.8.0 are still read from their prose block.
+- **`doctor.sh` gains one line,** `feedback.field_notes`: incomplete when notes exist
+  and no target is chosen, or when any are late or carry a disposition problem.
+- **The field-note skill, the field-notes README and ADOPTING.md** say how to record a
+  disposition, reassignment and reopening, and where the numbers come from. A note
+  stays an input: nothing writes it into the open-items index.
+- **`tools/test-field-notes.sh`, 26 cases,** run in CI and the release gate.
+
 ## v2.7.0 — 2026-10-08
 
 A project can see whether its placement was declared or defaulted. Minor —

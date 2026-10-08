@@ -159,9 +159,17 @@ Rules:
   way* should be a document with a named practitioner's argument in it. That
   attribution is also the only thing that keeps the next note coming.
 
-Then fill the Disposition block, set `status`, and **tell the author what
-happened to their note.** A note collected and silently shelved teaches its
+Then fill the reviewer's half of the header — `disposition` (outcome, where it
+landed, date) — set `status`, and **tell the author what happened to their
+note.** Record that you did in `author_told`, with the date and a link to the
+comment, message or meeting note that told them: a claim that the author was told
+is worth exactly its evidence. A note collected and silently shelved teaches its
 author to stop writing them, and they will be right to.
+
+While a note is open, keep `owner` and `next_action` current. Reassigning it is
+changing `owner`; it does not reset the note's age. Reopening one is adding the
+date to `reopened` and setting `status` back to `in-review`. Record
+`effort_minutes` if the project is measuring the maintainer floor.
 
 ---
 
@@ -169,8 +177,11 @@ author to stop writing them, and they will be right to.
 
 `domain/field-notes/` is the corpus. Useful passes over it:
 
-- **Undisposed notes.** `status: new` older than a couple of weeks is the
-  process failing, and it is the first thing to report.
+- **Undisposed notes.** Run `tools/field-notes.sh`. It lists every open note
+  oldest first with its owner and next action, flags any past the response target
+  the project chose in `.causeway/field-notes.json`, and names every disposition
+  that is missing its outcome, its place, or the evidence that the author was told.
+  An old open note is the process failing, and it is the first thing to report.
 - **Clusters.** Three notes circling the same area usually mean one unwritten
   ADR, not three.
 - **Contradictions.** Two practitioners disagreeing is a finding, not a mess.
