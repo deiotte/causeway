@@ -27,6 +27,43 @@ at the time, because none were.
 
 ---
 
+## v2.4.1 — 2026-10-08
+
+A release is published only after everything before it passed. Patch — the release
+workflow and its tools change; nothing a consuming project vendors, runs or owes
+changes. Build DNA stays at 1.13, the spine at 0.8, the gate configuration at 0.8.
+The bundle digest moves because `VERSION` does.
+
+- **No step runs after a failure.** The release workflow's archive steps carried
+  `if: '!cancelled()'`, which runs a step even when an earlier one failed, so an
+  archive could be attached to a release whose signature had not verified or whose
+  archive did not reproduce (#13). Every step now needs every step before it.
+- **Missing signing prerequisites stop the release.** They used to produce a warning
+  and an unsigned archive published as the official release. There is no unsigned
+  official release; a development archive is `tools/build-archive.sh` on a
+  workstation.
+- **The release re-runs the source gate** — `validate.py`, the bundle and adapter
+  checks, and every test script — on the tagged commit, and checks the tag names
+  `VERSION`.
+- **`tools/test-release-archive.sh`** installs the archive about to be published the
+  way a consumer does: checksums, `.tar.gz` and `.zip` agree, statement inside,
+  `sync.sh --require-release` with no git, the lock pins the signed release, drift
+  and signature verify in the project. Then an altered statement, altered content and
+  a missing `ssh-keygen` are each refused with nothing written. It writes
+  `dist/.accepted` naming the tarball that passed.
+- **`tools/publish-release.sh`** is the only step that changes a release. It
+  re-checks everything locally — tag, signature, checksums, the statement inside the
+  archive, and that `.accepted` names this tarball — before contacting GitHub at all.
+  The release is a draft while its six assets upload in one call, then published.
+  `--withdraw`, run when any step failed, turns a visible release back into a draft.
+- **Tested without GitHub.** `tools/test-publish-release.sh` runs the publisher
+  against a stub `gh` and proves that seven kinds of bad input reach GitHub zero
+  times, a failed upload leaves a draft, and withdraw uploads nothing. Standard CI
+  runs it, and the archive test against a throwaway-signed copy, on every pull request.
+- **`validate.py` guards the workflow's shape:** no step condition but the
+  withdrawal's overrides success, no `gh release` call outside the publisher, and
+  the gates appear in order.
+
 ## v2.4.0 — 2026-10-08
 
 A sync keeps what a project already told its agents. Minor — `sync.sh` changes what
