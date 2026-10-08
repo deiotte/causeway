@@ -94,6 +94,9 @@ printf '# Lantern — start here\n' > "$P/START-HERE.md"
 printf '## Lantern\n- [ ] tests\n' > "$P/.github/pull_request_template.md"
 printf '* @lantern/engineering\n' > "$P/.github/CODEOWNERS"
 printf '{ "registers": [] }\n' > "$P/decisions/open-items.json"
+# The placement ADR: closes both rows, so the class and the tier have an argument.
+printf -- '---\nadr: "0001"\ntitle: Place Lantern\nstatus: Accepted\ndate: 2026-10-01\nspine_rows: [SA-1.1, SA-1.14]\n---\n\nMission, C2.\n' \
+  > "$P/decisions/0001-place-lantern.md"
 mkdir -p "$P/.github/workflows"
 printf 'jobs:\n  drift:\n    steps:\n      - run: bash tools/check-drift.sh\n' > "$P/.github/workflows/ci.yml"
 doctor "$P"
@@ -158,6 +161,92 @@ for d in /usr/local/bin /usr/bin /bin; do
 done
 reset; doctor "$P" env PATH="$NOPY"
 expect "with no python3, placement is unverified rather than passed" placement.system_json unverified
+
+# ── Placement evidence: declared, defaulted, argued, agreed, changed. ADR 0047 ──
+
+pstate() { python3 -c "import json;print(json.load(open('$WORK/doc.json'))['placement']['state'])"; }
+sysjson() {  # sysjson <dir> <tier> <class|-> [name role date]
+  local cls=""; [ "$3" = "-" ] || cls="\"criticality_class\": \"$3\","
+  local auth=""; [ -z "${4:-}" ] || auth="\"criticality_authority\": {\"name\": \"$4\", \"role\": \"$5\", \"declared\": \"$6\"},"
+  printf '{ %s %s "tier": "%s" }\n' "$cls" "$auth" "$2" > "$1/system.json"
+}
+
+reset; sysjson "$P" core C1 "Ada Ops" Sponsor 2026-10-01; doctor "$P"
+[ "$(pstate)" = declared ] && ok "a deliberate C1 with its authority is 'declared'" \
+  || bad "a deliberate C1 with its authority is 'declared'" "state $(pstate)"
+grep -q 'does not authenticate' "$WORK/doc.json" \
+  && ok "and doctor says a name in a file is an assertion, not an authentication" \
+  || bad "and doctor says a name in a file is an assertion, not an authentication"
+
+reset; sysjson "$P" core -; doctor "$P"
+[ "$(pstate)" = defaulted ] && ok "the same system with no class is 'defaulted' — C1 to the gate, not to a reader" \
+  || bad "the same system with no class is 'defaulted' — C1 to the gate, not to a reader" "state $(pstate)"
+
+reset; sysjson "$P" core C1; doctor "$P"
+[ "$(pstate)" = asserted ] && ok "a class nobody is on record declaring is 'asserted'" \
+  || bad "a class nobody is on record declaring is 'asserted'" "state $(pstate)"
+
+reset; sysjson "$P" core C2 "Ada Ops" "Team Lead" 2026-10-01; doctor "$P"
+expect "a role SA-1.1 does not name is an incomplete authority" placement.authority incomplete
+
+reset; printf '{ "criticality_class": "C2" }\n' > "$P/system.json"; doctor "$P"
+[ "$(pstate)" = tier-missing ] && ok "no tier is 'tier-missing'" || bad "no tier is 'tier-missing'" "state $(pstate)"
+
+reset; rm "$P/decisions/0001-place-lantern.md"; doctor "$P"
+expect "no ADR closing SA-1.1 is incomplete" placement.adr_class incomplete
+expect "no ADR closing SA-1.14 is incomplete" placement.adr_tier incomplete
+
+reset; sed -i 's/^status: Accepted/status: Superseded/' "$P/decisions/0001-place-lantern.md"; doctor "$P"
+expect "a superseded placement ADR is not the argument" placement.adr_class incomplete
+
+reset; printf -- '- **Tier:** mission\n- **Criticality class:** C3\n' >> "$P/CLAUDE.md"; doctor "$P"
+expect "CLAUDE.md and system.json disagreeing on the class is incomplete" placement.records_agree incomplete
+reset; printf -- '- **Tier:** operational | mission | core\n' >> "$P/CLAUDE.md"; doctor "$P"
+expect "an unfilled placement block in CLAUDE.md is incomplete" placement.records_agree incomplete
+reset; printf -- '- **Tier:** mission\n- **Criticality class:** C2\n' >> "$P/CLAUDE.md"; doctor "$P"
+expect "CLAUDE.md and system.json agreeing is ok" placement.records_agree ok
+expect "without git history, a reclassification is unverified" placement.reclassification unverified
+
+# History. Each case commits an earlier placement, then changes it.
+history() {  # history <tier> <class> <name> <role> <date>
+  reset
+  git -C "$P" init -q
+  sysjson "$P" "$@"
+  git -C "$P" add -A
+  git -C "$P" -c user.name=t -c user.email=t@invalid -c commit.gpgsign=false commit -qm placed
+}
+adr_dated() { printf -- '---\nadr: "0002"\ntitle: Reclassify\nstatus: Accepted\ndate: %s\nspine_rows: [SA-1.1]\n---\n' "$1" \
+  > "$P/decisions/0002-reclassify.md"; }
+
+history mission C2 "Ada Ops" Sponsor 2026-09-01
+sysjson "$P" mission C1 "Ada Ops" Sponsor 2026-09-01; doctor "$P"
+expect "raising the class needs no ceremony" placement.reclassification ok
+grep -q 'Raised from C2 to C1' "$WORK/doc.json" && ok "and the raise is named" || bad "and the raise is named"
+
+history mission C1 "Ada Ops" Sponsor 2026-09-01
+sysjson "$P" mission C3 "Ada Ops" Sponsor 2026-09-01; doctor "$P"
+expect "lowering the class with no new declaration is incomplete" placement.reclassification incomplete
+
+history mission C1 "Ada Ops" Sponsor 2026-09-01
+sysjson "$P" mission C2 "Ada Ops" Sponsor 2026-10-01; adr_dated 2026-10-01; doctor "$P"
+expect "lowering with a newer declaration by the same authority, and its ADR, is ok" placement.reclassification ok
+
+history mission C1 "Ada Ops" Sponsor 2026-09-01
+sysjson "$P" mission C2 "Bob Dev" Customer 2026-10-01; adr_dated 2026-10-01; doctor "$P"
+expect "lowering declared by a different authority is incomplete" placement.reclassification incomplete
+
+history mission C1 "Ada Ops" Sponsor 2026-09-01
+sed -i 's/^date: .*/date: 2026-09-01/' "$P/decisions/0001-place-lantern.md"   # the original placement's ADR
+sysjson "$P" mission C2 "Ada Ops" Sponsor 2026-10-01; doctor "$P"
+expect "lowering with no ADR dated after the new declaration is incomplete" placement.reclassification incomplete
+
+history mission - 
+sysjson "$P" mission C3 "Ada Ops" Sponsor 2026-10-01; doctor "$P"
+expect "a first declaration after the default is not a lowering" placement.reclassification ok
+
+history core C2 "Ada Ops" Sponsor 2026-09-01
+sysjson "$P" mission C2 "Ada Ops" Sponsor 2026-09-01; doctor "$P"
+expect "a lowered tier is unverified — the catalog moves tiers, and doctor cannot see it" placement.tier_change unverified
 
 E="$(mktemp -d "$WORK/empty.XXXXXX")"
 cp "$STANDARD_DIR/tools/doctor.sh" "$WORK/doctor-standalone.sh"

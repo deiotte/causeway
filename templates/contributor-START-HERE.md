@@ -123,6 +123,8 @@ This is the Contributor floor from `AGENTS.md`, in the order you meet it.
 fields, `tier` and `criticality_class`. Look them up in `gate/profiles.json` to
 get the profile. That is the whole job.
 - If `criticality_class` is missing, assume **C1** — the strictest.
+  `tools/doctor.sh` reports that as **defaulted**, which is not the same as a
+  declared C1: the strictness is right, and nobody has decided it yet.
 - If `system.json` does not exist yet, **do not write one.** Placement is a
   decision for whoever owns the consequences, not a field to fill in. Tell
   [NAME], and point them at `skills/decision-spine/reference/placement.md`.

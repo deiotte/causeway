@@ -166,6 +166,7 @@ Pinning, signing, and installing — which copy, and how anyone would know if it
 | [0044](0044-publish-only-what-was-verified.md) | Publish only what was verified, all at once, and withdraw on failure | Accepted |
 | [0045](0045-diagnose-adoption-without-evaluating-it.md) | Diagnose adoption without evaluating it — a read-only doctor every project gets | Accepted |
 | [0046](0046-offer-starter-upgrades-three-ways.md) | Offer starter upgrades three ways — record the baseline at seeding, merge only what is clean | Accepted |
+| [0047](0047-tell-a-declared-placement-from-a-defaulted-one.md) | Tell a declared placement from a defaulted one — in doctor, not yet in the gate | Accepted |
 
 ### The standard's own CI and record-keeping
 

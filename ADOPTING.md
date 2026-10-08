@@ -37,6 +37,7 @@ Every one of them is currently an estimate by the people who wrote the standard.
 | **Maintainer time to disposition a note, and how many waited more than two weeks** | The reciprocal obligation is the half most likely to lapse quietly | Build DNA 8, and the age threshold in item 6 |
 | **Did your AI agent find and use the skills without being told?** — Survey, Decision Spine, field note | A pointer in an adapter file is not discovery | Build DNA 9 |
 | **Supersessions and their cause codes** — every ADR you superseded, and which of S1–S5 it was | The only signal for whether the Survey's intake rules prevent churn | Build DNA 10 |
+| **Your placement state over the quarter** — `placement.state` from `tools/doctor.sh --json` at the start and at the end, and every lowering it flagged with how it was resolved | Nothing counts how much of a portfolio runs on the C1 default, or how often a lowering skips its declaration | Gate configuration 13 |
 | **What broke** — a rule you could not follow as written, a check that fired wrong, an instruction that assumed something about your environment | Everything else | Whichever item it turns out to be |
 
 You do not need all of it. A report that answers two rows honestly is worth more
