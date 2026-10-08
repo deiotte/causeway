@@ -34,12 +34,18 @@ bad()  { FAIL=$((FAIL + 1)); echo "  FAIL  $1"; [ -z "${2:-}" ] || echo "       
 snap() { ( cd "$1" && find . -printf '%y %p\n' | LC_ALL=C sort \
            && find . -type f -exec sha256sum {} + | LC_ALL=C sort -k2 ); }
 
-# A target that already belongs to somebody.
+# A target that already belongs to somebody: its own instructions for every
+# tool Causeway writes a shim for, an old lock, and source. A sync into it
+# succeeds (ADR 0043), so a refusal below is the refusal under test.
 existing_project() {
   local p; p="$(mktemp -d "$WORK/project.XXXXXX")"
-  printf '# Our own agent instructions\n' > "$p/AGENTS.md"
   printf 'version=0.0.1\ndigest=sha256:old\n' > "$p/.causeway-lock"
   printf '# Our project\n' > "$p/CLAUDE.md"
+  printf '# Our Gemini rules\nUse tabs.\n' > "$p/GEMINI.md"
+  mkdir -p "$p/.github" "$p/.cursor/rules"
+  printf '# Our Copilot rules\nBe terse.' > "$p/.github/copilot-instructions.md"
+  printf -- '---\ndescription: ours\nalwaysApply: true\n---\n\nOur Cursor rule.\n' \
+    > "$p/.cursor/rules/causeway.mdc"
   mkdir -p "$p/src"; printf 'package main\n' > "$p/src/main.go"
   echo "$p"
 }
@@ -102,7 +108,7 @@ expect_untouched 1 "an unknown overlay is refused" \
   "$P" bash "$STANDARD_DIR/tools/sync.sh" "$P" --overlay no-such-platform
 
 P="$(existing_project)"
-rm "$P/AGENTS.md"; mkdir "$P/AGENTS.md"
+mkdir "$P/AGENTS.md"
 expect_untouched 9 "a destination that is a directory is a conflict" \
   "$P" bash "$STANDARD_DIR/tools/sync.sh" "$P"
 
@@ -145,6 +151,111 @@ after="$(snap "$P" | grep -v '\.causeway-lock$')"
   || bad "a re-sync is idempotent and keeps project-owned files"
 ls -A "$P" | grep -q '^\.causeway-sync\.' \
   && bad "no staging directory is left behind" || ok "no staging directory is left behind"
+
+# ── A project that already has agent instructions. ADR 0043, issue #10. ─────────
+
+begins() { grep -c '^<!-- causeway:begin' "$1" || true; }
+has_prefix() { [ "$(head -c "$(wc -c < "$1")" "$2")" = "$(cat "$1")" ]; }
+
+P="$(existing_project)"
+printf '# Our own agent instructions\n' > "$P/AGENTS.md"
+expect_untouched 9 "a project's own AGENTS.md is refused, not replaced" \
+  "$P" bash "$STANDARD_DIR/tools/sync.sh" "$P"
+grep -q 'AGENTS.md holds instructions Causeway did not write' "$WORK/out" \
+  && ok "the refusal names AGENTS.md and how to move it" \
+  || bad "the refusal names AGENTS.md and how to move it" "$(tail -4 "$WORK/out")"
+
+P="$(existing_project)"
+ORIG="$(mktemp -d "$WORK/orig.XXXXXX")"
+cp "$P/GEMINI.md" "$ORIG/gemini"; cp "$P/.github/copilot-instructions.md" "$ORIG/copilot"
+cp "$P/.cursor/rules/causeway.mdc" "$ORIG/cursor"; cp "$P/CLAUDE.md" "$ORIG/claude"
+if bash "$STANDARD_DIR/tools/sync.sh" "$P" >"$WORK/out" 2>&1; then
+  ok "a project with its own Gemini, Copilot, Cursor and Claude files installs"
+else
+  bad "a project with its own Gemini, Copilot, Cursor and Claude files installs" \
+      "$(tail -4 "$WORK/out" | tr '\n' ' ')"
+fi
+for pair in "gemini:GEMINI.md" "copilot:.github/copilot-instructions.md" \
+            "cursor:.cursor/rules/causeway.mdc"; do
+  o="${pair%%:*}"; f="${pair#*:}"
+  if has_prefix "$ORIG/$o" "$P/$f" && [ "$(begins "$P/$f")" -eq 1 ] \
+     && grep -q 'Read `AGENTS.md`' "$P/$f"; then
+    ok "$f keeps the project's text and gains one Causeway section"
+  else
+    bad "$f keeps the project's text and gains one Causeway section"
+  fi
+done
+cmp -s "$ORIG/claude" "$P/CLAUDE.md" && ok "CLAUDE.md is never edited" \
+  || bad "CLAUDE.md is never edited"
+grep -q 'CLAUDE.md does not import the standard' "$WORK/out" \
+  && ok "a CLAUDE.md with no @AGENTS.md import is reported" \
+  || bad "a CLAUDE.md with no @AGENTS.md import is reported"
+
+before="$(snap "$P" | grep -v '\.causeway-lock$')"
+bash "$STANDARD_DIR/tools/sync.sh" "$P" >/dev/null 2>&1
+after="$(snap "$P" | grep -v '\.causeway-lock$')"
+[ "$before" = "$after" ] && ok "a re-sync adds no second section anywhere" \
+  || bad "a re-sync adds no second section anywhere"
+
+# An edit inside the section is replaced; an edit outside it is kept.
+sed -i 's/^Read `AGENTS.md`.*/Ignore the standard./' "$P/GEMINI.md"
+printf '\nOur later rule.\n' >> "$P/GEMINI.md"
+bash "$STANDARD_DIR/tools/sync.sh" "$P" >/dev/null 2>&1
+if ! grep -q 'Ignore the standard' "$P/GEMINI.md" && grep -q 'Our later rule' "$P/GEMINI.md" \
+   && has_prefix "$ORIG/gemini" "$P/GEMINI.md" && [ "$(begins "$P/GEMINI.md")" -eq 1 ]; then
+  ok "only the marked section is rewritten on re-sync"
+else
+  bad "only the marked section is rewritten on re-sync"
+fi
+
+printf '\n@AGENTS.md\n' >> "$P/CLAUDE.md"
+bash "$STANDARD_DIR/tools/sync.sh" "$P" >"$WORK/out" 2>&1
+grep -q 'CLAUDE.md does not import' "$WORK/out" \
+  && bad "a CLAUDE.md that imports @AGENTS.md is not reported" \
+  || ok "a CLAUDE.md that imports @AGENTS.md is not reported"
+
+P="$(existing_project)"
+printf '<!-- causeway:begin -->\nhalf a section\n' >> "$P/GEMINI.md"
+expect_untouched 9 "damaged markers are a conflict, not a guess" \
+  "$P" bash "$STANDARD_DIR/tools/sync.sh" "$P"
+
+# A shim exactly as an earlier sync wrote it becomes the section, once.
+P="$(mktemp -d "$WORK/legacy.XXXXXX")"
+F="$(mktemp -d "$WORK/fresh.XXXXXX")"
+mkdir -p "$P/.github" "$P/.cursor/rules"
+cp "$STANDARD_DIR/adapters/GEMINI.md" "$P/GEMINI.md"
+cp "$STANDARD_DIR/adapters/copilot-instructions.md" "$P/.github/copilot-instructions.md"
+cp "$STANDARD_DIR/adapters/.cursor/rules/causeway.mdc" "$P/.cursor/rules/causeway.mdc"
+bash "$STANDARD_DIR/tools/sync.sh" "$P" >/dev/null 2>&1
+bash "$STANDARD_DIR/tools/sync.sh" "$F" >/dev/null 2>&1
+same=1
+for f in GEMINI.md .github/copilot-instructions.md .cursor/rules/causeway.mdc; do
+  cmp -s "$P/$f" "$F/$f" || same=0
+done
+[ "$same" -eq 1 ] && ok "an earlier sync's bare shims upgrade to exactly a fresh install's" \
+  || bad "an earlier sync's bare shims upgrade to exactly a fresh install's"
+
+# A symlink to AGENTS.md already points the tool at the standard.
+P="$(mktemp -d "$WORK/linked.XXXXXX")"
+ln -s AGENTS.md "$P/GEMINI.md"
+if bash "$STANDARD_DIR/tools/sync.sh" "$P" >/dev/null 2>&1 \
+   && [ -L "$P/GEMINI.md" ] && [ "$(readlink "$P/GEMINI.md")" = "AGENTS.md" ]; then
+  ok "GEMINI.md linked to AGENTS.md is left a link"
+else
+  bad "GEMINI.md linked to AGENTS.md is left a link"
+fi
+
+# AGENTS.md edited after a sync is drift: restored, and said so.
+P="$(mktemp -d "$WORK/drift.XXXXXX")"
+bash "$STANDARD_DIR/tools/sync.sh" "$P" >/dev/null 2>&1
+printf '\n# a local edit\n' >> "$P/AGENTS.md"
+if bash "$STANDARD_DIR/tools/sync.sh" "$P" >"$WORK/out" 2>&1 \
+   && cmp -s "$P/AGENTS.md" "$STANDARD_DIR/AGENTS.md" \
+   && grep -q 'AGENTS.md had been edited since the last sync' "$WORK/out"; then
+  ok "an edited vendored AGENTS.md is restored, with a warning"
+else
+  bad "an edited vendored AGENTS.md is restored, with a warning"
+fi
 
 # ── From a signed archive, with no git ───────────────────────────────────────
 #

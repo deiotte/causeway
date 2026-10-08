@@ -2,7 +2,7 @@
   "$comment": "Stable check specifications. The integration contract between Causeway and any engine that executes it. See gate/gate-configuration.md §11.",
   "$authority": "This file defines WHAT each check means and WHAT INPUT it needs. profiles.json defines WHERE each one blocks. An engine needs both.",
   "schema_version": "1.0",
-  "standard_version": "2.3.1",
+  "standard_version": "2.4.0",
   "gate_config_version": "0.8",
   "spine_version": "0.8",
 

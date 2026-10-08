@@ -162,6 +162,7 @@ Pinning, signing, and installing — which copy, and how anyone would know if it
 | [0030](0030-install-without-git.md) | Install without git, and let the signature be the release proof | Accepted |
 | [0040](0040-issue-a-new-release-signing-key.md) | Issue a new release-signing key before the first public release | Accepted |
 | [0042](0042-install-completely-or-not-at-all.md) | Install completely or not at all — decide, plan, stage, then apply | Accepted |
+| [0043](0043-keep-a-projects-own-agent-instructions.md) | Keep a project's own agent instructions, and own a marked section rather than the file | Accepted |
 
 ### The standard's own CI and record-keeping
 

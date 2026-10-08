@@ -412,6 +412,13 @@ fi
 PLAN_SRC=()
 PLAN_DST=()
 NOTES=()
+CONFLICTS=()
+
+# Files this run generates rather than copies — the merged instruction files
+# below. Outside the target: planning still writes nothing there.
+GEN="$(mktemp -d)"
+STAGE=""
+trap 'rm -rf "$GEN"' EXIT
 
 plan_always() { PLAN_SRC+=("$1"); PLAN_DST+=("$2"); }
 plan_seed() {
@@ -422,15 +429,134 @@ plan_seed() {
   fi
 }
 
+sha_of() { sha256sum "$1" | cut -d' ' -f1; }
+
+# Does this path, if it is a symlink, resolve to the target's AGENTS.md? A
+# project that links GEMINI.md or CLAUDE.md to AGENTS.md has already pointed
+# that tool at the standard, by the most direct means there is.
+links_to_agents() {
+  [ -L "$TARGET/$1" ] || return 1
+  [ "$(readlink -f "$TARGET/$1" 2>/dev/null)" = "$(readlink -f "$TARGET/AGENTS.md" 2>/dev/null)" ]
+}
+
+# ── Agent instructions in a project that already has some. ADR 0043. ──
+#
+# AGENTS.md is the standard itself, vendored and checksummed. An existing one is
+# Causeway's when the previous lock lists it — then this sync replaces it, and
+# says so if it had been edited, because check-drift.sh tells anyone who edited
+# it by accident to re-run sync to restore it. It is also Causeway's when it is
+# byte-identical to the one being installed. Anything else is the project's own
+# file, written before Causeway arrived, and this sync refuses rather than
+# replace it: the standard has to live at AGENTS.md, and only the project can
+# decide where its own instructions move to.
+PREV_LOCK="$TARGET/.causeway-lock"
+if [ -f "$TARGET/AGENTS.md" ] && [ ! -L "$TARGET/AGENTS.md" ] \
+   && ! cmp -s "$TARGET/AGENTS.md" "$STANDARD_DIR/AGENTS.md"; then
+  locked=""
+  if [ -f "$PREV_LOCK" ] && [ ! -L "$PREV_LOCK" ]; then
+    locked="$(sed -n 's/^\([0-9a-f]\{64\}\)  AGENTS\.md$/\1/p' "$PREV_LOCK" | head -1)"
+  fi
+  if [ -z "$locked" ]; then
+    CONFLICTS+=("AGENTS.md holds instructions Causeway did not write. Causeway vendors
+  the standard at AGENTS.md and will not replace a project's own file. Move
+  yours aside, re-run, then import both from CLAUDE.md:
+      mv AGENTS.md AGENTS.project.md")
+  elif [ "$(sha_of "$TARGET/AGENTS.md")" != "$locked" ]; then
+    NOTES+=("  WARNING: AGENTS.md had been edited since the last sync. It is the vendored")
+    NOTES+=("           standard, so the edit was drift; it has been restored. If the edit")
+    NOTES+=("           was meant, recover it from version control and take it upstream.")
+  fi
+fi
+
 for f in "${VENDORED[@]}"; do
   plan_always "$STANDARD_DIR/$f" "$f"
 done
 
-# Tool adapters land where each tool expects them.
+# CLAUDE.md.causeway is a reference copy no tool reads, under a name only
+# Causeway uses. Replaced every time.
 plan_always "$STANDARD_DIR/adapters/CLAUDE.md" "CLAUDE.md.causeway"
-plan_always "$STANDARD_DIR/adapters/GEMINI.md" "GEMINI.md"
-plan_always "$STANDARD_DIR/adapters/.cursor/rules/causeway.mdc" ".cursor/rules/causeway.mdc"
-plan_always "$STANDARD_DIR/adapters/copilot-instructions.md" ".github/copilot-instructions.md"
+
+# The other three adapters are files a project may already have written for
+# itself, so Causeway owns a marked section of each rather than the file:
+#
+#   <!-- causeway:begin ... -->
+#   (the shim)
+#   <!-- causeway:end -->
+#
+# Absent: the file is written holding just the section. Present with the
+# markers: only the section is replaced, so a re-sync never duplicates it and
+# everything outside it is the project's. Present without them: if it is the
+# shim exactly as an earlier sync wrote it, it becomes the section; otherwise it
+# is the project's content, kept byte for byte, with the section appended. A
+# symlink to AGENTS.md is left alone. Damaged markers are a conflict — guessing
+# where a section ends is how a sync deletes somebody's instructions.
+MARK_BEGIN='<!-- causeway:begin — managed by Causeway tools/sync.sh. Edits between these markers are replaced on every sync; keep your own instructions outside them. -->'
+MARK_END='<!-- causeway:end -->'
+
+# Split an adapter into the frontmatter a tool needs at the top (.mdc only) and
+# the body that goes inside the markers.
+adapter_head() { if [ "${1##*.}" = "mdc" ]; then awk 'NR==1&&/^---$/{f=1} f{print} f&&NR>1&&/^---$/{exit}' "$1"; fi; }
+adapter_body() {
+  if [ "${1##*.}" = "mdc" ]; then
+    awk 'NR==1&&/^---$/{f=1;next} f&&/^---$/{f=0;b=1;next} !f&&b{print}' "$1" | sed '/./,$!d'
+  else
+    cat "$1"
+  fi
+}
+
+plan_managed() {
+  local src="$1" rel="$2" dst="$TARGET/$2" out
+  out="$GEN/$(printf '%s' "$rel" | tr '/' '_')"
+  local section="$GEN/section"
+  { echo "$MARK_BEGIN"; adapter_body "$src"; echo "$MARK_END"; } > "$section"
+
+  if links_to_agents "$rel"; then
+    NOTES+=("  $rel links to AGENTS.md, left alone")
+    return
+  fi
+  if [ -L "$dst" ] || { [ -e "$dst" ] && [ ! -f "$dst" ]; }; then
+    # Not ours to interpret; the conflict check below names it.
+    plan_always "$src" "$rel"; return
+  fi
+
+  if [ ! -e "$dst" ] || cmp -s "$dst" "$src"; then
+    # Absent, or the bare shim an earlier sync wrote: the file becomes the section.
+    { adapter_head "$src"; [ "${src##*.}" = "mdc" ] && echo; cat "$section"; } > "$out"
+    [ -e "$dst" ] && NOTES+=("  $rel was an earlier Causeway shim; now a marked section")
+    plan_always "$out" "$rel"
+    return
+  fi
+
+  local begins ends
+  begins="$(grep -c '^<!-- causeway:begin' "$dst" || true)"
+  ends="$(grep -cx '<!-- causeway:end -->' "$dst" || true)"
+  if [ "$begins" -eq 0 ] && [ "$ends" -eq 0 ]; then
+    # The project's own file. Kept exactly; the section goes after it.
+    { cat "$dst"; [ -z "$(tail -c1 "$dst")" ] || echo; echo; cat "$section"; } > "$out"
+    if grep -q 'GENERATED by tools/render-adapters.sh' "$dst"; then
+      NOTES+=("  $rel: kept, and the Causeway section appended. It also holds an older")
+      NOTES+=("        Causeway shim — if you never edited that text, delete it above the section.")
+    else
+      NOTES+=("  $rel: your instructions kept, the Causeway section appended after them")
+    fi
+  elif [ "$begins" -eq 1 ] && [ "$ends" -eq 1 ] \
+       && [ "$(grep -n '^<!-- causeway:begin' "$dst" | cut -d: -f1)" -lt \
+            "$(grep -nx '<!-- causeway:end -->' "$dst" | cut -d: -f1)" ]; then
+    awk -v sec="$section" '
+      /^<!-- causeway:begin/ { while ((getline l < sec) > 0) print l; skip=1; next }
+      skip && $0 == "<!-- causeway:end -->" { skip=0; next }
+      !skip { print }' "$dst" > "$out"
+  else
+    CONFLICTS+=("$rel has damaged Causeway markers ($begins begin, $ends end). Repair or
+  remove them so exactly one marked section remains, then re-run.")
+    return
+  fi
+  plan_always "$out" "$rel"
+}
+
+plan_managed "$STANDARD_DIR/adapters/GEMINI.md" "GEMINI.md"
+plan_managed "$STANDARD_DIR/adapters/.cursor/rules/causeway.mdc" ".cursor/rules/causeway.mdc"
+plan_managed "$STANDARD_DIR/adapters/copilot-instructions.md" ".github/copilot-instructions.md"
 
 # The license travels with the copy (ADR 0037). Apache-2.0 asks anyone who
 # redistributes the standard to pass on LICENSE and NOTICE, and vendoring is the
@@ -444,6 +570,18 @@ plan_always "$STANDARD_DIR/NOTICE" "bundle/NOTICE"
 plan_seed "$STANDARD_DIR/templates/project-CLAUDE.md" "CLAUDE.md" \
   "  created CLAUDE.md from template — fill in the project specifics" \
   "  CLAUDE.md exists, left alone (see CLAUDE.md.causeway for the current shim)"
+
+# A CLAUDE.md the project wrote is never edited, and so it may never have been
+# pointed at the standard. Claude Code reads an import line; one that is missing
+# means the standard is on disk and not in the agent's instructions. Said here,
+# because a sync that succeeds quietly reads as an adoption that worked. This
+# checks for the reference only — it cannot show that any agent read or obeyed it.
+if [ -f "$TARGET/CLAUDE.md" ] && ! links_to_agents "CLAUDE.md" \
+   && ! grep -qE '^[[:space:]]*@(\./)?AGENTS\.md[[:space:]]*$' "$TARGET/CLAUDE.md"; then
+  NOTES+=("  WARNING: CLAUDE.md does not import the standard. Add this line to it:")
+  NOTES+=("               @AGENTS.md")
+  NOTES+=("           CLAUDE.md.causeway shows the current shim in full.")
+fi
 
 # The open-items index, seeded on the same terms as CLAUDE.md and for the same
 # reason: sync.sh writes the shape once and the project owns the content. An
@@ -542,7 +680,6 @@ LOCK_DST=".causeway-lock"
 # writing through one would put the standard somewhere outside the project, and
 # replacing one would silently change what the project had pointed it at.
 # Reported together, so one run names every conflict instead of the first.
-CONFLICTS=()
 check_dst() {
   local rel="$1" path="$TARGET/$1" parent
   if [ -L "$path" ]; then
@@ -603,6 +740,7 @@ rollback() {
 # A rollback that could not finish keeps the stage: it holds the only copy of
 # whatever it failed to put back.
 cleanup() {
+  rm -rf "$GEN"
   if [ "$ROLLBACK_OK" -eq 1 ]; then
     rm -rf "$STAGE"
   else

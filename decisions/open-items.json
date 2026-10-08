@@ -4,7 +4,7 @@
   "$not_gate_input": "No gate check reads this file. The gate has 27 checks and none of them is 'the index is current' — see AGENTS.md open item 6, which records that gap rather than closing it by assertion.",
   "$attribution": "opened_by and closed_by are null where the record does not state them: null for 21 items of 41, across 4 registers whose history predates this index. Two rounds of renumbering ran through that history, and inventing an attribution to fill a cell would be manufacturing exactly the evidence this repository refuses to manufacture elsewhere. Null means 'not attributable from the record', not 'nobody opened it'. Every item opened from v1.10.0 forward carries its ADR. These three numbers are anchored in tools/validate.py and derive from the items below — the first version of this sentence said six registers, a count left over from a draft that included two README lists deliberately excluded from the index, and nothing checked it. ADR 0027.",
   "schema_version": "1.0",
-  "standard_version": "2.3.1",
+  "standard_version": "2.4.0",
   "registers": {
     "build-dna": {
       "document": "AGENTS.md",
