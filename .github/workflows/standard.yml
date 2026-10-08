@@ -96,6 +96,14 @@ jobs:
           # A freshly synced project has not drifted.
           ( cd "$PROJECT" && bash "$GITHUB_WORKSPACE/tools/check-drift.sh" )
 
+      # ADR 0042. A refused or failed installation must leave the target exactly
+      # as it found it. test-sync.sh snapshots a target that already holds a
+      # project, drives every refusal sync.sh has, injects an apply failure, and
+      # installs a copy signed with a throwaway key — then compares byte for byte.
+      - name: A refused or failed sync changes nothing
+        if: '!cancelled()'
+        run: ./tools/test-sync.sh
+
       - name: Drift detection actually detects drift
         if: '!cancelled()'
         run: |
