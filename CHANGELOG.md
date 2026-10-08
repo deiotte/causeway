@@ -27,6 +27,32 @@ at the time, because none were.
 
 ---
 
+## v2.3.0 — 2026-10-07
+
+The decision register explains itself. Minor — `sync.sh` seeds one more project-owned
+file and the archive ships one more template; no check, input contract, verdict or
+profile moved, and nothing anyone owes changes. Build DNA stays at 1.13, the spine at
+0.8, the gate configuration at 0.8. The bundle digest moves because `VERSION` does, so
+a pinned project re-syncs to pick it up.
+
+- **`sync.sh` seeds `decisions/README.md`,** from `templates/decisions-README.md`, on
+  the terms it seeds `domain/field-notes/README.md`: written once if absent, never
+  overwritten, declared ungoverned, carried in the archive. The file is the short form
+  of Build DNA §8 — how to write an ADR, what the numbers mean, what immutability
+  permits and forbids, how to read the frontmatter, where an ADR's leftovers go — and
+  it ends in two sections only the project can write: an index by family, and a list
+  of unused numbers with the reason each was skipped. Until now the directory arrived
+  with an open-items index and no explanation of the records the items point at, and
+  a consuming project wrote the file itself. ADR 0041.
+- **This repository's own `decisions/` gets the same README, filled in.** Every ADR
+  since 0001, grouped into nine families. The grouping is a judgment; the rows are
+  checked.
+- **Three validator checks guard the index:** every ADR on disk is linked from the
+  README, every ADR link in it resolves, and every skipped number is named in it. The
+  third passes on nothing today, and the ADR says so rather than calling it verified.
+- **The contributor templates point at it.** `contributor-START-HERE.md` and the pull
+  request template now say an ADR lands in the same pull request as its index row.
+
 ## v2.2.0 — 2026-10-02
 
 The first public release. Minor — `sync.sh` gains the license copy and the archive

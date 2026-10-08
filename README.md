@@ -48,7 +48,7 @@ In plain English: **Causeway lets you use AI to move faster without making “th
 
 ## Current version
 
-Source now ships **2.2.0** (`RELEASED` 2026-10-02), the first public release. Build DNA 1.13; gate configuration 0.8; ServiceNow overlay 1.12.
+Source now ships **2.3.0** (`RELEASED` 2026-10-07). Build DNA 1.13; gate configuration 0.8; ServiceNow overlay 1.12. The first public release was 2.2.0.
 
 The table below is a dated review snapshot, not a claim about the current commit: it records what was verified on **2026-09-18** against commit `93fbdd1`, at 1.15.0. That commit is in the standard's pre-publication history, which this repository does not carry ([ADR 0039](decisions/0039-publish-from-a-fresh-history.md)). What has moved since is in [CHANGELOG.md](CHANGELOG.md); 1.16.0 has not been through the same external review.
 
@@ -65,7 +65,7 @@ The table below is a dated review snapshot, not a claim about the current commit
 The current 29-file consumer bundle has digest:
 
 ```text
-sha256:7c83bdd0a349d0bea0ec702085cfb7df7ecfcc0d972ef864712778ed71d25905
+sha256:c69170bfef44d5319f5a2dc934042bee87a75ae30734998833dc42f34a34bbfa
 ```
 
 The bundle identifies a defined set of contract files. It does not cover every file in this repository or in the installation archive.
@@ -221,7 +221,7 @@ Start with a disposable project directory. This demonstrates installation and in
 On any connected machine, with no account and no credentials:
 
 ```bash
-CAUSEWAY_VERSION=2.2.0
+CAUSEWAY_VERSION=2.3.0
 CAUSEWAY_DOWNLOAD_DIR="$(mktemp -d)"
 CAUSEWAY_BASE="https://github.com/deiotte/causeway/releases/download/v$CAUSEWAY_VERSION"
 
@@ -233,7 +233,7 @@ tar -xzf "causeway-$CAUSEWAY_VERSION.tar.gz"
 CAUSEWAY_SOURCE="$PWD/causeway-$CAUSEWAY_VERSION"
 ```
 
-Alternatively, download the same two assets from the [release page](https://github.com/deiotte/causeway/releases/tag/v2.2.0), or with `gh release download`.
+Alternatively, download the same two assets from the [release page](https://github.com/deiotte/causeway/releases/tag/v2.3.0), or with `gh release download`.
 
 Only acquisition requires network access. The archive and checksum can then travel to another Linux machine for local installation. That target needs Bash, ordinary core utilities including `sha256sum`, an extraction tool, and an OpenSSH `ssh-keygen` with signing support. It does not need Git or GitHub credentials.
 
@@ -298,7 +298,7 @@ With Git:
 ```bash
 git clone https://github.com/deiotte/causeway.git
 cd causeway
-git checkout --detach v2.2.0
+git checkout --detach v2.3.0
 
 python3 tools/validate.py
 bash tools/build-bundle.sh --check
@@ -309,7 +309,7 @@ The validator uses the Python standard library. Archive building additionally ne
 
 ## Installation is the start of adoption
 
-`sync.sh` vendors governed files and seeds project-owned starter material, including `CLAUDE.md`, `START-HERE.md`, an open-items index, a field-note issue form, a note register, and `CODEOWNERS`. Existing copies of those starter files are preserved. Tool adapters such as `GEMINI.md`, Cursor rules, and Copilot instructions are copied directly, so review existing customizations before re-syncing.
+`sync.sh` vendors governed files and seeds project-owned starter material, including `CLAUDE.md`, `START-HERE.md`, `CONTRIBUTING.md`, a pull request template, an open-items index and a README for the decision register, a field-note issue form, a note register, and `CODEOWNERS`. Existing copies of those starter files are preserved. Tool adapters such as `GEMINI.md`, Cursor rules, and Copilot instructions are copied directly, so review existing customizations before re-syncing.
 
 An adopter still needs to fill in project constraints, owners and reviewer placeholders; declare the system record and criticality; record decisions and exceptions; select and integrate an evaluator; provide the required inputs; and make the chosen CI checks actual merge controls. Sync does not create a completed Survey, populate a real decision register, configure repository protection, or execute the gate.
 
@@ -335,7 +335,7 @@ There is no ServiceNow connector, ATF runner, Instance Scan collector, or end-to
 
 | Evidence | What was established | What remains outside it |
 |---|---|---|
-| Internal validator | `tools/validate.py` completes 675 internal consistency checks; reproduced locally and reported by current CI | Product behavior, evaluator correctness, decision quality, and operational outcomes |
+| Internal validator | `tools/validate.py` completes 686 internal consistency checks; reproduced locally and reported by current CI | Product behavior, evaluator correctness, decision quality, and operational outcomes |
 | Bundle and adapters | The committed manifest reproduces; all four adapters name the three shipped skills | Whether an agent actually reads and follows those instructions |
 | Distribution probes | Clean sync, ServiceNow sync, drift rejection, byte-identical repeated tar/ZIP builds, valid checksum sidecars, and installation with Git absent from `PATH` | Independent adoption and target-environment usability |
 | Release workflow | Current release signing, signature verification, archive building and publication steps succeeded | Independent signing-key custody or verification of a separately downloaded archive by this review |
@@ -387,7 +387,7 @@ Receipts are another boundary: Causeway specifies what an evaluator must report.
 | `adapters/` | Claude, Gemini, Cursor and Copilot instruction shims |
 | `bundle/` | Manifest, source-scope declaration and release trust anchor |
 | `conformance/` | Engine fixtures and expected results |
-| `decisions/` | Causeway's own ADRs and open-items index |
+| `decisions/` | Causeway's own ADRs, indexed by family in their README, and the open-items index |
 | `gate/` | Check definitions, profiles, input classes and receipt contract |
 | `overlays/` | Platform translations; currently ServiceNow |
 | `rules/` | Topic-specific engineering instructions |

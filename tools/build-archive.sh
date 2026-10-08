@@ -106,6 +106,7 @@ ARCHIVE_FILES=(
   "templates/field-note.md"
   "templates/field-note-issue-form.yml"
   "templates/field-notes-README.md"
+  "templates/decisions-README.md"
   "templates/open-items.json"
   "templates/practitioner-START-HERE.md"
   "templates/contributor-START-HERE.md"

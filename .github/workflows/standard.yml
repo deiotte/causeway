@@ -82,6 +82,10 @@ jobs:
           test -f "$PROJECT/.github/pull_request_template.md" \
             || { echo "no pull request template seeded"; exit 1; }
 
+          # The decision register explains itself (ADR 0041).
+          test -f "$PROJECT/decisions/README.md" \
+            || { echo "no decisions/README.md seeded"; exit 1; }
+
           # The lock's digest must be the one the bundle actually published.
           LOCK_DIGEST="$(grep '^digest=' "$PROJECT/.causeway-lock" | cut -d= -f2-)"
           BUNDLE_DIGEST="$(python3 -c \

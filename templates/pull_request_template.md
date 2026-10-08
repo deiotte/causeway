@@ -21,7 +21,7 @@
 - [ ] I know which gate profile this project builds under (`system.json` → `gate/profiles.json`)
 - [ ] Changed behavior ships with tests, unhappy paths included; the suite passes locally with no network
 - [ ] One prompt, one commit — or this is a declared spike: <!-- say so here -->
-- [ ] A choice between real alternatives? → a new ADR in `decisions/` in this PR
+- [ ] A choice between real alternatives? → a new ADR in `decisions/` in this PR, with its row in `decisions/README.md`
 - [ ] Opens or closes an open item? → `decisions/open-items.json` updated in this PR
 - [ ] No vendored file edited; `tools/check-drift.sh` passes
 - [ ] Deviates from the standard? → a row in the `CLAUDE.md` exceptions register, pointing at its ADR
