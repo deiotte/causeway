@@ -76,6 +76,7 @@ jobs:
           ./tools/test-sync.sh
           ./tools/test-release-archive.sh --throwaway
           ./tools/test-publish-release.sh
+          ./tools/test-doctor.sh
 
       # Missing prerequisites stop the release. Until v2.4.1 they produced a
       # warning and an unsigned archive published as the official release.

@@ -49,12 +49,17 @@ its shape — tier, criticality class, platform, team size — and that is enoug
 
 1. **Install from a release**, following *Try the distribution path* in
    [README.md](README.md). Use `--require-release` for anything you mean to keep.
-2. **Read your role's floor** in `AGENTS.md` *Adoption*, and stop there.
-3. **Place the system** before the first design decision:
+2. **Run `tools/doctor.sh`** in the project. It lists what the "building under it"
+   column above still needs — placement, reviewers, CI, the evaluator record, the
+   starter placeholders — each with the file to change and the fix. It changes
+   nothing, and a repository setting it cannot read offline is reported as
+   unverified, never as done. Run it again whenever you think you are finished.
+3. **Read your role's floor** in `AGENTS.md` *Adoption*, and stop there.
+4. **Place the system** before the first design decision:
    `skills/decision-spine/reference/placement.md`.
-4. **Keep notes as you go.** The numbers above are cheap to record in the moment
+5. **Keep notes as you go.** The numbers above are cheap to record in the moment
    and expensive to reconstruct at the end of a quarter.
-5. **Report** with the **Adopter report** issue form — once at the end, or as you
+6. **Report** with the **Adopter report** issue form — once at the end, or as you
    go. Partial reports are welcome.
 
 ## Installing into a project that already has agent instructions

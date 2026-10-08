@@ -36,6 +36,9 @@ context if it shapes decisions — agency or sector, ATO target, CSfC boundary.]
   - **Why:** [the question or escalator that decided it]
 - **Declared by:** [name, role, date]
 - **Gate profile:** derived — do not set
+- **Gate evaluator:** [ENGINE AND VERSION] — or "none yet", and why. The engine
+  that evaluates `gate/checks.json` for this project; `tools/doctor.sh` reads
+  this line.
 - **Platform overlay:** none | [name] — see `.causeway-lock`. If set, the
   overlay's dispositions are this register's starting state. Inherited rows still
   need ADRs; loosening a disposition is a row in the exceptions register below.

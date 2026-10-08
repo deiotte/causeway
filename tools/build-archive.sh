@@ -122,6 +122,7 @@ ARCHIVE_FILES=(
   "tools/sync.sh"
   "tools/check-drift.sh"
   "tools/verify-release.sh"
+  "tools/doctor.sh"
 )
 
 # Overlays, all of them. sync.sh vendors the one a project asks for, so the

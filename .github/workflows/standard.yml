@@ -115,6 +115,13 @@ jobs:
         if: '!cancelled()'
         run: ./tools/test-publish-release.sh
 
+      # ADR 0045. The adoption diagnostic every synced project gets: a fresh sync
+      # must come back incomplete on exactly what a sync cannot do, a configured
+      # project on nothing, and the run must change nothing.
+      - name: The adoption diagnostic reports what is missing, and only that
+        if: '!cancelled()'
+        run: ./tools/test-doctor.sh
+
       - name: Drift detection actually detects drift
         if: '!cancelled()'
         run: |

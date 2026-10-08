@@ -139,6 +139,10 @@ VENDORED=(
   # can only follow the instruction by cloning the standard, which is the step
   # vendoring exists to remove.
   "tools/verify-release.sh"
+  # The adoption diagnostic. Vendored for the reason the drift checker is: it
+  # runs in the consuming project, and a project told to run it and not given
+  # it could only follow the instruction with a clone of the standard. ADR 0045.
+  "tools/doctor.sh"
 )
 
 # The trust anchor for release signatures. Vendored so a consuming project can
@@ -831,3 +835,4 @@ done
 for n in "${NOTES[@]}"; do [ -n "$n" ] && echo "$n"; done
 echo "wrote .causeway-lock ($BUNDLE_DIGEST)"
 echo "Add tools/check-drift.sh to CI. Unpinned standards go missing."
+echo "Run tools/doctor.sh to see what adopting it still needs."

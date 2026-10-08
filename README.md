@@ -48,7 +48,7 @@ In plain English: **Causeway lets you use AI to move faster without making “th
 
 ## Current version
 
-Source now ships **2.4.1** (`RELEASED` 2026-10-08). Build DNA 1.13; gate configuration 0.8; ServiceNow overlay 1.12. The first public release was 2.2.0.
+Source now ships **2.5.0** (`RELEASED` 2026-10-08). Build DNA 1.13; gate configuration 0.8; ServiceNow overlay 1.12. The first public release was 2.2.0.
 
 The table below is a dated review snapshot, not a claim about the current commit: it records what was verified on **2026-09-18** against commit `93fbdd1`, at 1.15.0. That commit is in the standard's pre-publication history, which this repository does not carry ([ADR 0039](decisions/0039-publish-from-a-fresh-history.md)). What has moved since is in [CHANGELOG.md](CHANGELOG.md); 1.16.0 has not been through the same external review.
 
@@ -62,10 +62,10 @@ The table below is a dated review snapshot, not a claim about the current commit
 | Release assets | Tar and ZIP archives, their SHA-256 sidecars, a release statement, and its detached SSH signature |
 | Verification | The standard and release workflows succeeded at that commit |
 
-The current 29-file consumer bundle has digest:
+The current 30-file consumer bundle has digest:
 
 ```text
-sha256:c69170bfef44d5319f5a2dc934042bee87a75ae30734998833dc42f34a34bbfa
+sha256:9bf9e6fbbe1cf0b0a4e04cb0e839f2da10fce7445d94a27c2b1ecb41eff1d5f8
 ```
 
 The bundle identifies a defined set of contract files. It does not cover every file in this repository or in the installation archive.
@@ -249,12 +249,15 @@ bash "$CAUSEWAY_SOURCE/tools/sync.sh" \
   cd "$CAUSEWAY_PROJECT"
   bash tools/check-drift.sh
   bash tools/verify-release.sh
+  bash tools/doctor.sh
 )
 
 printf 'Inspect the installed files at: %s\n' "$CAUSEWAY_PROJECT"
 ```
 
-A release archive with valid signature material can satisfy `--require-release` without Git. The lock records `release_proof=signed-statement`. The normal drift check reports **26 of 28 bundle files hash as published**, with the two optional ServiceNow files absent. `VERSION` and `RELEASED` are reconstructed from the lock for this check.
+A release archive with valid signature material can satisfy `--require-release` without Git. The lock records `release_proof=signed-statement`. The normal drift check reports **28 of 30 bundle files hash as published**, with the two optional ServiceNow files absent. `VERSION` and `RELEASED` are reconstructed from the lock for this check.
+
+`doctor.sh` is the third command and answers a different question: not whether the copy is intact, but what adopting it still needs — placement, reviewers, CI, the evaluator record, unfilled starter placeholders. In a scratch project every one of those is incomplete, and it says so. It is read-only, offline and advisory, and it never reports a gate verdict ([ADR 0045](decisions/0045-diagnose-adoption-without-evaluating-it.md)).
 
 Run both verification commands: `verify-release.sh` authenticates the statement and compares declared digest/tag values; `check-drift.sh` recomputes the manifest identity and checks the installed content. Signature verification alone does not hash every installed file.
 
@@ -335,7 +338,7 @@ There is no ServiceNow connector, ATF runner, Instance Scan collector, or end-to
 
 | Evidence | What was established | What remains outside it |
 |---|---|---|
-| Internal validator | `tools/validate.py` completes 711 internal consistency checks; reproduced locally and reported by current CI | Product behavior, evaluator correctness, decision quality, and operational outcomes |
+| Internal validator | `tools/validate.py` completes 718 internal consistency checks; reproduced locally and reported by current CI | Product behavior, evaluator correctness, decision quality, and operational outcomes |
 | Bundle and adapters | The committed manifest reproduces; all four adapters name the three shipped skills | Whether an agent actually reads and follows those instructions |
 | Distribution probes | Clean sync, ServiceNow sync, drift rejection, byte-identical repeated tar/ZIP builds, valid checksum sidecars, and installation with Git absent from `PATH` | Independent adoption and target-environment usability |
 | Release workflow | Current release signing, signature verification, archive building and publication steps succeeded | Independent signing-key custody or verification of a separately downloaded archive by this review |

@@ -27,6 +27,38 @@ at the time, because none were.
 
 ---
 
+## v2.5.0 — 2026-10-08
+
+A project can ask what adopting the standard still needs. Minor — one more vendored
+tool, so the bundle grows from 29 to 30 files; no check, input contract, verdict or
+profile moved, and nothing anyone owes changes. Build DNA stays at 1.13, the spine at
+0.8, the gate configuration at 0.8.
+
+- **`tools/doctor.sh`,** vendored into every project. Read-only, offline, advisory
+  (always exits 0). It checks the pin, runs the drift check, and looks for: a release
+  pin, a `system.json` with a valid tier, criticality class and declaring authority,
+  a `CLAUDE.md` that imports `@AGENTS.md`, the Gemini, Copilot and Cursor shims
+  pointing at it, `[PLACEHOLDER]` text left in the seeded starters, the template's
+  example item in `open-items.json`, `@ORG/` teams in `CODEOWNERS`, a CI file that runs
+  `check-drift.sh`, and a recorded gate evaluator. Each finding is `ok`, `incomplete`
+  (with the file and the fix) or `unverified` — branch protection and required
+  checks are repository settings no file records, and are never counted as passing.
+  The summary keeps installed, integrity, adoption and evaluation apart, and never
+  claims the last. `--json` prints the same as `causeway-doctor-v1`. #12, ADR 0045.
+- **It reports placement and never chooses it.** A missing `system.json` points at
+  the placement procedure; a missing class is called a default rather than a
+  declaration; the derived profile is shown, labelled derived.
+- **`templates/project-CLAUDE.md` gains a `Gate evaluator` line,** where ADOPTING.md's
+  "an engine, or an honest record that you have none yet" now has a place to live.
+- **`sync.sh` ends by pointing at it,** and ADOPTING.md's *How to start* runs it as
+  step 2.
+- **`tools/test-doctor.sh`, 26 cases,** run in CI and in the release gate: a fresh sync
+  is incomplete on exactly ten things, a configured project installed from a signed
+  release on none, one case per kind of finding, every run leaves the project
+  byte-identical, and the script calls nothing that reaches the network.
+- **README:** the bundle count and digest it called current had been stale since
+  v2.3.1, and the drift-check example said 26 of 28; both now match the artifacts.
+
 ## v2.4.1 — 2026-10-08
 
 A release is published only after everything before it passed. Patch — the release
