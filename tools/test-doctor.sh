@@ -47,8 +47,14 @@ echo "doctor.sh — what is still missing, and nothing that is not"
 
 # ── A fresh sync: installed, intact, and not adopted ─────────────────────────
 
+# Synced from a copy with no .git, so the result does not depend on where this
+# runs: from a tagged checkout — the release job — a sync is a release install and
+# install.release is rightly ok, which is a different project from the one this
+# case describes. The configured case below covers the release pin.
+SRC="$WORK/standard"; mkdir -p "$SRC"
+tar -C "$STANDARD_DIR" --exclude=./.git -cf - . | tar -C "$SRC" -xf -
 P="$(mktemp -d "$WORK/fresh.XXXXXX")"
-bash "$STANDARD_DIR/tools/sync.sh" "$P" >/dev/null 2>&1
+bash "$SRC/tools/sync.sh" "$P" >/dev/null 2>&1
 doctor "$P"
 python3 -c "import json;d=json.load(open('$WORK/doc.json'));assert d['format']=='causeway-doctor-v1'" \
   && ok "--json is valid JSON in the documented format" \

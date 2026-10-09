@@ -55,6 +55,11 @@ re-ratified at 1.13.
 - **ServiceNow overlay 1.13**: the platform team's instance governance is managed policy
   for an application built on the instance.
 - **`tools/test-doctor.sh` grows to 62 cases,** 15 of them new.
+- **Fixed: the v2.9.0 release job failed in `tools/test-doctor.sh`,** and v2.9.0 was
+  withdrawn to a draft. The test's fresh sync ran from the checkout, and in the release
+  job the checkout is the tagged release, so the sync was rightly a release install and
+  `install.release` came back ok. The test now syncs from a copy with no `.git`, so it
+  says the same thing on a branch and on a tag. Nothing doctor reports changed.
 
 ## v2.9.0 — 2026-10-08
 
