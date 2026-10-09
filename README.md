@@ -79,7 +79,7 @@ Review snapshot: **2026-10-08**, commit [`b9f1de9`](https://github.com/deiotte/c
 
 | Artifact | State at review |
 |---|---|
-| Source version | 2.10.0; `RELEASED` contains 2026-10-08 |
+| Source version | 2.10.0; `RELEASED` contains 2026-10-09 |
 | Build DNA / Decision Spine / gate configuration | 1.14 / 0.8 / 0.8 |
 | ServiceNow overlay | 1.12 |
 | Published GitHub release | [v2.2.0](https://github.com/deiotte/causeway/releases/tag/v2.2.0), published 2026-10-02; the only published release returned at review |
@@ -89,7 +89,7 @@ The source version and `RELEASED` file are not proof that an archive has been pu
 The current 34-file consumer bundle has digest:
 
 ```text
-sha256:2f07118f4568c3eaac32b4281aa0fe5c05255b35378b13299b0b264d4ac94a9c
+sha256:d48de8a1f34395fa58300da1f74cd1a8ea72aaefb15c2c29fd7e6516047a0b31
 ```
 
 That identifies the contract-file set in `bundle/manifest.json`, not every file in the repository or installation archive.
