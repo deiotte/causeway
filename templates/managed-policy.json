@@ -1,0 +1,22 @@
+{
+  "$comment": "Copy to .causeway/policy.json and fill in. The reference to your organization's managed policy — Causeway does not supply the policy. skills/decision-spine/reference/managed-policy.md defines every field. Record either at least one policy, or none with the reason. tools/doctor.sh reads this file.",
+  "format": "causeway-managed-policy-v1",
+  "policies": [
+    {
+      "id": "REPLACE-policy-id",
+      "title": "REPLACE — the policy's title",
+      "authority": { "name": "REPLACE — who issues it", "contact": "REPLACE — how to reach them" },
+      "version": "REPLACE",
+      "effective": "YYYY-MM-DD",
+      "review_by": "YYYY-MM-DD",
+      "applies_because": "REPLACE — one sentence: why this policy binds this system",
+      "precedence": 1,
+      "source": "REPLACE — where the authoritative text lives",
+      "copy": "REPLACE — path to the committed copy, or null if it may not be committed",
+      "sha256": "REPLACE — sha256 of the copy",
+      "exception_authority": { "name": "REPLACE — a person", "role": "REPLACE — their role" }
+    }
+  ],
+  "exceptions": [],
+  "none": null
+}

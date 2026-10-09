@@ -1,6 +1,6 @@
 # Build DNA
 
-**Version:** 1.13 — document of record
+**Version:** 1.14 — document of record
 **Layer:** Process. See `skills/decision-spine/` for the design layer.
 **Seam:** §8 (ADR discipline). Every Decision Spine row lands in an ADR governed
 by the rules in this document. That is the only place the two layers touch.
@@ -19,6 +19,15 @@ managed policy          non-negotiable org floor (ATO/CSfC, secrets handling)
         └── CLAUDE.md   per project: stack, commands, constraints, exceptions
               └── .claude/rules/*.md   path-scoped, glob-frontmatter, auto-loaded
 ```
+
+**Managed policy is the organization's, never Causeway's.** The standard cannot
+supply it. What a project owes is a *reference* to it in `.causeway/policy.json`:
+which policy, which version, who issues it, why it applies, a pinned copy, and the
+person who alone can grant an exception — or a recorded reason why none applies.
+`skills/decision-spine/reference/managed-policy.md` is the contract, including how to
+tell a managed policy from a customer constraint and from a project default. Who would
+have to sign to change it is the test. A deviation from Causeway is the project's to
+record. An exception to managed policy is not the project's to grant.
 
 Rule of thumb throughout: **eyebrow-raiser → a document. Merge-blocker → a gate.**
 Prose here is guidance. Anything that must not be bypassable lives in CI, hooks,
@@ -753,9 +762,16 @@ closed with the resolution — the rule `gate/gate-configuration.md` §10 alread
 applies, for the reason recorded there: renumbering on close is how a pointer
 comes to reference a different item than the one it closed.
 
-1. **Managed policy tier.** Referenced in the layering diagram and never
-   drafted. It is the only tier a developer cannot override, which makes it the
-   one that most needs to exist.
+1. **Managed policy tier — closed in 1.14.** Referenced in the layering diagram
+   and never drafted. It is the only tier a developer cannot override, which made
+   it the one that most needed to exist. The item was right that the tier needed
+   a definition. It was wrong only in implying Causeway could draft the tier
+   itself: the policy is the organization's, and what the standard owed was the
+   contract for referencing it. `skills/decision-spine/reference/managed-policy.md`
+   is that contract: identity and version, authority, applicability, effective and
+   review dates, a pinned offline copy, precedence, who alone grants an exception,
+   and how a conflict between policy, customer and project is recorded.
+   `tools/doctor.sh` checks the reference; no gate check reads it. See ADR 0050.
 2. **Reconciliation — closed in 1.6.** The notice this item pointed at is
    retired and the question is settled: this repository is the document of
    record, as ADR 0001 decided and ADR 0021 now states without contradiction.

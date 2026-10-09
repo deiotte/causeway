@@ -353,6 +353,131 @@ PY
 )
 fi
 
+# ── Managed policy ───────────────────────────────────────────────────────────
+#
+# The organization's floor, above Causeway. The project keeps a reference to it
+# in .causeway/policy.json — or records that none applies, and why.
+# skills/decision-spine/reference/managed-policy.md. ADR 0050.
+
+POLICY_REMEDY="Copy templates/managed-policy.json to .causeway/policy.json and fill it in — or record {\"none\": \"<why no organization's policy applies>\"}. skills/decision-spine/reference/managed-policy.md"
+if [ ! -f .causeway/policy.json ]; then
+  finding policy.reference incomplete ".causeway/policy.json" \
+    "Nothing records the organization's managed policy, or that none applies. Silence and 'none' are different claims; silence means nobody checked." \
+    "$POLICY_REMEDY"
+elif ! command -v python3 >/dev/null 2>&1; then
+  finding policy.reference unverified ".causeway/policy.json" \
+    "python3 is not available here to read the policy reference." "Run doctor.sh on a machine with python3."
+else
+  while IFS='|' read -r id status subject why remedy; do
+    [ -n "$id" ] && finding "$id" "$status" "$subject" "$why" "${remedy//@POLICY@/$POLICY_REMEDY}"
+  done < <(python3 - <<'PY'
+import datetime, hashlib, json, os, re
+def out(i, s, subj, why, rem=""):
+    print("|".join(str(x).replace("|", "/").replace("\n", " ") for x in (i, s, subj, why, rem)))
+today = datetime.date.today()
+def date(v):
+    try:
+        return datetime.date.fromisoformat(str(v))
+    except Exception:
+        return None
+def filled(v):
+    return isinstance(v, str) and v.strip() and not v.strip().upper().startswith(("REPLACE", "YYYY"))
+try:
+    d = json.load(open(".causeway/policy.json"))
+    assert isinstance(d, dict)
+except Exception:
+    out("policy.reference", "incomplete", ".causeway/policy.json",
+        "The policy reference is not a JSON object, so nothing can read it.", "@POLICY@")
+    raise SystemExit
+policies = d.get("policies") or []
+if not policies:
+    if filled(d.get("none")):
+        out("policy.reference", "ok", ".causeway/policy.json",
+            f"No managed policy applies, and the reason is recorded: {d['none'][:120]}")
+    else:
+        out("policy.reference", "incomplete", ".causeway/policy.json",
+            "Lists no policy and gives no reason why none applies.", "@POLICY@")
+    raise SystemExit
+out("policy.reference", "ok", ".causeway/policy.json", f"{len(policies)} managed polic{'y' if len(policies) == 1 else 'ies'} recorded.")
+by_id = {}
+for p in policies:
+    pid = str(p.get("id") or "?")
+    by_id[pid] = p
+    subj = f".causeway/policy.json: {pid}"
+    gaps = [k for k in ("id", "title", "version", "applies_because") if not filled(p.get(k))]
+    auth, exa = p.get("authority") or {}, p.get("exception_authority") or {}
+    if not filled(auth.get("name")):
+        gaps.append("authority.name")
+    if not filled(exa.get("name")) or not filled(exa.get("role")):
+        gaps.append("exception_authority name and role")
+    for k in ("effective", "review_by"):
+        if not date(p.get(k)):
+            gaps.append(f"{k} (a YYYY-MM-DD date)")
+    if gaps:
+        out(f"policy.{pid}", "incomplete", subj, "The reference is missing: " + ", ".join(gaps) + ".",
+            "Fill each field — managed-policy.md, The policy reference, says what each records.")
+        continue
+    if date(p["review_by"]) < today:
+        out(f"policy.{pid}", "incomplete", subj,
+            f"Its review date {p['review_by']} has passed: nobody has checked whether {p['version']} is still the current version.",
+            "Check the authority's current version, update the copy and its sha256 if it moved, and set a new review_by.")
+        continue
+    copy, sha = p.get("copy"), str(p.get("sha256") or "").strip().lower()
+    if copy:
+        if not os.path.isfile(copy):
+            out(f"policy.{pid}", "incomplete", subj, f"The pinned copy {copy} is not in the repository.",
+                "Commit the copy, or set copy to null with held_at if it may not be committed.")
+        elif not re.fullmatch(r"[0-9a-f]{64}", sha):
+            out(f"policy.{pid}", "incomplete", subj, "The copy has no sha256, so nothing says which version it is.",
+                f"Record sha256sum {copy}.")
+        elif hashlib.sha256(open(copy, "rb").read()).hexdigest() != sha:
+            out(f"policy.{pid}", "incomplete", subj,
+                f"The copy at {copy} does not match its recorded sha256: the text changed and the pin did not.",
+                "Find out which is right. If the policy moved, record its new version, date and hash.")
+        else:
+            out(f"policy.{pid}", "ok", subj,
+                f"{p['title']} {p['version']}, pinned to the committed copy, review by {p['review_by']}.")
+    else:
+        out(f"policy.{pid}", "unverified", subj,
+            f"{p['title']} {p['version']} is pinned to a copy held at {p.get('held_at') or 'an unrecorded place'}, which this repository cannot check.",
+            "Confirm the held copy's sha256 against the reference when its review date comes round.")
+for i, x in enumerate(d.get("exceptions") or []):
+    pid = str(x.get("policy") or "?")
+    subj = f".causeway/policy.json: exception {i + 1} ({pid} {x.get('clause') or ''})".strip()
+    problems = []
+    pol = by_id.get(pid)
+    if not pol:
+        problems.append(f"it names policy {pid}, which is not recorded")
+    for k in ("clause", "evidence"):
+        if not filled(x.get(k)):
+            problems.append(f"no {k}")
+    ap = x.get("approved_by") or {}
+    if not filled(ap.get("name")) or not filled(ap.get("role")):
+        problems.append("no approver by name and role")
+    elif pol and str(ap.get("role")).strip().lower() != str((pol.get("exception_authority") or {}).get("role", "")).strip().lower():
+        problems.append(f"approved by a {ap['role']}, and the policy names its exception authority as a {(pol.get('exception_authority') or {}).get('role')}")
+    adr = re.search(r"\d{4}", str(x.get("adr") or ""))
+    if not adr:
+        problems.append("no ADR arguing it")
+    elif not any(f.startswith(adr.group(0) + "-") for f in (os.listdir("decisions") if os.path.isdir("decisions") else [])):
+        problems.append(f"ADR {adr.group(0)} is not in decisions/")
+    if not date(x.get("approved_on")):
+        problems.append("no approval date")
+    exp = date(x.get("expires"))
+    if not exp:
+        problems.append("no expiry — an exception with none is a permanent policy change made by the wrong person")
+    elif exp < today:
+        problems.append(f"it expired on {x['expires']}")
+    if problems:
+        out(f"policy.exception.{i + 1}", "incomplete", subj, "This exception to managed policy has " + "; ".join(problems) + ".",
+            "Only the policy's exception authority can grant it. Record their approval, its evidence and expiry — or comply. managed-policy.md, When requirements conflict.")
+    else:
+        out(f"policy.exception.{i + 1}", "ok", subj,
+            f"Approved by {ap['name']} ({ap['role']}) on {x['approved_on']}, expires {x['expires']}. A recorded assertion, not an authentication.")
+PY
+)
+fi
+
 # ── Agent instructions ───────────────────────────────────────────────────────
 #
 # A reference being present is checked. Whether an agent reads it is not

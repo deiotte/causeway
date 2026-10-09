@@ -47,6 +47,8 @@ BUNDLE_FILES=(
   # would still be calling the result a criticality class while gate/profiles.json
   # resolved a profile from it. See ADR 0032.
   "skills/decision-spine/reference/placement.md"
+  "skills/decision-spine/reference/managed-policy.md"
+  "templates/managed-policy.json"
   "skills/decision-spine/reference/references.md"
   # The practitioner capture path. The skill defines what an interview may and
   # may not put in a practitioner's mouth, and the template defines the shape a

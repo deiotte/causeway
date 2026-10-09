@@ -90,6 +90,8 @@ ARCHIVE_FILES=(
   "skills/decision-spine/reference/spine.md"
   "skills/decision-spine/reference/gate-profiles.md"
   "skills/decision-spine/reference/placement.md"
+  "skills/decision-spine/reference/managed-policy.md"
+  "templates/managed-policy.json"
   "skills/decision-spine/reference/references.md"
   "skills/field-note/SKILL.md"
   "skills/survey/SKILL.md"

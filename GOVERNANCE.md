@@ -54,9 +54,10 @@ legal and records obligations. Where an adopter's managed policy and Causeway
 disagree, the managed policy wins, and the adopter records the deviation in its
 own exceptions register.
 
-What Causeway still owes is a description of what a managed policy tier should
-contain and how a project finds it. That is Build DNA open item 1, and it stays
-open.
+What a project records is a reference to it — which policy, at which version,
+and who alone can grant an exception — in `.causeway/policy.json`.
+`skills/decision-spine/reference/managed-policy.md` is that contract (ADR 0050),
+which closed Build DNA open item 1.
 
 ## Continuity
 

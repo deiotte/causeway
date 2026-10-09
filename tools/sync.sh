@@ -102,6 +102,11 @@ VENDORED=(
   # Vendored for the same reason spine.md is: it is read at the moment a project
   # has no placement yet, which is the moment nothing else in the copy can help.
   "skills/decision-spine/reference/placement.md"
+  # The managed-policy contract, and the template a project copies to
+  # .causeway/policy.json. Vendored with placement.md for the same reason:
+  # read at the moment a project has nothing yet. ADR 0050.
+  "skills/decision-spine/reference/managed-policy.md"
+  "templates/managed-policy.json"
   "skills/decision-spine/reference/references.md"
   # The practitioner capture path, vendored so an agent in a consuming project
   # reads the same interview rules and the same note shape the standard ships.

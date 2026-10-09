@@ -27,6 +27,35 @@ at the time, because none were.
 
 ---
 
+## v2.10.0 — 2026-10-09
+
+The managed policy tier is defined: what a project records about its organization's
+floor, and who alone can grant an exception to it. Minor — a new contract, a template and
+new advisory doctor findings; no gate check, input contract, verdict or profile moved.
+Build DNA moves to 1.14 and closes its open item 1. The spine stays at 0.8, the gate
+configuration at 0.8. The bundle grows from 32 to 34 files. The ServiceNow overlay is
+re-ratified at 1.13.
+
+- **`skills/decision-spine/reference/managed-policy.md`,** vendored. Causeway does not
+  supply the policy; it defines the reference a project keeps to it. Three kinds of
+  requirement — managed policy, customer constraint, project default — told apart by *who
+  would have to sign to change it*. How each kind of conflict is recorded, and a worked
+  example. #14, ADR 0050.
+- **`.causeway/policy.json`,** from the vendored `templates/managed-policy.json`, format
+  `causeway-managed-policy-v1`. Each policy records its version, authority, effective and
+  review dates, why it applies, precedence, a committed copy and its sha256 for offline
+  use, and the person who can grant an exception. A project with none records `none` and
+  the reason. Exceptions record clause, ADR, approver by name and role, date, expiry and
+  evidence.
+- **`tools/doctor.sh`** reports `policy.reference`, `policy.<id>` and
+  `policy.exception.<n>`. A fresh sync is now incomplete on eleven things, not ten.
+  Advisory, as everything doctor reports: no gate check reads the file.
+- **Build DNA 1.14** names the reference in its layering section. `GOVERNANCE.md` points
+  at it.
+- **ServiceNow overlay 1.13**: the platform team's instance governance is managed policy
+  for an application built on the instance.
+- **`tools/test-doctor.sh` grows to 62 cases,** 15 of them new.
+
 ## v2.9.0 — 2026-10-08
 
 When a constraint changes, a project can find the decisions that rested on it. Minor —

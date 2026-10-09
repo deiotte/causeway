@@ -3,9 +3,9 @@
 | | |
 |---|---|
 | **Overlay** | `overlays/servicenow` · machine-readable projection in `servicenow.json` |
-| **Version** | 1.12 |
-| **Ratified against** | Decision Spine v0.8 · Gate configuration v0.8 · Build DNA v1.13 |
-| **Reconciled at** | Causeway 2.1.0. History, not a currency claim — the row above is what CI enforces. |
+| **Version** | 1.13 |
+| **Ratified against** | Decision Spine v0.8 · Gate configuration v0.8 · Build DNA v1.14 |
+| **Reconciled at** | Causeway 2.10.0. History, not a currency claim — the row above is what CI enforces. |
 | **Applies to** | Development, configuration, and integration work delivered on a ServiceNow instance |
 | **Governs** | Nothing. Causeway core governs. See `overlays/README.md`. |
 
@@ -45,6 +45,17 @@
 > What 1.2 adds is `overlays/servicenow.json`: the same overlay, machine-readable.
 > §1 also now states the posture the rest of the document has always assumed and
 > never wrote down. Both exist for the same reason — see below.
+
+> ## Ratified again at 1.13
+>
+> **Build DNA moved to 1.14** (ADR 0050), closing its open item 1: the managed policy
+> tier now has a contract, `skills/decision-spine/reference/managed-policy.md`, and a
+> project keeps its reference in `.causeway/policy.json`.
+>
+> **One §7 row added; no disposition moved.** The contract is platform-neutral, and the
+> row says where it lands on an instance: the platform team's instance governance is
+> usually managed policy, and an update-set-only shop has no repository for the file —
+> the same declared gap as the index and the field-note register.
 
 > ## Ratified again at 1.9
 >
@@ -530,6 +541,7 @@ deviation-by-ADR shape.
 |---|---|
 | Adoption — Practitioner, Reader, Contributor, Maintainer | Same four floors, and the platform blurs the line the contract draws. **Changing code includes changing a flow, a business rule, or a configured out-of-box artifact**, so the Contributor floor applies to App Engine Studio work as it does to a scoped-app engineer: know the profile from `system.json`, read the customization ledger before you modify an artifact that is already on it, do not edit vendored files. The Maintainer's ledger is the customization ledger below plus the pin — and on this platform the pin has two halves, the vendored standard and the installed Store and spoke versions. |
 | Adoption — the Practitioner floor | **The densest concentration of this role anywhere Causeway runs, and the platform has the least room for it.** A ServiceNow instance is surrounded by process owners, service desk leads, and HR, finance and facilities functional experts who know precisely what the system must get right and have never opened a repository. Two platform-specific ways to get this wrong. First, **the platform has native surfaces that look like field notes and are not**: an incident, a problem record, catalog item feedback, a demand record. Same rule as the open-items row below — **they are inputs, not entries.** A demand record becomes a field note when a practitioner is interviewed and states what they know; harvesting the queue into `domain/field-notes/` produces volume and captures nothing, because the thing worth having was never written down in the ticket. Second, **a note is a property of the application, not of the instance**, for the same reason the index and the profile are. **Declared gap:** update-set-only delivery has no repository, so it has no `START-HERE.md`, no `domain/field-notes/`, and no pull request for a practitioner to land in — the same missing surface that leaves five input classes unsuppliable in §8 and the index homeless in the row below. This overlay declares it rather than nominating a table to stand in. The browser issue form needs a repository too; what an update-set-only shop actually has is the interview, and a note written somewhere a person chose. That is worse and it is not nothing. |
+| Layering — managed policy | **The platform team's instance governance is usually managed policy, not a project default.** Upgrade cadence, the ACL and role model, which plugins may be activated, the instance's own security baseline — an application team cannot change any of them by ADR, so they are recorded as a managed-policy reference in `.causeway/policy.json`, with the platform owner as the authority and the person who grants exceptions to it named. The test is the contract's own: who would have to sign to change it. A customer's ATO conditions on the instance are customer constraints (Survey `GR-` rows) until the organization adopts them. **Declared gap:** update-set-only delivery has no repository for `.causeway/policy.json`, the same missing surface as the index and the field-note register, and this overlay declares it rather than nominating a table to hold it. |
 | §2 Microservices by default, monolith by decision | **Scoped application by default, global scope by decision.** |
 | §3 Vendor-agnostic adapter pattern | **A spoke is a vendor SDK.** Canonical schema from the domain, spoke behind an adapter, no spoke called from a business rule or flow step carrying domain logic. |
 | §3 Pin upstream, never silently fork | Store apps, spokes and plugins arrive at a version; **record the installed version in the inventory `dependency-provenance` reads**, not in a wiki. **A modified out-of-box artifact is a fork**, whether or not anyone calls it one — the customization ledger row with its ADR is the declared fork §3 permits, and a skip record at upgrade is the undeclared one surfacing. The gap between pinned and current is measured here in family releases, and the instance upgrade cadence is set by the vendor, so it is a number someone owns rather than one they choose. |
