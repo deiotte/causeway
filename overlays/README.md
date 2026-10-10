@@ -206,7 +206,7 @@ whose platform evidence the overlay maps.
 
 | Overlay | Version | Status |
 |---|---|---|
-| [`servicenow.md`](servicenow.md) | 1.12 | Ratified against spine v0.8 |
+| [`servicenow.md`](servicenow.md) | 1.13 | Ratified against spine v0.8 |
 
 Power Platform is the obvious second one — a prior build already adapted to
 SharePoint and Power Automate in practice, and that adaptation is currently

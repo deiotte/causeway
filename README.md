@@ -79,17 +79,17 @@ Review snapshot: **2026-10-08**, commit [`b9f1de9`](https://github.com/deiotte/c
 
 | Artifact | State at review |
 |---|---|
-| Source version | 2.9.0; `RELEASED` contains 2026-10-08 |
-| Build DNA / Decision Spine / gate configuration | 1.13 / 0.8 / 0.8 |
+| Source version | 2.10.0; `RELEASED` contains 2026-10-09 |
+| Build DNA / Decision Spine / gate configuration | 1.14 / 0.8 / 0.8 |
 | ServiceNow overlay | 1.12 |
 | Published GitHub release | [v2.2.0](https://github.com/deiotte/causeway/releases/tag/v2.2.0), published 2026-10-02; the only published release returned at review |
 
 The source version and `RELEASED` file are not proof that an archive has been published. The newer capabilities below are present in the reviewed source; they are not present in the older v2.2.0 release. Check the [release page](https://github.com/deiotte/causeway/releases) before selecting an installation artifact.
 
-The current 32-file consumer bundle has digest:
+The current 34-file consumer bundle has digest:
 
 ```text
-sha256:61eda08ecfbe09ec564e75004a3c6469d2cb839cfe250db1da889c1dcfc7bcae
+sha256:d48de8a1f34395fa58300da1f74cd1a8ea72aaefb15c2c29fd7e6516047a0b31
 ```
 
 That identifies the contract-file set in `bundle/manifest.json`, not every file in the repository or installation archive.
@@ -210,7 +210,7 @@ The review ran the following against the source commit above:
 
 | Evidence | Observed result | What it establishes |
 |---|---|---|
-| `tools/validate.py` | Completes 749 internal consistency checks | Agreement among the standard's artifacts, counts, references, and guarded rules |
+| `tools/validate.py` | Completes 756 internal consistency checks | Agreement among the standard's artifacts, counts, references, and guarded rules |
 | Bundle and adapter checks | Passed | Manifest reproduction and references to the three shipped skills |
 | `test-sync.sh` | 32 passed, 0 failed | Covered refusals, rollback, content checks, and preservation of agent instructions |
 | `test-doctor.sh` | 26 passed, 0 failed | Covered setup findings and read-only behavior |
@@ -258,7 +258,7 @@ Receipt storage, access controls, retention, signing, and replay infrastructure 
 
 ## Development priorities
 
-The standard's own index tracks **32 open items across four registers**. That index records declared gaps; it does not prove their closure in consuming projects.
+The standard's own index tracks **31 open items across four registers**. That index records declared gaps; it does not prove their closure in consuming projects.
 
 1. **Publish and verify the newer release path.** Bring available release artifacts and installation instructions into agreement with the source, then verify the downloaded consumer experience. [#1](https://github.com/deiotte/causeway/issues/1), [#3](https://github.com/deiotte/causeway/issues/3).
 2. **Establish evaluator compatibility.** Publish a version/check/input coverage matrix and expand conformance around consequential failure boundaries. [#6](https://github.com/deiotte/causeway/issues/6).

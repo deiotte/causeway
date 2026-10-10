@@ -169,6 +169,7 @@ Pinning, signing, and installing — which copy, and how anyone would know if it
 | [0047](0047-tell-a-declared-placement-from-a-defaulted-one.md) | Tell a declared placement from a defaulted one — in doctor, not yet in the gate | Accepted |
 | [0048](0048-keep-the-field-note-queue-visible.md) | Keep the field-note queue visible — owner, age, evidence, and a target the project chooses | Accepted |
 | [0049](0049-find-the-decisions-a-changed-constraint-touches.md) | Find the decisions a changed constraint touches — from the references already recorded, and say how sure | Accepted |
+| [0050](0050-define-the-managed-policy-reference.md) | Define the managed policy reference — what a project records about its organization's floor, and who alone can grant an exception | Accepted |
 
 ### The standard's own CI and record-keeping
 

@@ -47,8 +47,14 @@ echo "doctor.sh — what is still missing, and nothing that is not"
 
 # ── A fresh sync: installed, intact, and not adopted ─────────────────────────
 
+# Synced from a copy with no .git, so the result does not depend on where this
+# runs: from a tagged checkout — the release job — a sync is a release install and
+# install.release is rightly ok, which is a different project from the one this
+# case describes. The configured case below covers the release pin.
+SRC="$WORK/standard"; mkdir -p "$SRC"
+tar -C "$STANDARD_DIR" --exclude=./.git -cf - . | tar -C "$SRC" -xf -
 P="$(mktemp -d "$WORK/fresh.XXXXXX")"
-bash "$STANDARD_DIR/tools/sync.sh" "$P" >/dev/null 2>&1
+bash "$SRC/tools/sync.sh" "$P" >/dev/null 2>&1
 doctor "$P"
 python3 -c "import json;d=json.load(open('$WORK/doc.json'));assert d['format']=='causeway-doctor-v1'" \
   && ok "--json is valid JSON in the documented format" \
@@ -59,10 +65,10 @@ python3 -c "import json;d=json.load(open('$WORK/doc.json'));assert d['format']==
   || bad "a fresh sync is installed and intact, adoption incomplete, evaluation not claimed"
 fresh_incomplete="$(python3 -c "import json
 print(' '.join(sorted(f['id'] for f in json.load(open('$WORK/doc.json'))['findings'] if f['status']=='incomplete')))")"
-want="ci.drift gate.evaluator install.release placement.system_json reviewers.codeowners starter.CLAUDE.md starter.CONTRIBUTING.md starter.START-HERE.md starter.open_items starter.pull_request_template.md"
+want="ci.drift gate.evaluator install.release placement.system_json policy.reference reviewers.codeowners starter.CLAUDE.md starter.CONTRIBUTING.md starter.START-HERE.md starter.open_items starter.pull_request_template.md"
 [ "$fresh_incomplete" = "$want" ] \
-  && ok "a fresh sync is incomplete on exactly the ten things a sync cannot do" \
-  || bad "a fresh sync is incomplete on exactly the ten things a sync cannot do" "got: $fresh_incomplete"
+  && ok "a fresh sync is incomplete on exactly the eleven things a sync cannot do" \
+  || bad "a fresh sync is incomplete on exactly the eleven things a sync cannot do" "got: $fresh_incomplete"
 expect "branch protection is unverified, never passed" reviewers.required unverified
 expect "required checks are unverified, never passed" ci.required unverified
 python3 -c "import json
@@ -99,6 +105,26 @@ printf -- '---\nadr: "0001"\ntitle: Place Lantern\nstatus: Accepted\ndate: 2026-
   > "$P/decisions/0001-place-lantern.md"
 mkdir -p "$P/.github/workflows"
 printf 'jobs:\n  drift:\n    steps:\n      - run: bash tools/check-drift.sh\n' > "$P/.github/workflows/ci.yml"
+# The managed policy reference: one policy, pinned to a committed copy, and one
+# exception its exception authority approved. ADR 0050.
+mkdir -p "$P/policy"
+printf 'ACME SecOps Baseline 4.2\n3.4 MFA on every service account.\n' > "$P/policy/acme-secops-4.2.txt"
+POLICY_SHA="$(sha256sum "$P/policy/acme-secops-4.2.txt" | cut -d' ' -f1)"
+cat > "$P/.causeway/policy.json" <<JSON
+{ "format": "causeway-managed-policy-v1",
+  "policies": [ { "id": "acme-secops", "title": "ACME SecOps Baseline", "version": "4.2",
+    "authority": { "name": "ACME Office of the CISO", "contact": "policy@acme.example" },
+    "effective": "2026-07-01", "review_by": "2099-07-01",
+    "applies_because": "Lantern processes CUI inside the ACME enclave.", "precedence": 1,
+    "source": "https://policy.acme.example/secops/4.2", "copy": "policy/acme-secops-4.2.txt",
+    "sha256": "$POLICY_SHA",
+    "exception_authority": { "name": "J. Rivera", "role": "Authorizing Official" } } ],
+  "exceptions": [ { "policy": "acme-secops", "clause": "3.4 MFA on every service account", "adr": "0001",
+    "approved_by": { "name": "J. Rivera", "role": "Authorizing Official" },
+    "approved_on": "2026-09-01", "expires": "2099-03-01",
+    "evidence": "https://grc.acme.example/exceptions/1187" } ],
+  "none": null }
+JSON
 doctor "$P"
 n_inc="$(python3 -c "import json;print(json.load(open('$WORK/doc.json'))['counts']['incomplete'])")"
 [ "$n_inc" = 0 ] && [ "$(state adoption)" = complete-except-unverified ] \
@@ -150,6 +176,51 @@ expect "CI that does not run the drift check is incomplete" ci.drift incomplete
 
 reset; sed -i 's/.*Gate evaluator.*/- **Gate evaluator:** [ENGINE AND VERSION]/' "$P/CLAUDE.md"; doctor "$P"
 expect "a placeholder evaluator line is incomplete" gate.evaluator incomplete
+
+# ── Managed policy: the reference, its pin, and its exceptions. ADR 0050 ─────
+
+reset; doctor "$P"
+expect "a recorded policy is ok" policy.reference ok
+expect "a policy pinned to a matching committed copy is ok" policy.acme-secops ok
+expect "an exception its exception authority approved is ok" policy.exception.1 ok
+grep -q 'not an authentication' "$WORK/doc.json" \
+  && ok "and doctor says the approval is a recorded assertion" \
+  || bad "and doctor says the approval is a recorded assertion"
+
+reset; printf '{ "format": "causeway-managed-policy-v1", "policies": [], "exceptions": [], "none": "Personal research; no organization applies." }\n' \
+  > "$P/.causeway/policy.json"; doctor "$P"
+expect "'none' with a reason is ok" policy.reference ok
+
+reset; printf '{ "format": "causeway-managed-policy-v1", "policies": [], "exceptions": [], "none": null }\n' \
+  > "$P/.causeway/policy.json"; doctor "$P"
+expect "no policy and no reason is incomplete — silence is not 'none'" policy.reference incomplete
+
+reset; printf '{ "policies": [\n' > "$P/.causeway/policy.json"; doctor "$P"
+expect "a policy reference that is not JSON is incomplete" policy.reference incomplete
+
+reset; printf '\nedited\n' >> "$P/policy/acme-secops-4.2.txt"; doctor "$P"
+expect "a copy that no longer matches its sha256 is incomplete" policy.acme-secops incomplete
+
+reset; sed -i 's/"review_by": "2099-07-01"/"review_by": "2020-07-01"/' "$P/.causeway/policy.json"; doctor "$P"
+expect "a passed review date is incomplete" policy.acme-secops incomplete
+
+reset; sed -i 's/"applies_because": "[^"]*"/"applies_because": "REPLACE"/' "$P/.causeway/policy.json"; doctor "$P"
+expect "a placeholder field is incomplete" policy.acme-secops incomplete
+
+reset; sed -i 's#"copy": "policy/acme-secops-4.2.txt"#"copy": null, "held_at": "ACME GRC vault"#' "$P/.causeway/policy.json"; doctor "$P"
+expect "a copy held outside the repository is unverified, never ok" policy.acme-secops unverified
+
+reset; sed -i 's/"expires": "2099-03-01"/"expires": "2026-03-01"/' "$P/.causeway/policy.json"; doctor "$P"
+expect "an expired exception is incomplete" policy.exception.1 incomplete
+
+reset; sed -i '/"approved_by"/s/"Authorizing Official"/"Tech Lead"/' "$P/.causeway/policy.json"; doctor "$P"
+expect "an exception approved by someone other than the exception authority is incomplete" policy.exception.1 incomplete
+
+reset; sed -i 's/"adr": "0001"/"adr": "0099"/' "$P/.causeway/policy.json"; doctor "$P"
+expect "an exception whose ADR is not in decisions/ is incomplete" policy.exception.1 incomplete
+
+reset; sed -i 's/"expires": "2099-03-01"/"expires": null/' "$P/.causeway/policy.json"; doctor "$P"
+expect "an exception with no expiry is incomplete" policy.exception.1 incomplete
 
 # Without python3, system.json cannot be read: unverified, not passed.
 NOPY="$(mktemp -d "$WORK/nopy.XXXXXX")"
