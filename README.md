@@ -140,7 +140,7 @@ Measure the trial: onboarding effort, monthly upkeep, a decision the intake chan
 | Ongoing maintenance | Adoption doctor, constraint-impact reports, field-note queue | Advisory reports depend on the records supplied; no automatic disposition or design change |
 | Product evaluation | 27 check definitions, 14 input classes, four profiles, eight verdicts, receipt contract | The executable evaluator and evidence infrastructure belong elsewhere |
 | Evaluator conformance | 9 fixtures over 5 checks | They do not establish compatibility across all 27 checks |
-| ServiceNow | Optional responsibility/evidence mapping and JSON projection; overlay 1.13 | No ServiceNow connector, ATF runner, Instance Scan collector, or complete evidence-to-receipt integration |
+| ServiceNow | Optional responsibility/evidence mapping and JSON projection; overlay 1.14 | No ServiceNow connector, ATF runner, Instance Scan collector, or complete evidence-to-receipt integration |
 
 Profiles derive from architectural tier and criticality, rather than being selected independently. The current Decision Spine is 0.8 and gate configuration is 0.8. Required checks that cannot execute must not be represented as success. `tests-with-source` remains advisory at every profile.
 
@@ -152,7 +152,7 @@ Review date: **2026-10-15**. Source: [`6b0ec1d`](https://github.com/deiotte/caus
 
 | Locally executed evidence | Result | What it supports |
 |---|---|---|
-| `tools/validate.py` | 756 assertions passed | Internal agreement among the standard's artifacts and guarded references |
+| `tools/validate.py` | 763 assertions passed | Internal agreement among the standard's artifacts and guarded references |
 | Bundle and adapter checks | Passed | Manifest reproduction and shipped skill pointers |
 | Sync / doctor / starter-upgrade suites | 32 / 62 / 28 passed; no failures | Covered installation, preservation, diagnostics, and upgrade cases |
 | Field-note / impact suites | 26 / 23 passed; no failures | Covered queue and decision-reference behavior |

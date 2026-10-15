@@ -128,6 +128,7 @@ The design layer's content, and how a system arrives at its obligations under it
 | [0008](0008-reconcile-composition-state-vocabulary.md) | Reconcile the composition-state vocabulary on SA-3.13 | Accepted |
 | [0032](0032-say-how-a-system-gets-placed.md) | Say how a system gets placed, and ship no check to enforce it | Accepted |
 | [0034](0034-close-the-one-way-deadline-against-the-spine.md) | Close the one-way deadline against the spine, not against a release | Accepted |
+| [0051](0051-close-an-uncontested-row-with-a-coverage-adr.md) | Close an uncontested spine row with a coverage ADR — the verdict is about the argument, the row still closes | Accepted |
 
 ### Gate and engine contract
 

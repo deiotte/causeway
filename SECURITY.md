@@ -39,5 +39,9 @@ standard, that part is in scope here, and we want to hear it.
 ## Supported versions
 
 The latest release. Consuming projects pin exactly, so a fix reaches them when
-they re-sync; `check-drift.sh` and the `standard-currency` check tell them a newer
-release exists.
+they re-sync. Nothing shipped with the standard tells a project that a newer
+release exists: `check-drift.sh` compares the installed copy against its lock,
+and the `standard-currency` check reads the installed copy's age from the same
+lock. Both run offline and neither asks this repository anything. Discovering a
+new release is the project's job — watch this repository's releases, or read
+`CHANGELOG.md` when the age finding fires.
