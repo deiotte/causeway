@@ -339,14 +339,23 @@ Judge an ecosystem on properties, not on taste:
 | **Immutability** | Can a published version change in place, and is there an append-only log proving it didn't? |
 | **Enclave reachability** | Is the registry reachable from the target environment, or does a mirror quietly fork the trust decision? (SA-4.7) |
 
-**npm scores worst among the mainstream ecosystems on the first four**, and that
-is a record rather than a prediction: lifecycle scripts run on install by
-default, an ordinary front end trusts hundreds of distinct publishers,
-publishing is self-service, and the dominant incident shape is
-maintainer-account takeover — lately including worms that harvest credentials
-from the machines they install on and republish themselves onward. PyPI shares
-the install-time execution problem. Go modules, Maven Central, and NuGet do not
-execute code on install, and Go publishes to a checksum transparency log.
+**npm scores worst among the mainstream ecosystems on the first four**, and
+every clause of that claim is checkable against the registries' own
+documentation rather than against anyone's memory of an incident —
+`rules/dependencies.md` *Sources* lists where. Lifecycle scripts run on install
+by default, and the setting that stops them is opt-in. A published version
+cannot be altered in place, but it can be unpublished for a period, so the
+record is not append-only. Publishing is self-service, and an ordinary front end
+trusts hundreds of distinct publishers; count yours with `npm ls --all`. The
+dominant incident shape is maintainer-account takeover — lately including worms
+that harvest credentials from the machines they install on and republish
+themselves onward — and the OpenSSF malicious-packages dataset is where to
+count that by ecosystem rather than by headline. PyPI shares the install-time
+execution problem for source distributions only: a wheel installs without
+running anything, an sdist runs its build backend. Go modules, Maven Central,
+and NuGet do not execute package code on install; Maven Central and NuGet
+refuse to alter a published version, and Go records every module version's
+hash in a checksum transparency log.
 
 **The default is the option that does not depend on npm.** Where the choice is
 genuinely open — a new service, a build tool, a library, a component small

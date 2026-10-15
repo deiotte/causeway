@@ -55,5 +55,23 @@ laptop. They run before anyone has read a line of what arrived.
 - No dependency installation at container start or at runtime. Ever. The image
   is the artifact; installing at boot makes provenance unprovable.
 
+## Sources
+
+The properties AGENTS.md §5 judges an ecosystem on are documented by the
+registries themselves, and these are the primary sources. The standard names no
+compromised package: an incident list dates a document and the properties do
+not (ADR 0002). Where a count is wanted, the last row is where to take it.
+
+| Claim | Source |
+|---|---|
+| npm runs a dependency's `preinstall`, `install` and `postinstall` scripts on install, and `ignore-scripts` is off by default | [npm CLI — scripts](https://docs.npmjs.com/cli/v10/using-npm/scripts) · [npm CLI — config, `ignore-scripts`](https://docs.npmjs.com/cli/v10/using-npm/config#ignore-scripts) |
+| A published npm version can be unpublished for a period after it is published | [npm — unpublish policy](https://docs.npmjs.com/policies/unpublish) |
+| A wheel installs without executing code; a source distribution runs its build backend | [Python Packaging User Guide — package formats](https://packaging.python.org/en/latest/discussions/package-formats/) |
+| Go records every module version's hash in an auditable checksum database | [Go Modules Reference — checksum database](https://go.dev/ref/mod#checksum-database) |
+| A component published to Maven Central cannot be changed or removed | [Maven Central — can I change a component?](https://central.sonatype.org/faq/can-i-change-a-component/) |
+| A package on nuget.org can be unlisted, not deleted or altered | [nuget.org policies — deleting packages](https://learn.microsoft.com/en-us/nuget/nuget-org/policies/deleting-packages) |
+| NuGet ignores a package's `install.ps1` and `uninstall.ps1` under PackageReference | [NuGet — migrate to PackageReference, compatibility issues](https://learn.microsoft.com/en-us/nuget/consume-packages/migrate-packages-config-to-package-reference) |
+| Reported malicious packages, across ecosystems, in one open dataset | [OpenSSF — malicious-packages](https://github.com/ossf/malicious-packages) |
+
 <!-- Eyebrow-raisers live here. The blockers — lockfile provenance, install-script
      posture, SBOM drift — run in CI. See gate/gate-configuration.md §4. -->
