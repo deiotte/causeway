@@ -27,6 +27,39 @@ at the time, because none were.
 
 ---
 
+## v2.11.0 — 2026-10-15
+
+An uncontested spine row has a record that closes it. Minor — normative text and one
+correction; no gate check, input contract, verdict or profile moved, and no engine
+needs a new contract. Build DNA moves to 1.15. The spine stays at 0.8, the gate
+configuration at 0.8. The bundle stays at 34 files. The ServiceNow overlay is
+re-ratified at 1.14.
+
+- **Coverage ADRs.** The Survey said a `NOT-A-DECISION` row gets no ADR; the spine
+  and three closure checks said a row without one is not closed; the ServiceNow
+  overlay failed a register that skipped its inherited rows. Build DNA §8 gains
+  *Closing a row the Survey found no decision in*: the verdict is about the argument,
+  the row still closes, and the record that closes it is a coverage ADR — the answer,
+  the one fact that foreclosed alternatives in `forces`, a name where the row needs
+  one, no alternatives section. One record may close every row its fact forecloses.
+  A worked example, and what the record cannot do. `templates/survey.md` §S4.1 and
+  both skills say it where they used to refuse. ADR 0051, which corrects ADR 0031's
+  "`NOT-A-DECISION` rows never become ADRs".
+- **ServiceNow overlay 1.14**: its inherited-row ADRs are named as coverage ADRs
+  and change in no other way.
+- **Build DNA §5 cites its sources.** The ecosystem ranking was asserted; each
+  property is now checkable against the registry's own documentation, listed in a
+  new *Sources* table in `rules/dependencies.md`, and the PyPI case is stated
+  precisely — a wheel installs without running anything, an sdist runs its build
+  backend. No incident is named (ADR 0002); the OpenSSF malicious-packages dataset
+  is named as where to count them.
+- **Fixed: `SECURITY.md` said drift and currency checks tell a consumer a newer
+  release exists.** Neither does; both read the installed copy and its lock, offline.
+  The file now says what discovering a release takes.
+
+All three came from the 2026-10-15 hard-look review, items 3 and 4 and its
+`SECURITY.md` note.
+
 ## v2.10.0 — 2026-10-09
 
 The managed policy tier is defined: what a project records about its organization's

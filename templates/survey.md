@@ -275,7 +275,7 @@ Verdicts:
 | **READY** | All four hold | Write the ADR now. Cite the spec IDs in *Forces*. |
 | **BLOCKED** | An upstream `DEC-` or `OPEN-` is unresolved | Record the dependency. **Do not write an ADR.** |
 | **PROBE** | Discriminating evidence does not exist | Time-boxed spike with one named question. Decide after. |
-| **NOT-A-DECISION** | No real alternative — it is a default | Record it in the spec. **No ADR.** Ceremony dilutes the register. |
+| **NOT-A-DECISION** | No real alternative — it is a default | Record it in the spec. **No argued ADR** — ceremony dilutes the register. Where the row maps to an applicable spine row, that row still closes, with a **coverage ADR**: the answer, the fact that foreclosed alternatives in `forces`, a name where the row needs one, nothing else. Name it in the ADR column. Build DNA §8, *Closing a row the Survey found no decision in*. |
 
 **One row, one verdict.** If parts of a row would score differently — a technology
 choice that is READY bundled with a threshold that is a PROBE — split it before

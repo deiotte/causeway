@@ -154,7 +154,11 @@ These are the reason the spine works. Enforce them even when the user pushes.
 1. **A decision without an ADR is not closed.** If someone says "yeah we decided
    Postgres," the row is *open* until there's an ADR reference. Say so plainly
    and offer to draft the ADR. Do not accept conversational agreement as
-   closure.
+   closure. A row the Survey marked `NOT-A-DECISION` is not an exception: it
+   closes with a **coverage ADR** (Build DNA §8, *Closing a row the Survey
+   found no decision in*) — the answer, the one foreclosing fact in `forces`,
+   a name where the row needs one, no alternatives. Offer to draft that too.
+   It is four lines, and `shortform-closure` cannot tell it from any other.
 
 2. **Eight rows require a named human.** SA-1.8, SA-1.9, SA-2.11, SA-5.7,
    SA-5.10, SA-5.13, SA-5.16, SA-9.4. A role is not a name. "The AO" does not

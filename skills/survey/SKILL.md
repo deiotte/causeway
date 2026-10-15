@@ -201,6 +201,15 @@ Apply all four tests to every row. The two that get skipped:
 Be willing to assign **NOT-A-DECISION**. An ADR on an uncontested default dilutes the
 register and trains people to skim it.
 
+The verdict is about the argument, not the row. Where the `DEC-` row maps to an
+applicable spine row, that row still closes — with a **coverage ADR** (Build DNA §8,
+*Closing a row the Survey found no decision in*): the answer, the one fact that
+foreclosed alternatives in `forces`, a name where the row needs one, and no
+alternatives section. Write its ID into the ADR column. A `NOT-A-DECISION` with a spine
+row beside it and an empty ADR column is a register `shortform-closure` will fail, and
+the team will read that failure as the gate demanding ceremony when it is only
+demanding the four lines.
+
 **Read the door off the Spine.** Where a `DEC-` row maps to a spine row, the
 one-way/two-way answer is whatever the Spine's `One-way` column says — it is not
 yours or the user's to judge, and `oneway-closure` already gates on that marking. Only

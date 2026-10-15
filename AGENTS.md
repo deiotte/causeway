@@ -1,6 +1,6 @@
 # Build DNA
 
-**Version:** 1.14 — document of record
+**Version:** 1.15 — document of record
 **Layer:** Process. See `skills/decision-spine/` for the design layer.
 **Seam:** §8 (ADR discipline). Every Decision Spine row lands in an ADR governed
 by the rules in this document. That is the only place the two layers touch.
@@ -501,9 +501,11 @@ Spine row closes here or it does not close.
 - **A decision is recorded only when it is ready to be recorded.** Where the project
   ran a Survey (`skills/survey/`), only a `DEC-` row with verdict **READY** becomes an
   ADR. `BLOCKED` and `PROBE` rows get their dependency or their probe recorded instead;
-  a `NOT-A-DECISION` row gets neither, because an ADR on an uncontested default dilutes
-  the register and teaches people to skim it. Readiness is the four-part test in
-  `templates/survey.md` §S4.1, not a feeling about whether the conversation is finished.
+  a `NOT-A-DECISION` row gets no argued ADR, because an ADR on an uncontested default
+  dilutes the register and teaches people to skim it. Where that row maps to an
+  applicable spine row, the spine row still closes — with a coverage ADR, below.
+  Readiness is the four-part test in `templates/survey.md` §S4.1, not a feeling about
+  whether the conversation is finished.
 - **An ADR states the forces that discriminated between its alternatives.** Where a
   Survey exists these are its row IDs, copied into `forces` from the `DEC-` row rather
   than re-derived at writing time — if a force has to be invented to fill the field,
@@ -535,6 +537,82 @@ Spine row closes here or it does not close.
 - Eight spine rows require a **named individual** as approver, recorded in the
   ADR: SA-1.8, SA-1.9, SA-2.11, SA-5.7, SA-5.10, SA-5.13, SA-5.16, SA-9.4.
 - **Code that encodes a contested choice without an ADR is incomplete.**
+
+### Closing a row the Survey found no decision in
+
+Two rules in this standard read as a contradiction, and until now an adopter
+had to infer the resolution. The Survey says an uncontested default is
+`NOT-A-DECISION` and gets no ADR (`templates/survey.md` §S4.1). The spine says a
+row without an ADR is not closed, and `shortform-closure`, `oneway-closure` and
+`class-scoped-closure` read exactly that. The ServiceNow overlay fails a
+register that skipped its inherited rows. All three are right, because they are
+about two different things.
+
+A `NOT-A-DECISION` verdict is a finding about an **argument**: there is no
+alternative to weigh, so there is nothing to argue, and an ADR that pretends
+otherwise is the S5 ceremony the cause codes exist to catch. A spine row is a
+**coverage obligation**: somebody looked, and the record says what they found.
+The verdict answers the first question. It never answered the second.
+
+**An applicable spine row the Survey marked `NOT-A-DECISION` closes with a
+coverage ADR.** It is a real ADR in `decisions/`, status `Accepted`, the row in
+`spine_rows`, and the gate reads it like any other. What makes it a coverage
+ADR is what it carries and what it leaves out:
+
+- **The answer the system has.** One sentence.
+- **The fact that foreclosed every alternative, in `forces`, by its ID** — a
+  `GR-` constraint, a managed policy clause, or the platform row an overlay
+  inherits from. If no such fact can be named, the row was contested and the
+  verdict was wrong: go back to §S4.1, not forward to a longer ADR.
+- **The door**, read off the spine, and **a named individual** where the row is
+  one of the eight that require one. Coverage does not waive the name.
+- **No alternatives section.** The record's claim is that there were none. Four
+  lines is a normal length, and a reviewer should be able to check one in the
+  time it takes to read it.
+
+One coverage ADR may close every row its fact forecloses: the five rows an
+enclave constraint answers are one record, not five. Rows foreclosed by
+different facts get different records — the Survey's *one record, one verdict*
+rule, applied here. A coverage ADR cannot close a `BLOCKED` or `PROBE` row, and
+it is not a waiver: a waiver says *not now*, a coverage ADR says *there was
+nothing to decide*. The Survey's `DEC-` row names it in the ADR column the way
+a READY row names its argued one. Supersession is unchanged, and so is
+`impact.sh`: when the fact in `forces` changes, the tool lists the coverage ADR
+with everything else that rested on it, and a coverage ADR overturned because
+an alternative was there all along is an S3.
+
+The ServiceNow overlay has been writing this record since it existed. Its
+inherited-row ADRs — "eleven rows, four lines each, written once" — are
+coverage ADRs whose foreclosing fact is the platform, and nothing in them
+changes.
+
+**Worked example.** A C3 internal tool is surveyed. `GR-4` records that the
+organization has exactly one accredited execution fabric and that running
+anywhere else needs an authorization the project does not hold. `DEC-5`, *where
+does this run?*, maps to SA-4.1, lists no alternatives, and takes the verdict
+`NOT-A-DECISION`. SA-4.1 is in the short form, so `shortform-closure` fails the
+register at the first gate if nothing closes it. The project writes, abridged:
+
+```
+adr: "0007"
+title: Run on the accredited fabric, because GR-4 leaves nowhere else
+status: Accepted
+spine_rows: [SA-4.1]
+survey_rows: [DEC-5]
+forces: [GR-4]
+door: one-way
+revisit_if: GR-4 changes — a second fabric is accredited for this data.
+
+Runs on the accredited fabric. GR-4 forecloses every alternative: no
+other fabric is accredited for this classification, and the project
+holds no authority to accredit one.
+```
+
+The gate counts SA-4.1 closed, `impact.sh GR-4` finds the record the day a
+second fabric is accredited, and the register has gained one entry a reader can
+verify in ten seconds. It has lost nothing, because what `NOT-A-DECISION`
+protects the register from is an argument that was never had — not a fact that
+was never written down.
 
 ### Closing a row that arrived after the system did
 

@@ -3,9 +3,9 @@
 | | |
 |---|---|
 | **Overlay** | `overlays/servicenow` · machine-readable projection in `servicenow.json` |
-| **Version** | 1.13 |
-| **Ratified against** | Decision Spine v0.8 · Gate configuration v0.8 · Build DNA v1.14 |
-| **Reconciled at** | Causeway 2.10.0. History, not a currency claim — the row above is what CI enforces. |
+| **Version** | 1.14 |
+| **Ratified against** | Decision Spine v0.8 · Gate configuration v0.8 · Build DNA v1.15 |
+| **Reconciled at** | Causeway 2.11.0. History, not a currency claim — the row above is what CI enforces. |
 | **Applies to** | Development, configuration, and integration work delivered on a ServiceNow instance |
 | **Governs** | Nothing. Causeway core governs. See `overlays/README.md`. |
 
@@ -45,6 +45,16 @@
 > What 1.2 adds is `overlays/servicenow.json`: the same overlay, machine-readable.
 > §1 also now states the posture the rest of the document has always assumed and
 > never wrote down. Both exist for the same reason — see below.
+
+> ## Ratified again at 1.14
+>
+> **Build DNA moved to 1.15** (ADR 0051): a spine row the Survey marked
+> `NOT-A-DECISION` closes with a coverage ADR — the answer, the foreclosing fact in
+> `forces`, a name where the row needs one, no alternatives section.
+>
+> **No row moved.** This overlay's inherited-row ADRs have been that record since
+> 1.0; §9 now calls them by core's name. Open item 7 is unchanged — what the record
+> is was never the question there, where it gets written once was.
 
 > ## Ratified again at 1.13
 >
@@ -762,7 +772,9 @@ Order matters. Step 4 is what makes the rest survivable.
 One thing to set expectations on before starting: **the inherited-row ADRs are the
 cheapest part of this and they will feel like the most pointless.** Eleven rows,
 four lines each, written once. Teams skip them, and then their register shows gaps
-where the honest answer was available for free.
+where the honest answer was available for free. Build DNA 1.15 names this record:
+a **coverage ADR** (§8, *Closing a row the Survey found no decision in*), whose
+foreclosing fact here is the platform.
 
 ## 10. Open items
 
