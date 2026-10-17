@@ -63,6 +63,7 @@ context if it shapes decisions — agency or sector, ATO target, CSfC boundary.]
 build:
 test:
 lint:
+setup:     make setup      # the page built from .env.example (tools/setup); writes .env, runs targets
 run:
 ```
 

@@ -3,9 +3,9 @@
 | | |
 |---|---|
 | **Overlay** | `overlays/servicenow` · machine-readable projection in `servicenow.json` |
-| **Version** | 1.14 |
-| **Ratified against** | Decision Spine v0.8 · Gate configuration v0.8 · Build DNA v1.15 |
-| **Reconciled at** | Causeway 2.11.0. History, not a currency claim — the row above is what CI enforces. |
+| **Version** | 1.15 |
+| **Ratified against** | Decision Spine v0.8 · Gate configuration v0.8 · Build DNA v1.16 |
+| **Reconciled at** | Causeway 2.12.0. History, not a currency claim — the row above is what CI enforces. |
 | **Applies to** | Development, configuration, and integration work delivered on a ServiceNow instance |
 | **Governs** | Nothing. Causeway core governs. See `overlays/README.md`. |
 
@@ -45,6 +45,18 @@
 > What 1.2 adds is `overlays/servicenow.json`: the same overlay, machine-readable.
 > §1 also now states the posture the rest of the document has always assumed and
 > never wrote down. Both exist for the same reason — see below.
+
+> ## Ratified again at 1.15
+>
+> **Build DNA moved to 1.16** (ADR 0052): a project is configured from a page built
+> from its own `.env.example` — configure, set up, run — and `tools/setup/` is
+> vendored for it.
+>
+> **No row moved.** A ServiceNow application has no `.env.example` and no compose
+> stack; its configuration is instance properties and system properties, governed
+> by the instance (§1, posture). The §6 subsection reads as not applicable here, the
+> way §6's offline-build rule already does, and the vendored tool is inert in a
+> project with no example file: it says so and exits.
 
 > ## Ratified again at 1.14
 >

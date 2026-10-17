@@ -1,6 +1,6 @@
 # Build DNA
 
-**Version:** 1.15 — document of record
+**Version:** 1.16 — document of record
 **Layer:** Process. See `skills/decision-spine/` for the design layer.
 **Seam:** §8 (ADR discipline). Every Decision Spine row lands in an ADR governed
 by the rules in this document. That is the only place the two layers touch.
@@ -426,6 +426,48 @@ The reason this belongs here rather than in a deployment guide: it stops being
 achievable the moment it stops being cheap. Retrofitting an offline build onto a
 suite with three hundred incidental network calls is a project. Never letting the
 first one in is a rule.
+
+### Configure, set up, run — one page, not a file hunt
+
+"Copy `.env.example` to `.env` and edit it" is an instruction, and the person
+holding it is the one least equipped to follow it: they have not read the
+codebase, they do not know which of thirty values matter, and the README that
+tells them to rotate the dev secrets does not say how. The result is a
+hand-edited file that is wrong in a way nothing reports, on a machine the author
+of the README never saw. Configuration is a function of the build — configure,
+set up, run — and it gets the same treatment as a test: it is a thing the project
+does, not a thing the project describes.
+
+- **`.env.example` is the configuration contract, and it is the only one.** Every
+  value the stack consumes is in it, grouped under `# --- Title ---` headers,
+  with a comment that says what it is for. A value that is not there does not
+  exist. A second list of the same variables, in a wizard, a wiki or a script,
+  is a fork of the contract, and §3 says what happens to forks.
+- **The first run opens a page built from that file.** `make setup` — and `make
+  up` on a machine with no `.env` — serves a local form on the loopback address,
+  one field per variable, grouped and explained the way the example already is.
+  Secrets are generated, not pasted from a README. Save writes `.env`. The same
+  page runs the project's documented `make` targets and shows the stack coming
+  up. Add a variable to the example and it appears on the page; there is no
+  second place to maintain. `tools/setup/` is vendored for this, and reads
+  nothing but `.env.example`, `.env` and the Makefile.
+- **Stale state is named before it bites.** A database keeps the password it was
+  created with, and so does an identity realm imported on first boot. A fresh
+  `.env` against volumes from an earlier run fails at the first service that
+  logs in, with nothing on screen to say why. The page says why, before Save,
+  and offers the clean. The project's `clean` target deletes every volume of the
+  compose project, overlays included; `down -v` on the base file alone does not.
+- **A setup path that cannot be followed is a bug, not a user error.** Launched
+  as root, the browser must not be; written as root, the file must still belong
+  to the person who typed the command; run over SSH, the URL is what gets
+  printed. Each of these was found by a person running the project the way a
+  person does, and each is now a rule with a test behind it.
+
+What this is not: a secrets manager, a remote console, or a deployment tool. It
+writes one gitignored file on one disk and runs the targets a person would have
+typed. In CI there is no terminal, so there is no page; the example is copied
+and the build is unchanged. ADR 0052 records the decision and names the first
+adopter, whose four field reports are the four rules above.
 
 ## 7. Building with AI, under human oversight
 
@@ -963,3 +1005,14 @@ comes to reference a different item than the one it closed.
    requirement attaches going forward, the way `tests-with-source` attaches. What
    this item is waiting for is the first surveyed build to supersede something, and
    then enough of them to tell an S3 habit from an S1 accident.
+11. **The setup page has one adopter's evidence.** §6's *Configure, set up, run*
+   rests on one project, one maintainer, three field runs on one Linux
+   workstation (ADR 0052). The four rules it states are each a fix for something
+   that happened there, which is the right provenance for a rule and the wrong
+   sample size for a default. Unobserved: a macOS or Windows desktop launching
+   the browser, a project whose compose project name comes from the directory
+   rather than `name:`, a Makefile that documents nothing (the page would offer
+   nothing), and a secret the `PASSWORD|SECRET|TOKEN|KEY|CREDENTIAL` heuristic
+   misses — a value that should have been generated and was pasted instead. The
+   item closes against a second adopter's report, the same shape items 4 and 8
+   wait on, or a field note that names a case the four rules do not cover.

@@ -129,6 +129,12 @@ ARCHIVE_FILES=(
   "tools/doctor.sh"
   "tools/field-notes.sh"
   "tools/impact.sh"
+  # The setup page and its tests. ADR 0052.
+  "tools/setup/setup.py"
+  "tools/setup/env_schema.py"
+  "tools/setup/test_env_schema.py"
+  "tools/setup/test_setup_launch.py"
+  "tools/setup/README.md"
 )
 
 # Overlays, all of them. sync.sh vendors the one a project asks for, so the

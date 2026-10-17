@@ -80,6 +80,12 @@ BUNDLE_FILES=(
   "tools/doctor.sh"
   "tools/field-notes.sh"
   "tools/impact.sh"
+  # The setup page and its tests. ADR 0052.
+  "tools/setup/setup.py"
+  "tools/setup/env_schema.py"
+  "tools/setup/test_env_schema.py"
+  "tools/setup/test_setup_launch.py"
+  "tools/setup/README.md"
   # The trust anchor. Digested so it cannot be swapped without moving the
   # bundle digest — validate.py §13 fails if this is added and sync.sh is not,
   # or the file is named here and does not exist.
