@@ -3,13 +3,13 @@
   "$authority": "No gate check reads this file. An overlay may not change what any check does (overlays/README.md, containment rules), and publishing dispositions in JSON does not make them gate input. This exists so an engine, a register scaffold or a dashboard can consume the mapping without parsing markdown.",
   "schema_version": "1.0",
   "overlay": "servicenow",
-  "overlay_version": "1.14",
+  "overlay_version": "1.15",
   "ratified_against": {
     "spine": "0.8",
     "gate_config": "0.8",
-    "build_dna": "1.15"
+    "build_dna": "1.16"
   },
-  "reconciled_at_standard": "2.11.0",
+  "reconciled_at_standard": "2.12.0",
   "counts": {
     "inherited": 11,
     "shared": 39,

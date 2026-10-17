@@ -60,6 +60,16 @@ jobs:
         if: '!cancelled()'
         run: ./tools/render-adapters.sh
 
+      # ADR 0052. The setup page every synced project gets: its parser and
+      # writer, the browser-launch decision, the sudo hand-back, target
+      # discovery and the health pills. Stdlib, no network, no docker.
+      - name: The setup page parses and its tests pass
+        if: '!cancelled()'
+        run: |
+          set -euo pipefail
+          python3 -c 'import ast,sys; ast.parse(open("tools/setup/setup.py").read())'
+          python3 -I -m unittest discover -s tools/setup -p 'test_*.py'
+
       # sync.sh and check-drift.sh are the two halves of the distribution
       # mechanism and neither has ever been executed by anything but a person.
       # ADR 0001 exists because a copy of the standard went missing; the scripts

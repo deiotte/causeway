@@ -89,7 +89,7 @@ bash tools/verify-release.sh
 bash tools/doctor.sh --json
 ```
 
-The review downloaded and exercised this release. The checksum and signature verified; the drift check verified 32 members of the 34-file consumer bundle, with the two optional ServiceNow files absent. Doctor reported:
+The review downloaded and exercised this release. The checksum and signature verified; the drift check verified 32 members of what was then a 34-file bundle, with the two optional ServiceNow files absent (the 39-file consumer bundle at this release adds the setup tool's five files, which that review predates). Doctor reported:
 
 ```json
 {
@@ -152,14 +152,14 @@ Review date: **2026-10-15**. Source: [`6b0ec1d`](https://github.com/deiotte/caus
 
 | Locally executed evidence | Result | What it supports |
 |---|---|---|
-| `tools/validate.py` | 763 assertions passed | Internal agreement among the standard's artifacts and guarded references |
+| `tools/validate.py` | 770 assertions passed | Internal agreement among the standard's artifacts and guarded references |
 | Bundle and adapter checks | Passed | Manifest reproduction and shipped skill pointers |
 | Sync / doctor / starter-upgrade suites | 32 / 62 / 28 passed; no failures | Covered installation, preservation, diagnostics, and upgrade cases |
 | Field-note / impact suites | 26 / 23 passed; no failures | Covered queue and decision-reference behavior |
 | Throwaway signed-archive / stub publication suites | 13 / 12 passed; no failures | Covered signature/tampering refusals and publication orchestration; no production key-custody assurance |
 | Published archive installation | Checksum, signature, installation, and drift verification passed | This release's actual consumer installation path |
 
-No external product evaluator was run in this review. Independent team outcomes, evaluator coverage of the complete contract, and the return on recordkeeping remain unestablished. The standard's index records 31 open items across four registers; tracked gaps are not closed controls.
+No external product evaluator was run in this review. Independent team outcomes, evaluator coverage of the complete contract, and the return on recordkeeping remain unestablished. The standard's index records 32 open items across four registers; tracked gaps are not closed controls.
 
 Release signatures attest the declared contract bundle identity. The bundle digest does not cover the whole archive: installer code, adapters, and several project-owned starters sit outside it. Run drift verification as well as signature verification. Operational key lifecycle, receipt storage, access controls, retention, and replay need their own implementation and evidence.
 
@@ -173,7 +173,7 @@ Release signatures attest the declared contract bundle identity. The bundle dige
 | `templates/` | Project starters, Survey, ADRs, waivers, and field notes |
 | `gate/` | Product evaluator contract |
 | `conformance/` | Bounded evaluator compatibility fixtures |
-| `tools/` | Installation, diagnostics, impact analysis, upgrades, validation, and tests |
+| `tools/` | Installation, diagnostics, impact analysis, upgrades, the setup page, validation, and tests |
 | `overlays/` | Platform-specific responsibility and evidence mappings |
 | `adapters/` | Coding-tool instruction pointers |
 | `bundle/` | Manifest, scope declaration, and release trust anchor |

@@ -27,6 +27,36 @@ at the time, because none were.
 
 ---
 
+## v2.12.0 — 2026-10-17
+
+Configure, set up, run: a project is configured from a page built from its own
+`.env.example`, not by editing a file. Minor — one more vendored tool (five files) and
+new normative text; no gate check, input contract, verdict or profile moved, and no
+engine needs a new contract. Build DNA moves to 1.16 and opens its item 11. The spine
+stays at 0.8, the gate configuration at 0.8. The bundle grows from 34 to 39 files. The
+ServiceNow overlay is re-ratified at 1.15.
+
+- **`tools/setup/`,** vendored into every project: `setup.py`, `env_schema.py`, two
+  test files and a README. `make setup` — and `make up` on a machine with no `.env` —
+  serves a local page on the loopback address built from `.env.example`: one field
+  per variable, grouped and explained the way the example already is, secrets
+  generated rather than pasted, Save writes `.env` in the example's order with its
+  comments. The same page runs the Makefile's documented targets one at a time and
+  streams the output, and shows docker's own view of the project's containers. Stdlib
+  Python, nothing installed, a per-session token on every write. In CI there is no
+  terminal, so the example is copied as before. ADR 0052.
+- **Build DNA §6 gains *Configure, set up, run — one page, not a file hunt*.** The
+  example file is the configuration contract and the only one; the first run opens a
+  page built from it; stale state is named before it bites; a setup path that cannot
+  be followed is a bug, not a user error. The four rules are the first adopter's four
+  field reports: a browser launched as root, a `.env` its owner could not read, fresh
+  secrets against a previous run's volumes, and a `clean` that missed an overlay's
+  volumes. **Open item 11** records that this rests on one adopter's evidence.
+- **ServiceNow overlay 1.15**: re-ratified against Build DNA 1.16; no row moves. A
+  ServiceNow application has no `.env.example`, and the overlay says so where §6 now
+  assumes one.
+- **`templates/project-CLAUDE.md`** gains a `setup:` line in its commands block.
+
 ## v2.11.0 — 2026-10-15
 
 An uncontested spine row has a record that closes it. Minor — normative text and one

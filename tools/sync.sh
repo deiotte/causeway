@@ -153,6 +153,16 @@ VENDORED=(
   "tools/field-notes.sh"
   # Which accepted decisions rest on a constraint that just changed. ADR 0049.
   "tools/impact.sh"
+  # The setup page: configure, set up, run from one local page built from the
+  # project's own .env.example. Vendored for the reason doctor.sh is — it runs
+  # in the consuming project — and digested so a project that edits its copy is
+  # told. The tests travel with it so `make test-setup` works where it lands,
+  # and the README says how to wire the Makefile. ADR 0052.
+  "tools/setup/setup.py"
+  "tools/setup/env_schema.py"
+  "tools/setup/test_env_schema.py"
+  "tools/setup/test_setup_launch.py"
+  "tools/setup/README.md"
 )
 
 # The trust anchor for release signatures. Vendored so a consuming project can
