@@ -14,9 +14,10 @@ A small local web page, served on 127.0.0.1 only, that:
      the stack comes up.
 
 Stdlib only; nothing is installed and nothing leaves your machine. There is no
-authentication beyond the loopback bind: a random token embedded in the page
-is required on every write, so another site open in your browser cannot drive
-it.
+authentication between local users. Host and Origin checks reject foreign
+browser origins, and a random token embedded in the page is required on every
+write. The project directory must be trusted and not concurrently modified by
+another user while setup runs.
 
     python3 tools/setup/setup.py                 # open the page, keep serving
     python3 tools/setup/setup.py --until-saved   # exit as soon as .env is written
@@ -39,6 +40,7 @@ import re
 import secrets as pysecrets
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 import webbrowser
@@ -376,6 +378,23 @@ def make_handler(state: State):
         def _authorized(self) -> bool:
             return self.headers.get("X-Setup-Token") == state.token
 
+        def _trusted_request(self) -> bool:
+            # Loopback binding alone does not stop DNS rebinding: a hostile
+            # hostname can resolve to 127.0.0.1 and read the page's token.
+            port = self.server.server_address[1]
+            hosts = self.headers.get_all("Host", [])
+            if len(hosts) != 1 or hosts[0] not in {f"127.0.0.1:{port}", f"localhost:{port}"}:
+                self._json(403, {"error": "untrusted setup host"})
+                return False
+            origins = self.headers.get_all("Origin", [])
+            if origins and origins != [f"http://{hosts[0]}"]:
+                self._json(403, {"error": "untrusted setup origin"})
+                return False
+            if self.headers.get("Sec-Fetch-Site") == "cross-site":
+                self._json(403, {"error": "cross-site setup request"})
+                return False
+            return True
+
         def _read_json(self):
             n = int(self.headers.get("Content-Length") or 0)
             raw = self.rfile.read(n) if n else b"{}"
@@ -383,6 +402,8 @@ def make_handler(state: State):
 
         # ---- routes ----
         def do_GET(self):
+            if not self._trusted_request():
+                return
             path = self.path.split("?", 1)[0]
             if path == "/":
                 return self._html(render_page(state))
@@ -413,6 +434,8 @@ def make_handler(state: State):
             self.send_error(404)
 
         def do_POST(self):
+            if not self._trusted_request():
+                return
             if not self._authorized():
                 return self._json(403, {"error": "missing or wrong setup token"})
             path = self.path.split("?", 1)[0]
@@ -440,6 +463,8 @@ def make_handler(state: State):
                 return self._json(400, {"error": "values must be an object"})
             schema = state.schema()
             known = set(schema.names())
+            if ENV_PATH.is_symlink():
+                return self._json(409, {"error": ".env must be a regular file, not a symlink"})
             before = state.existing() or {}
             values: dict[str, str] = dict(before)  # keep unknown keys from a previous .env
             for k, v in incoming.items():
@@ -454,14 +479,23 @@ def make_handler(state: State):
             if missing:
                 return self._json(400, {"error": "these need a value: " + ", ".join(missing)})
             text = es.render_env(schema, values)
-            tmp = ENV_PATH.with_suffix(".env.tmp")
-            tmp.write_text(text, encoding="utf-8")
+            tmp = None
             try:
-                os.chmod(tmp, 0o600)
+                # Exclusive creation, mode 600 from the first byte. A fixed
+                # filename could be a planted symlink, especially under sudo.
+                fd, name = tempfile.mkstemp(prefix=".env.", suffix=".tmp", dir=ENV_PATH.parent)
+                tmp = Path(name)
+                with os.fdopen(fd, "w", encoding="utf-8") as f:
+                    f.write(text)
+                    f.flush()
+                    os.fsync(f.fileno())
+                owner = hand_back_to_invoking_user(tmp, dict(os.environ))
+                os.replace(tmp, ENV_PATH)
             except OSError:
-                pass
-            owner = hand_back_to_invoking_user(tmp, dict(os.environ))
-            os.replace(tmp, ENV_PATH)
+                return self._json(500, {"error": "could not save .env"})
+            finally:
+                if tmp is not None:
+                    tmp.unlink(missing_ok=True)
             rotated = es.changed_secrets(schema, before, values)
             state.saved_owner = owner
             cleaned: bool | None = None

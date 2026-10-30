@@ -22,7 +22,9 @@ make test-setup     # the tool's unit tests (stdlib, no network, no docker)
    `.env`.
 2. **Save** writes `.env` in the example's order with its comments, so the file
    still reads like the one you would have copied. Unknown keys from a previous
-   `.env` are kept.
+   `.env` are kept. Save uses an exclusively created mode-600 temporary file in
+   the same directory and atomically replaces `.env`; an existing `.env` symlink
+   is refused.
 3. **Run** buttons start the project's own `make` targets, one at a time, and
    stream the output. The list is read from the Makefile: every target with a
    `## help` comment, or exactly the ones `SETUP_TARGETS := …` names. A target
@@ -73,7 +75,11 @@ add `test-setup` to `test`.
 
 - **Not a secrets manager.** It writes a gitignored file on your disk and nothing
   else. It binds to `127.0.0.1` only and requires a per-session token on every
-  write, so another site open in your browser cannot drive it.
+  write. Every route checks the exact loopback Host and rejects foreign Origin
+  headers and cross-site browser requests, including requests that only read
+  secrets or logs. Use the printed `127.0.0.1` URL (or `localhost` on that port).
+  This does not isolate local users or make an untrusted project safe to run;
+  the project directory must not be concurrently modified by another user.
 - **Not remote.** Running it on a server and port-forwarding to it is on you.
 - **Not needed in CI.** `make up` falls back to copying `.env.example` when there
   is no terminal, or with `SETUP_UI=0`.

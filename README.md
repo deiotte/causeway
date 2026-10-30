@@ -148,16 +148,17 @@ Named approvers are required records on eight decision rows. A person's name in 
 
 ## Evidence and remaining validation
 
-Review date: **2026-10-15**. Source: [`6b0ec1d`](https://github.com/deiotte/causeway/commit/6b0ec1ddf30d5a5b833558e52e9b9b82f6c28135), also tagged [`v2.10.0`](https://github.com/deiotte/causeway/releases/tag/v2.10.0). The release was published on 2026-10-10 UTC; its `RELEASED` value is 2026-10-09.
+Review date: **2026-10-30**. Security-review baseline: [`5e74d00`](https://github.com/deiotte/causeway/commit/5e74d006eb5d262b1d0e84a38d41c645d297dbbb), source v2.12.0. The results below describe the proposed v2.12.1 security fixes. The latest published release observed during this review was [`v2.11.0`](https://github.com/deiotte/causeway/releases/tag/v2.11.0), published on 2026-10-15; neither source v2.12.0 nor this candidate was a published release.
 
 | Locally executed evidence | Result | What it supports |
 |---|---|---|
-| `tools/validate.py` | 770 assertions passed | Internal agreement among the standard's artifacts and guarded references |
+| `tools/validate.py` | 777 assertions passed | Internal agreement among the standard's artifacts and guarded references |
 | Bundle and adapter checks | Passed | Manifest reproduction and shipped skill pointers |
-| Sync / doctor / starter-upgrade suites | 32 / 62 / 28 passed; no failures | Covered installation, preservation, diagnostics, and upgrade cases |
+| Setup parser, launch, HTTP, and file-write tests | 42 run; one expected skip, no failures | Covered loopback-origin checks, token handling, private atomic writes, and existing setup behavior |
+| Sync / doctor / starter-upgrade suites | 41 / 62 / 28 passed; no failures | Covered installation, preservation, diagnostics, and upgrade cases |
 | Field-note / impact suites | 26 / 23 passed; no failures | Covered queue and decision-reference behavior |
 | Throwaway signed-archive / stub publication suites | 13 / 12 passed; no failures | Covered signature/tampering refusals and publication orchestration; no production key-custody assurance |
-| Published archive installation | Checksum, signature, installation, and drift verification passed | This release's actual consumer installation path |
+| Published archive installation | Not repeated on current release assets | Prior v2.10.0 published-archive validation is historical; this review used disposable-key archive fixtures |
 
 No external product evaluator was run in this review. Independent team outcomes, evaluator coverage of the complete contract, and the return on recordkeeping remain unestablished. The standard's index records 32 open items across four registers; tracked gaps are not closed controls.
 
