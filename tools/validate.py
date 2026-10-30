@@ -1626,7 +1626,7 @@ release_body = "\n".join(release_steps)
 overrides = [c.strip() for c in re.findall(r"^\s*if:\s*(.+?)\s*$", release_body, re.MULTILINE)
              if re.search(r"(cancelled|always|failure)\(\)", c)]
 check("release.yml: no step runs after a failure except the withdrawal",
-      overrides == ["failure() && steps.tag.outputs.tag != ''"],
+      overrides == ["failure() && needs.authorize.outputs.tag != ''"],
       f"found step conditions {overrides}")
 check("release.yml: every change to a release goes through publish-release.sh",
       not re.search(r"\bgh\s+release\s+(create|upload|edit|delete)", release_body),
@@ -1644,6 +1644,63 @@ check("release.yml: every gate is present",
 check("release.yml: the gates run in order, publishing after acceptance",
       all(p >= 0 for p in positions) and positions == sorted(positions),
       f"order found: {[g for _, g in sorted(zip(positions, gates))]}")
+
+# ADR 0054, issue #37. A workflow that runs on `push: tags` runs the copy of
+# itself in the tagged commit, so whoever can push a tag chooses the code that
+# receives the signing key. The shape that prevents it is checked here for the
+# same reason the gate order is: nothing executes this file before a release.
+
+def workflow_jobs(body: str) -> dict[str, str]:
+    """Top-level jobs of a workflow, by id, as text. Two-space job indentation is
+    this repository's style and the check fails loudly if it ever is not."""
+    tail = body.split("\njobs:\n", 1)[1] if "\njobs:\n" in body else ""
+    parts = re.split(r"^  ([A-Za-z0-9_-]+):\s*$", tail, flags=re.MULTILINE)
+    return {parts[i]: parts[i + 1] for i in range(1, len(parts) - 1, 2)}
+
+release_on = release_body.split("\non:\n", 1)[1].split("\npermissions:", 1)[0] if "\non:\n" in release_body else ""
+release_jobs = workflow_jobs(release_body)
+check("release.yml: runs from main via workflow_run, never from a pushed ref",
+      "workflow_run:" in release_on and "workflows: [release-candidate]" in release_on
+      and not re.search(r"^\s*(push|pull_request|pull_request_target|release):", release_on, re.MULTILINE),
+      "a push/release trigger runs the tagged commit's own copy of this file")
+check("release.yml: grants nothing at the top level",
+      re.search(r"^permissions:\s*\{\}\s*$", release_body, re.MULTILINE) is not None,
+      "each job states the permissions it needs")
+key_jobs = sorted(j for j, t in release_jobs.items() if re.search(r"\$\{\{\s*secrets\.", t))
+check("release.yml: only the sign job can read a secret",
+      key_jobs == ["sign"], f"jobs reading secrets: {key_jobs}")
+sign_job = release_jobs.get("sign", "")
+check("release.yml: the sign job is in the release environment with read-only contents",
+      re.search(r"^    environment: release\s*$", sign_job, re.MULTILINE) is not None
+      and "contents: read" in sign_job and "contents: write" not in sign_job,
+      "the key belongs behind the environment's deployment rule, with no write token beside it")
+check("release.yml: the sign job runs no test or build",
+      not re.search(r"tools/(test-|build-archive|publish-release|validate)", sign_job),
+      "untrusted-by-default execution stays out of the job that holds the key")
+check("release.yml: the tagged commit must be on main",
+      "./tools/authorize-release.sh" in release_jobs.get("authorize", "")
+      and "merge-base --is-ancestor" in read("tools/authorize-release.sh")
+      and all("needs: authorize" in t or "needs: [authorize" in t
+              for j, t in release_jobs.items() if j != "authorize"),
+      "every job waits on authorize, which refuses a tag that is not on main")
+for wf in (".github/workflows/release.yml", ".github/workflows/release-candidate.yml"):
+    wf_body = read(wf)
+    checkouts = len(re.findall(r"uses: actions/checkout@", wf_body))
+    check(f"{wf}: no checkout keeps its credentials",
+          checkouts > 0 and wf_body.count("persist-credentials: false") == checkouts,
+          f"{checkouts} checkouts, {wf_body.count('persist-credentials: false')} without credentials")
+candidate = read(".github/workflows/release-candidate.yml")
+check("release-candidate.yml: holds no secret and can write nothing",
+      not re.search(r"\$\{\{\s*secrets\.", candidate) and ": write" not in candidate,
+      "it runs the tagged commit's own definition, so it is given nothing")
+
+# Issue #38. Build DNA §5 makes the secrets scan a merge-blocker; this
+# repository's own gate runs it, and its tests, on every pull request.
+standard_yml = read(".github/workflows/standard.yml")
+check("standard.yml: the credential scan, its tests and the release authorizer's are on the merge path",
+      "./tools/scan-secrets.py" in standard_yml and "./tools/test-scan-secrets.sh" in standard_yml
+      and "./tools/test-authorize-release.sh" in standard_yml,
+      "rules/secrets.md: the scan is a merge-blocker, not a review comment")
 
 
 # ── 22. upgrade-starters.sh knows every starter sync.sh seeds ───────────────

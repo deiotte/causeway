@@ -178,13 +178,19 @@ def quote(value: str) -> str:
     return '"' + value.replace("\\", "\\\\").replace('"', '\\"') + '"'
 
 
-def render_env(schema: Schema, values: dict[str, str], *, source_name: str = ".env.example") -> str:
+def render_env(schema: Schema, values: dict[str, str], *, source_name: str = ".env.example",
+               ignored: bool = False) -> str:
     """Writes a `.env` in the schema's order with its comments, so the file a
     person opens later reads like the example they would have copied. Keys in
-    `values` the schema does not know are kept in a final group."""
+    `values` the schema does not know are kept in a final group. `ignored` is
+    whether the caller established that git ignores the file; the header claims
+    only what was established."""
     out: list[str] = []
     out.append(f"# Written by tools/setup from {source_name}. Edit here or re-run `make setup`.")
-    out.append("# This file is gitignored. Never commit it.")
+    if ignored:
+        out.append("# This file is gitignored. Never commit it.")
+    else:
+        out.append("# setup could not confirm this file is gitignored. Never commit it.")
     known: set[str] = set()
     for g in schema.groups:
         out.append("")

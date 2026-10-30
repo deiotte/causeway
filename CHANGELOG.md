@@ -51,6 +51,21 @@ still requires the signed release workflow.
   cases. These fixes do not authenticate an anchor obtained inside the same
   untrusted archive, cover unsigned installer components, or change release-key
   custody. Those remain under security issue #4. See proposed ADR 0053.
+- Release signing runs only reviewed code (issue #37). The tag now starts a
+  secret-less `release-candidate` workflow; `release.yml` runs from main's
+  definition via `workflow_run`, signs only a tag that is `v<VERSION>` of a
+  commit already on main and has not moved, and reads the key in one job bound
+  to the `release` environment. Validation, building and publishing run in jobs
+  that never see the key; no checkout keeps credentials. Requires the
+  repository settings ADR 0054 lists — the release environment, the key moved
+  into it and deleted from repository secrets, and a `v*` tag ruleset.
+- This repository's merge path now blocks on a credential scan (issue #38):
+  `tools/scan-secrets.py`, stdlib and offline, over the tracked tree and all
+  history, printing fingerprints rather than values, with exact, named,
+  self-expiring suppressions. Setup establishes that git ignores `.env` before
+  writing secrets — adding `/.env` to `.gitignore`, creating it if needed — and
+  refuses a `.env` git already tracks; its header no longer claims an ignore
+  rule nobody checked. See proposed ADR 0054.
 
 ## v2.12.0 — 2026-10-17
 

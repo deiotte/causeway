@@ -1,0 +1,41 @@
+# A tag was pushed. Say so, and nothing else.
+#
+# This workflow exists only to be the event release.yml listens for. It runs the
+# definition stored in the tagged commit, which is exactly why it holds no
+# secret, can write nothing, and decides nothing: anyone who can push a tag can
+# also edit this file in the commit they tag, so nothing it reports is trusted.
+#
+# The decision is made in release.yml, which GitHub runs from main's copy for a
+# `workflow_run` event regardless of which ref started it. That is what keeps a
+# tag on an unreviewed commit from choosing the code that touches the signing
+# key (issue #37, ADR 0054).
+#
+# The check below is a courtesy — a tag that does not match VERSION fails here,
+# visibly, at the tag — and release.yml repeats it from trusted code.
+name: release-candidate
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  candidate:
+    name: A release tag was pushed
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: The tag names this tree's version
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF#refs/tags/}"
+          VERSION="$(cat VERSION)"
+          if [ "$TAG" != "v$VERSION" ]; then
+            echo "::error::tag $TAG does not match VERSION $VERSION"; exit 1
+          fi
+          echo "candidate $TAG at $GITHUB_SHA — release.yml decides whether it is signed"

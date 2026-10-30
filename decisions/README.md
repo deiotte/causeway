@@ -173,6 +173,7 @@ Pinning, signing, and installing — which copy, and how anyone would know if it
 | [0050](0050-define-the-managed-policy-reference.md) | Define the managed policy reference — what a project records about its organization's floor, and who alone can grant an exception | Accepted |
 | [0052](0052-configure-from-a-page-built-from-the-env-example.md) | Configure from a page built from `.env.example` — vendor the setup tool, and make the four field lessons rules | Accepted |
 | [0053](0053-enforce-setup-and-distribution-boundaries.md) | Enforce setup origins, private file writes, destination ancestry and signed content | Proposed |
+| [0054](0054-sign-only-reviewed-code-and-scan-the-merge-path.md) | Sign only reviewed code, from main's definition, and scan this repository's merge path for credentials | Proposed |
 
 ### The standard's own CI and record-keeping
 

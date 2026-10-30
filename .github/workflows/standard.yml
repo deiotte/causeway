@@ -52,6 +52,17 @@ jobs:
         if: '!cancelled()'
         run: ./tools/validate.py
 
+      # Build DNA §5: the secrets scan is a merge-blocker, not a review comment.
+      # Issue #38: this repository held a signing secret and ran no scanner.
+      # The tracked tree and every blob in history (fetch-depth: 0 above), with
+      # no network and no third-party scanner to trust. ADR 0054.
+      - name: No credential in the tree or its history
+        if: '!cancelled()'
+        run: |
+          set -euo pipefail
+          ./tools/scan-secrets.py
+          ./tools/test-scan-secrets.sh
+
       - name: Bundle manifest is current
         if: '!cancelled()'
         run: ./tools/build-bundle.sh --check
@@ -124,6 +135,12 @@ jobs:
       - name: Publishing contacts GitHub only after every check passed
         if: '!cancelled()'
         run: ./tools/test-publish-release.sh
+
+      # ADR 0054, issue #37. release.yml signs only a stable release tag on a
+      # commit already on main; this drives the script that decides it.
+      - name: Only a release tag on main is authorized for signing
+        if: '!cancelled()'
+        run: ./tools/test-authorize-release.sh
 
       # ADR 0045. The adoption diagnostic every synced project gets: a fresh sync
       # must come back incomplete on exactly what a sync cannot do, a configured
