@@ -750,7 +750,9 @@ check_dst() {
       CONFLICTS+=("$parent exists and is not a directory (needed for $rel)"); break
     elif [ -d "$TARGET/$parent" ]; then
       [ -w "$TARGET/$parent" ] || CONFLICTS+=("$parent/ is not writable (needed for $rel)")
-      break
+      # An existing directory can itself be reached through a symlink higher
+      # up (skills/ -> outside, with skills/decision-spine already present).
+      # Inspect every ancestor inside the target, not only the nearest one.
     fi
     parent="$(dirname "$parent")"
   done

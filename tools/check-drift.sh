@@ -13,6 +13,7 @@ RELEASED="$(grep '^released=' "$LOCK" | cut -d= -f2 || true)"
 DIGEST="$(grep '^digest=' "$LOCK" | cut -d= -f2- || true)"
 TAG="$(grep '^tag=' "$LOCK" | cut -d= -f2- || true)"
 PROOF="$(grep '^release_proof=' "$LOCK" | cut -d= -f2- || true)"
+OVERLAY="$(grep '^overlay=' "$LOCK" | cut -d= -f2- || true)"
 
 # Age is informational here. The gate decides what to do about it
 # (standard-currency, gate-configuration.md §4) — this script only reports drift.
@@ -110,8 +111,13 @@ MANIFEST="bundle/manifest.json"
 PROV_FAILED=0
 
 if [ ! -f "$MANIFEST" ]; then
-  echo "  note: no $MANIFEST in this copy — cannot verify the digest, only"
-  echo "        report it. Re-run sync.sh against v1.8.0 or later."
+  if [ -n "${DIGEST:-}" ]; then
+    echo "  MISSING  $MANIFEST — a digest-bearing lock requires its manifest"
+    PROV_FAILED=1
+  else
+    echo "  note: no $MANIFEST in this legacy copy — cannot verify provenance."
+    echo "        Re-run sync.sh against v1.8.0 or later."
+  fi
 else
   # Deliberately coupled to build-bundle.sh's emit_manifest, which writes one
   # entry per line in a fixed shape. tools/validate.py asserts this sed parses
@@ -174,7 +180,18 @@ else
           fi
           CHECKED=$((CHECKED + 1))
         else
-          ABSENT="$ABSENT $path"
+          # Only unselected overlays are optional. Treating every absent file
+          # as unvendored lets a deleted file disappear from both disk and the
+          # lock while the signed manifest still appears to verify.
+          case "$path" in
+            overlays/*)
+              if [ "$path" = "overlays/$OVERLAY.md" ] || [ "$path" = "overlays/$OVERLAY.json" ]; then
+                echo "  MISSING  $path (selected overlay)"; PROV_FAILED=1
+              else
+                ABSENT="$ABSENT $path"
+              fi ;;
+            *) echo "  MISSING  $path (required bundle file)"; PROV_FAILED=1 ;;
+          esac
         fi
       fi
     done <<EOF

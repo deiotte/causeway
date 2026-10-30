@@ -27,6 +27,31 @@ at the time, because none were.
 
 ---
 
+## v2.12.1 — 2026-10-30
+
+Security fixes for setup and distribution. Patch: no gate contract, profile,
+Build DNA, spine, or overlay version changes. Proposed source release; publication
+still requires the signed release workflow.
+
+- Reject foreign Host and Origin headers and cross-site browser requests on
+  every setup route, preventing a rebound hostname from reading secrets or the
+  token that authorizes Make targets.
+- Create setup's temporary environment file exclusively with mode 600, then
+  atomically replace `.env`. Refuse an existing `.env` symlink and preserve the
+  old file on write failure.
+- Check every destination ancestor during sync; an existing child directory
+  no longer hides a symlink above it.
+- Require manifest-covered files even when their checksum lines are removed
+  from the lock. Only unselected overlays may be absent; a digest-bearing lock
+  also requires its manifest.
+- Bind release verification to actual content: a checkout/archive must reproduce
+  the signed digest and all its file hashes; an installed project must pass its
+  drift check. A genuine statement alone is insufficient.
+- Add HTTP, filesystem, inventory-deletion, and standalone-verifier regression
+  cases. These fixes do not authenticate an anchor obtained inside the same
+  untrusted archive, cover unsigned installer components, or change release-key
+  custody. Those remain under security issue #4. See proposed ADR 0053.
+
 ## v2.12.0 — 2026-10-17
 
 Configure, set up, run: a project is configured from a page built from its own

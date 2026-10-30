@@ -4,10 +4,15 @@ whether to launch a browser, and who owns a `.env` written under sudo."""
 from __future__ import annotations
 
 import os
+import http.client
+import json
+import stat
 import sys
 import tempfile
+import threading
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, os.path.dirname(__file__))
 
@@ -157,6 +162,118 @@ class HandBackToInvokingUserTest(unittest.TestCase):
             f.write_text("A=1\n")
             env = {"SUDO_UID": str(os.getuid()), "SUDO_GID": str(os.getgid()), "SUDO_USER": "me"}
             self.assertEqual(setup.hand_back_to_invoking_user(f, env), "me")
+
+
+class SetupSecurityTest(unittest.TestCase):
+    """Exercise the HTTP boundary and real file writes against private fixtures."""
+
+    def setUp(self):
+        self.work = tempfile.TemporaryDirectory()
+        self.addCleanup(self.work.cleanup)
+        self.root = Path(self.work.name)
+        self.env = self.root / ".env"
+        (self.root / ".env.example").write_text("API_TOKEN=example\n")
+        self.env.write_text("API_TOKEN=fixture-only-secret\n")
+        (self.root / "Makefile").write_text("probe: ## Harmless target\n\t@true\n")
+        patcher = mock.patch.multiple(setup, REPO_ROOT=self.root, ENV_PATH=self.env,
+                                     EXAMPLE_PATH=self.root / ".env.example")
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        detector = mock.patch.object(setup, "detect_previous_run", return_value={"project": "fixture", "volumes": []})
+        detector.start()
+        self.addCleanup(detector.stop)
+        self.state = setup.State(False)
+        self.server = setup.ThreadingHTTPServer(("127.0.0.1", 0), setup.make_handler(self.state))
+        self.port = self.server.server_address[1]
+        thread = threading.Thread(target=self.server.serve_forever, daemon=True)
+        thread.start()
+        def close():
+            self.server.shutdown()
+            self.server.server_close()
+            thread.join()
+        self.addCleanup(close)
+
+    def request(self, path="/", *, method="GET", host=None, origin=None, token=None, body=None, fetch_site=None):
+        conn = http.client.HTTPConnection("127.0.0.1", self.port, timeout=3)
+        headers = {"Host": host or f"127.0.0.1:{self.port}"}
+        if origin is not None:
+            headers["Origin"] = origin
+        if token is not None:
+            headers["X-Setup-Token"] = token
+        if fetch_site is not None:
+            headers["Sec-Fetch-Site"] = fetch_site
+        try:
+            conn.request(method, path, json.dumps(body) if body is not None else None, headers)
+            response = conn.getresponse()
+            return response.status, response.read().decode()
+        finally:
+            conn.close()
+
+    def save(self):
+        return self.request("/api/save", method="POST", token=self.state.token,
+                            body={"values": {"API_TOKEN": "changed-fixture-only"}})
+
+    def test_rebinding_host_cannot_read_page_secrets_or_any_api(self):
+        for path in ("/", "/api/state", "/api/log?since=0", "/api/health"):
+            with self.subTest(path=path):
+                code, body = self.request(path, host=f"rebind.invalid:{self.port}")
+                self.assertEqual(code, 403)
+                self.assertNotIn(self.state.token, body)
+                self.assertNotIn("fixture-only-secret", body)
+
+    def test_host_port_and_foreign_origins_are_rejected(self):
+        for host in ("localhost", "127.0.0.1:1", f"localhost.evil.invalid:{self.port}"):
+            self.assertEqual(self.request(host=host)[0], 403)
+        for origin in ("null", "http://foreign.invalid", f"https://127.0.0.1:{self.port}"):
+            self.assertEqual(self.request(origin=origin)[0], 403)
+        self.assertEqual(self.request(fetch_site="cross-site")[0], 403)
+
+    def test_normal_navigation_and_same_origin_fetch_work(self):
+        for hostname in ("127.0.0.1", "localhost"):
+            host = f"{hostname}:{self.port}"
+            self.assertEqual(self.request(host=host)[0], 200)
+            self.assertEqual(self.request("/api/state", host=host, origin=f"http://{host}")[0], 200)
+
+    def test_write_needs_valid_host_origin_and_token(self):
+        with mock.patch.object(self.state.runner, "start", return_value=(True, "started")) as start:
+            args = dict(method="POST", body={"target": "probe"})
+            self.assertEqual(self.request("/api/run", **args)[0], 403)
+            self.assertEqual(self.request("/api/run", token=self.state.token, host=f"rebind.invalid:{self.port}", **args)[0], 403)
+            self.assertEqual(self.request("/api/run", token=self.state.token, origin="http://foreign.invalid", **args)[0], 403)
+            start.assert_not_called()
+            self.assertEqual(self.request("/api/run", token=self.state.token, **args)[0], 200)
+            start.assert_called_once_with("probe")
+
+    def test_planted_temporary_symlink_cannot_overwrite_outside_file(self):
+        victim = self.root / "outside-fixture"
+        victim.write_text("preserve me\n")
+        planted = self.env.with_suffix(".env.tmp")
+        planted.symlink_to(victim)
+        self.assertEqual(self.save()[0], 200)
+        self.assertEqual(victim.read_text(), "preserve me\n")
+        self.assertFalse(self.env.is_symlink())
+        self.assertIn("changed-fixture-only", self.env.read_text())
+        self.assertEqual(stat.S_IMODE(self.env.stat().st_mode), 0o600)
+
+    def test_existing_env_symlink_is_refused(self):
+        victim = self.root / "outside-fixture"
+        victim.write_text("API_TOKEN=preserve-me\n")
+        self.env.unlink()
+        self.env.symlink_to(victim)
+        self.assertEqual(self.save()[0], 409)
+        self.assertEqual(victim.read_text(), "API_TOKEN=preserve-me\n")
+
+    def test_temp_is_private_before_replace_and_failure_keeps_original(self):
+        before = self.env.read_bytes()
+        def fail_replace(src, dest):
+            self.assertEqual(stat.S_IMODE(Path(src).stat().st_mode), 0o600)
+            self.assertEqual(Path(src).parent, self.root)
+            raise OSError("fixture failure")
+        with mock.patch.object(setup.os, "replace", side_effect=fail_replace):
+            self.assertEqual(self.save()[0], 500)
+        self.assertEqual(self.env.read_bytes(), before)
+        self.assertFalse(self.state.saved.is_set())
+        self.assertEqual(list(self.root.glob(".env.*.tmp")), [])
 
 
 if __name__ == "__main__":

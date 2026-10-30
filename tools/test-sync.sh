@@ -125,6 +125,18 @@ expect_untouched 9 "a symlinked directory is a conflict" \
 [ -z "$(ls -A "$OUTSIDE")" ] && ok "nothing was written through the symlink" \
   || bad "nothing was written through the symlink" "$(ls -A "$OUTSIDE")"
 
+# A populated child directory must not hide a symlink higher up the path.
+P="$(existing_project)"
+OUTSIDE="$(mktemp -d "$WORK/outside.XXXXXX")"
+mkdir -p "$OUTSIDE/decision-spine/reference" "$OUTSIDE/field-note" "$OUTSIDE/survey"
+ln -s "$OUTSIDE" "$P/skills"
+outside_before="$(snap "$OUTSIDE")"
+expect_untouched 9 "a symlink above existing child directories is refused" \
+  "$P" bash "$STANDARD_DIR/tools/sync.sh" "$P"
+[ "$outside_before" = "$(snap "$OUTSIDE")" ] \
+  && ok "the external skills tree stays byte-identical" \
+  || bad "the external skills tree stays byte-identical"
+
 # An apply that fails partway must put back what it overwrote and remove what it
 # created — including the directories — and leave no stage behind.
 for n in 0 5 30; do
@@ -299,6 +311,17 @@ else
       "$(tail -5 "$WORK/out" | tr '\n' ' ')"
 fi
 
+# Never execute a replaced integrity helper while verifying the installed copy.
+# A harmless marker proves the substituted script was not invoked at all.
+printf '#!/bin/sh\ntouch helper-was-executed\nexit 0\n' > "$P/tools/check-drift.sh"
+rc=0
+( cd "$P" && bash tools/verify-release.sh ) >"$WORK/out" 2>&1 || rc=$?
+if [ "$rc" -eq 8 ] && [ ! -e "$P/helper-was-executed" ]; then
+  ok "the release verifier authenticates the drift helper before executing it"
+else
+  bad "the release verifier authenticates the drift helper before executing it" "exit $rc"
+fi
+
 S="$(signed_copy "$WORK/signed-badsig")"
 printf 'tampered\n' >> "$S/bundle/release.statement"
 P="$(existing_project)"
@@ -307,6 +330,10 @@ expect_untouched 7 "an invalid signature is refused" \
 
 S="$(signed_copy "$WORK/signed-altered")"
 printf '\n# an edit nobody signed\n' >> "$S/AGENTS.md"
+rc=0
+( cd "$S" && bash tools/verify-release.sh --lock /dev/null ) >"$WORK/out" 2>&1 || rc=$?
+[ "$rc" -eq 8 ] && ok "the standalone verifier refuses changed signed content" \
+  || bad "the standalone verifier refuses changed signed content" "exit $rc"
 P="$(existing_project)"
 expect_untouched 7 "altered covered content beside a genuine signature is refused" \
   "$P" env PATH="$NOGIT" bash "$S/tools/sync.sh" "$P" --require-release
@@ -318,6 +345,10 @@ old="$(sha256sum "$S/AGENTS.md" | cut -d' ' -f1)"
 printf '\n# an edit, and a manifest updated to hide it\n' >> "$S/AGENTS.md"
 new="$(sha256sum "$S/AGENTS.md" | cut -d' ' -f1)"
 sed -i "s/$old/$new/" "$S/bundle/manifest.json"
+rc=0
+( cd "$S" && bash tools/verify-release.sh --lock /dev/null ) >"$WORK/out" 2>&1 || rc=$?
+[ "$rc" -eq 8 ] && ok "the verifier recomputes the manifest digest" \
+  || bad "the verifier recomputes the manifest digest" "exit $rc"
 P="$(existing_project)"
 expect_untouched 7 "a manifest edited under an unchanged digest is refused" \
   "$P" env PATH="$NOGIT" bash "$S/tools/sync.sh" "$P" --require-release
@@ -326,6 +357,25 @@ S="$(signed_copy "$WORK/signed-noverifier")"
 P="$(existing_project)"
 expect_untouched 7 "no ssh-keygen to verify with is refused" \
   "$P" env PATH="$NOGIT_NOSSH" bash "$S/tools/sync.sh" "$P" --require-release
+
+# The signed manifest is the inventory; deleting a file's lock line must not
+# turn a required file into an optional one. Use a real synced signature too.
+S="$(signed_copy "$WORK/signed-inventory")"
+for missing in gate/checks.json bundle/manifest.json; do
+  P="$(mktemp -d "$WORK/inventory.XXXXXX")"
+  PATH="$NOGIT" bash "$S/tools/sync.sh" "$P" --require-release >/dev/null
+  rm "$P/$missing"
+  awk -v p="$missing" '$2 != p' "$P/.causeway-lock" > "$WORK/trimmed-lock"
+  mv "$WORK/trimmed-lock" "$P/.causeway-lock"
+  rc=0
+  ( cd "$P" && bash tools/check-drift.sh ) >"$WORK/out" 2>&1 || rc=$?
+  [ "$rc" -eq 8 ] && ok "drift check refuses missing $missing despite a trimmed lock" \
+    || bad "drift check refuses missing $missing despite a trimmed lock" "exit $rc"
+  rc=0
+  ( cd "$P" && bash tools/verify-release.sh ) >"$WORK/out" 2>&1 || rc=$?
+  [ "$rc" -eq 8 ] && ok "release verifier refuses missing $missing despite a trimmed lock" \
+    || bad "release verifier refuses missing $missing despite a trimmed lock" "exit $rc"
+done
 
 echo ""
 echo "$PASS passed, $FAIL failed"

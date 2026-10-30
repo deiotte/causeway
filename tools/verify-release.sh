@@ -117,6 +117,9 @@ if [ -f "bundle/manifest.json" ]; then
   else
     echo "  manifest agrees"
   fi
+else
+  echo "  MISSING  bundle/manifest.json — no content to bind to the signature"
+  FAILED=1
 fi
 
 # Against the lock, when this is a consuming project.
@@ -139,6 +142,44 @@ if [ -f "$LOCK" ]; then
   elif [ "$L_TAG" != "$S_TAG" ]; then
     echo "  MISMATCH  $LOCK pins $L_TAG, statement signs $S_TAG"
     FAILED=1
+  fi
+fi
+
+# A genuine statement and a matching digest *field* do not establish that the
+# files beside them are authentic. Verify the bytes, including the manifest's
+# canonical digest input. A consuming project needs its vendoring rules (only
+# its selected overlay is required); a publisher/archive has the full bundle.
+if [ -f bundle/manifest.json ]; then
+  MAN_LINES="$(sed -n 's/^[[:space:]]*{ "path": "\([^"]*\)", "sha256": "\([^"]*\)" }.*$/\2  \1/p' \
+    bundle/manifest.json | LC_ALL=C sort -k2)"
+  ENTRIES="$(grep -c '"path"' bundle/manifest.json || true)"
+  PARSED="$(printf '%s' "$MAN_LINES" | grep -c . || true)"
+  CALC="sha256:$(printf '%s\n' "$MAN_LINES" | sha256sum | cut -d' ' -f1)"
+  if [ "$ENTRIES" -eq 0 ] || [ "$PARSED" -ne "$ENTRIES" ] || [ "$CALC" != "$S_DIGEST" ]; then
+    echo "  MISMATCH  manifest entries do not reproduce the signed digest"
+    FAILED=1
+  elif [ -f "$LOCK" ]; then
+    # Authenticate the helper before executing it: the installed directory is
+    # exactly the content being checked, so it may contain a replaced helper.
+    VERIFIER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    HELPER_SUM="$(printf '%s\n' "$MAN_LINES" | awk '$2 == "tools/check-drift.sh" {print $1}')"
+    if [ -z "$HELPER_SUM" ] || [ ! -f "$VERIFIER_DIR/check-drift.sh" ] \
+       || [ "$(sha256sum "$VERIFIER_DIR/check-drift.sh" | cut -d' ' -f1)" != "$HELPER_SUM" ]; then
+      echo "  MISMATCH  drift verifier is absent or altered; not executing it"
+      FAILED=1
+    elif ! bash "$VERIFIER_DIR/check-drift.sh" "$LOCK"; then
+      echo "  MISMATCH  installed content does not match its pin"
+      FAILED=1
+    fi
+  else
+    while read -r sum path; do
+      if [ ! -f "$path" ] || [ "$(sha256sum "$path" | cut -d' ' -f1)" != "$sum" ]; then
+        echo "  MISMATCH  $path is absent or altered"
+        FAILED=1
+      fi
+    done <<EOF
+$MAN_LINES
+EOF
   fi
 fi
 
