@@ -24,7 +24,12 @@ make test-setup     # the tool's unit tests (stdlib, no network, no docker)
    still reads like the one you would have copied. Unknown keys from a previous
    `.env` are kept. Save uses an exclusively created mode-600 temporary file in
    the same directory and atomically replaces `.env`; an existing `.env` symlink
-   is refused.
+   is refused. Before the first secret is written, Save makes sure git will not
+   pick the file up: it asks git when git is installed, reads `.gitignore` when
+   it is not, and adds `/.env` to `.gitignore` (creating it) when nothing
+   ignores it yet. A `.env` git already tracks is refused — an ignore rule cannot
+   untrack it — with the commands to fix it and a reminder to rotate what it held.
+   The file's header says it is gitignored only when that was established.
 3. **Run** buttons start the project's own `make` targets, one at a time, and
    stream the output. The list is read from the Makefile: every target with a
    `## help` comment, or exactly the ones `SETUP_TARGETS := …` names. A target
@@ -73,7 +78,7 @@ add `test-setup` to `test`.
 
 ## What it is not
 
-- **Not a secrets manager.** It writes a gitignored file on your disk and nothing
+- **Not a secrets manager.** It writes one file on your disk, makes sure git ignores it, and nothing
   else. It binds to `127.0.0.1` only and requires a per-session token on every
   write. Every route checks the exact loopback Host and rejects foreign Origin
   headers and cross-site browser requests, including requests that only read

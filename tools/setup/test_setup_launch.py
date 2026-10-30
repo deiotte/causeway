@@ -275,6 +275,90 @@ class SetupSecurityTest(unittest.TestCase):
         self.assertFalse(self.state.saved.is_set())
         self.assertEqual(list(self.root.glob(".env.*.tmp")), [])
 
+    def test_save_into_a_project_with_no_gitignore_establishes_one(self):
+        # A newly synced project: no .gitignore, and no git on this path.
+        self.assertFalse((self.root / ".gitignore").exists())
+        code, body = self.save()
+        self.assertEqual(code, 200)
+        self.assertIn("/.env", (self.root / ".gitignore").read_text().splitlines())
+        self.assertTrue(json.loads(body)["git_protected"])
+        self.assertIn("# This file is gitignored.", self.env.read_text())
+
+
+def _have_git() -> bool:
+    return setup._git(Path.cwd(), "--version") is not None
+
+
+class EnvIgnoreTest(unittest.TestCase):
+    """What the header and the page claim about git is what was established."""
+
+    def setUp(self):
+        self.work = tempfile.TemporaryDirectory()
+        self.addCleanup(self.work.cleanup)
+        self.root = Path(self.work.name)
+        # A developer's global excludes file may already ignore .env.
+        isolated = mock.patch.dict(os.environ, {"GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_NOSYSTEM": "1"})
+        isolated.start()
+        self.addCleanup(isolated.stop)
+
+    def git(self, *args):
+        r = setup._git(self.root, *args)
+        self.assertIsNotNone(r)
+        self.assertEqual(r.returncode, 0, r.stderr)
+
+    def test_existing_rule_is_left_alone(self):
+        (self.root / ".gitignore").write_text("node_modules/\n.env\n")
+        result = setup.ensure_env_ignored(self.root, {})
+        self.assertTrue(result["ok"])
+        self.assertFalse(result["added"])
+        self.assertEqual((self.root / ".gitignore").read_text(), "node_modules/\n.env\n")
+
+    def test_missing_rule_is_appended_after_a_line_without_newline(self):
+        (self.root / ".gitignore").write_text("dist/")
+        result = setup.ensure_env_ignored(self.root, {})
+        self.assertTrue(result["ok"])
+        lines = (self.root / ".gitignore").read_text().splitlines()
+        self.assertEqual(lines[0], "dist/")
+        self.assertIn("/.env", lines)
+
+    def test_negated_rule_without_git_does_not_count(self):
+        (self.root / ".gitignore").write_text(".env\n!.env\n")
+        self.assertFalse(setup.env_ignore_status(self.root)["ignored"])
+        self.assertTrue(setup.ensure_env_ignored(self.root, {})["ok"])
+
+    def test_symlinked_gitignore_is_not_edited(self):
+        victim = self.root / "elsewhere"
+        victim.write_text("keep\n")
+        (self.root / ".gitignore").symlink_to(victim)
+        result = setup.ensure_env_ignored(self.root, {})
+        self.assertFalse(result["ok"])
+        self.assertEqual(victim.read_text(), "keep\n")
+
+    def test_header_claims_only_what_was_established(self):
+        from env_schema import parse_example, render_env
+        schema = parse_example("A=1\n")
+        self.assertIn("# This file is gitignored.", render_env(schema, {}, ignored=True))
+        self.assertNotIn("# This file is gitignored.", render_env(schema, {}, ignored=False))
+
+    @unittest.skipUnless(_have_git(), "git not installed")
+    def test_git_confirms_the_added_rule(self):
+        self.git("init", "-q")
+        self.assertFalse(setup.env_ignore_status(self.root)["ignored"])
+        result = setup.ensure_env_ignored(self.root, {})
+        self.assertTrue(result["ok"])
+        self.assertTrue(setup.env_ignore_status(self.root)["ignored"])
+
+    @unittest.skipUnless(_have_git(), "git not installed")
+    def test_a_tracked_env_is_refused_not_papered_over(self):
+        self.git("init", "-q")
+        (self.root / ".env").write_text("A=1\n")
+        self.git("add", ".env")
+        result = setup.ensure_env_ignored(self.root, {})
+        self.assertFalse(result["ok"])
+        self.assertTrue(result["tracked"])
+        self.assertIn("rotate", result["message"])
+        self.assertFalse((self.root / ".gitignore").exists())
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -67,6 +67,10 @@
       "reason": "Distribution and validation machinery. tools/check-drift.sh is the exception and is bundled, because it runs in consumer CI and its drift must be detectable."
     },
     {
+      "pattern": "tools/secret-scan-allow.json",
+      "reason": "Suppressions for tools/scan-secrets.py, this repository's own merge-blocking credential scan (ADR 0054). Governs this repository's history; a consumer runs its own scanner under rules/secrets.md and keeps its own suppressions."
+    },
+    {
       "pattern": "tools/*.py",
       "reason": "The standard's own validator. Verifies the source of truth against itself; deliberately not the same code as the consumer-facing check-drift.sh."
     },

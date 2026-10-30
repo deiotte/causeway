@@ -176,6 +176,92 @@ def hand_back_to_invoking_user(path: Path, env: dict[str, str]) -> str | None:
         return None
     return env.get("SUDO_USER") or uid
 
+
+# ---- keeping .env out of git ----------------------------------------------
+#
+# Mode 600 does not stop `git add -A`. The header we write used to say the file
+# was gitignored without anyone having checked; now it says so only when this
+# function established it. Git is optional here — the machines this runs on may
+# not have it — so without git the project's own .gitignore is read and, when
+# needed, given a `/.env` line, which is what git will read once it arrives.
+
+IGNORE_LINE = "/.env"
+IGNORE_EXACT = {".env", "/.env", ".env*", "/.env*", "*.env"}
+
+
+def _git(root: Path, *args: str) -> subprocess.CompletedProcess | None:
+    try:
+        return subprocess.run(["git", "-C", str(root), *args], capture_output=True,
+                              text=True, timeout=10)
+    except (OSError, subprocess.SubprocessError):
+        return None
+
+
+def env_ignore_status(root: Path, env_name: str = ".env") -> dict[str, object]:
+    """Pure-ish: reads, never writes. `tracked` means git already holds the file,
+    which no ignore rule undoes. `ignored` is True, False, or None when there is
+    neither git nor a .gitignore line to go by."""
+    inside = _git(root, "rev-parse", "--is-inside-work-tree")
+    if inside is not None and inside.returncode == 0 and inside.stdout.strip() == "true":
+        tracked = _git(root, "ls-files", "--error-unmatch", "--", env_name)
+        if tracked is not None and tracked.returncode == 0:
+            return {"git": True, "tracked": True, "ignored": False}
+        check = _git(root, "check-ignore", "-q", "--", env_name)
+        if check is not None and check.returncode in (0, 1):
+            return {"git": True, "tracked": False, "ignored": check.returncode == 0}
+    gitignore = root / ".gitignore"
+    try:
+        lines = gitignore.read_text(encoding="utf-8").splitlines() if gitignore.is_file() else []
+    except OSError:
+        lines = []
+    # Without git, only an unambiguous rule counts; a later `!.env` undoes it.
+    ignored = None
+    for raw in lines:
+        line = raw.strip()
+        if line in IGNORE_EXACT:
+            ignored = True
+        elif line in {"!.env", "!/.env"}:
+            ignored = False
+    return {"git": False, "tracked": False, "ignored": ignored}
+
+
+def ensure_env_ignored(root: Path, env: dict[str, str]) -> dict[str, object]:
+    """Establishes that `.env` is excluded from git, or says precisely why not.
+    Returns {"ok", "tracked", "added", "message"}. Never follows a symlinked
+    .gitignore: it would be another file's contents we were appending to."""
+    status = env_ignore_status(root)
+    if status["tracked"]:
+        return {"ok": False, "tracked": True, "added": False, "message": (
+            ".env is already tracked by git, so an ignore rule cannot protect it. "
+            "Run `git rm --cached .env`, commit, and rotate every secret it ever held.")}
+    if status["ignored"]:
+        return {"ok": True, "tracked": False, "added": False, "message": ""}
+    gitignore = root / ".gitignore"
+    if gitignore.is_symlink():
+        return {"ok": False, "tracked": False, "added": False, "message": (
+            ".gitignore is a symlink, so setup did not edit it. Add `/.env` to it yourself.")}
+    created = not gitignore.exists()
+    try:
+        prefix = ""
+        if not created:
+            data = gitignore.read_bytes()
+            prefix = "" if not data or data.endswith(b"\n") else "\n"
+        fd = os.open(gitignore, os.O_WRONLY | os.O_APPEND | os.O_CREAT | getattr(os, "O_NOFOLLOW", 0), 0o644)
+        with os.fdopen(fd, "a", encoding="utf-8") as f:
+            f.write(prefix + "\n# Local configuration and secrets, written by tools/setup.\n" + IGNORE_LINE + "\n")
+    except OSError:
+        return {"ok": False, "tracked": False, "added": False, "message": (
+            "could not add `/.env` to .gitignore. Add it yourself before committing anything.")}
+    if created:
+        hand_back_to_invoking_user(gitignore, env)
+    after = env_ignore_status(root)
+    if after["ignored"] is False:
+        return {"ok": False, "tracked": False, "added": True, "message": (
+            "added `/.env` to .gitignore, but git still does not ignore .env — "
+            "check for a global or nested rule that re-includes it.")}
+    return {"ok": True, "tracked": False, "added": True,
+            "message": "added `/.env` to .gitignore" + ("" if after["git"] else " (no git here to confirm it)")}
+
 # ---- run targets ---------------------------------------------------------
 #
 # The page may run an allow-list of make targets, not free text: it can only do
@@ -478,7 +564,12 @@ def make_handler(state: State):
             missing = [n for n in schema.names() if not values.get(n, "").strip() and schema.var(n).default.strip()]
             if missing:
                 return self._json(400, {"error": "these need a value: " + ", ".join(missing)})
-            text = es.render_env(schema, values)
+            # Before the first secret reaches disk: a tracked .env is refused
+            # outright; an unignored one is ignored first, or the file says so.
+            ignore = ensure_env_ignored(REPO_ROOT, dict(os.environ))
+            if ignore["tracked"]:
+                return self._json(409, {"error": ignore["message"]})
+            text = es.render_env(schema, values, ignored=bool(ignore["ok"]))
             tmp = None
             try:
                 # Exclusive creation, mode 600 from the first byte. A fixed
@@ -515,6 +606,8 @@ def make_handler(state: State):
                 "cleaned": cleaned,
                 "clean_tail": clean_tail,
                 "rotated_secrets": rotated,
+                "git_protected": bool(ignore["ok"]),
+                "git_note": ignore["message"],
                 "note": (
                     "A password or secret changed after the stack may already have started. "
                     "Databases keep the password they were created with and Keycloak keeps the "
@@ -714,7 +807,10 @@ PAGE = r"""<!doctype html>
     else if (j.cleaned === false) { stale.innerHTML = '<b>make clean failed</b>, so the previous volumes are still there. Run <code>make clean</code> yourself before <code>make up</code>.<pre style="white-space:pre-wrap;margin:.3rem 0 0">' + esc(j.clean_tail || '') + '</pre>'; }
     B.env_exists = true; $('envline').textContent = 'editing ' + j.path;
     const note = $('note');
-    if (j.note) { note.style.display = 'block'; note.textContent = j.note + ' Changed: ' + j.rotated_secrets.join(', '); } else { note.style.display = 'none'; }
+    const notes = [];
+    if (j.note) notes.push(j.note + ' Changed: ' + j.rotated_secrets.join(', '));
+    if (j.git_note) notes.push((j.git_protected ? '' : 'Not protected from git: ') + j.git_note);
+    if (notes.length) { note.style.display = 'block'; note.textContent = notes.join(' — '); } else { note.style.display = 'none'; }
   };
 
   // ---- run ----
