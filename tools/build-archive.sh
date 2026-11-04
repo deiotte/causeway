@@ -136,6 +136,8 @@ ARCHIVE_FILES=(
   "tools/setup/test_env_schema.py"
   "tools/setup/test_setup_launch.py"
   "tools/setup/README.md"
+  "tools/recon/recon.html"
+  "templates/recons-README.md"
 )
 
 # Overlays, all of them. sync.sh vendors the one a project asks for, so the

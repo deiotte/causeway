@@ -55,6 +55,24 @@ It is the same instrument at a different altitude, and the differences are the p
   in the estimate unflagged. That is the difference between a logged assumption and
   the anti-pattern *filling `OPEN-` rows with plausible answers*: one is labeled.
 
+**Where a Recon lives.** In the team's recon register: one private repository, or
+one folder in one, holding every Recon, go and no-go alike. `templates/recons-README.md`
+seeds it. Never create a project repository to hold a Recon: a no-go would leave
+behind a repository whose only content is a denial, and nobody searches a graveyard.
+Never put one in the Causeway repository, which is public. On a go, the new project
+repository gets a copy as `recon.md`, the Survey's `Recon` header field points at it,
+and the register entry links to the project. On a no-go, the register entry is the
+whole record.
+
+**Filling it in.** `tools/recon/recon.html` is one offline page, built from the
+template, that renders the guidance as help and writes the record as markdown to
+copy or download. A chat with an agent is a good place to pressure-test a Recon and
+a bad place to keep one: whatever comes out goes back into the file. Before a Recon
+is pasted into any model, the model has to be authorized for what the record
+describes (SA-5.16). The record is subject to the rule its own R2 states for the
+probe. When you are the agent receiving one, review it against the template; do not
+fill gaps with plausible answers.
+
 **Do not run a Recon** when the build is already decided and funded — go to Step 0 —
 or for anything Step 0 would decline to survey. A readout of **go** starts the Survey
 from the Recon's rows. **No-go** is a result: one line on why, kept for the next
@@ -396,6 +414,8 @@ sits between someone and the fun part.
 | File | Read when |
 |---|---|
 | `templates/recon.md` | Before the build is decided: a first session with a problem owner, a probe to scope, an estimate for a go/no-go. |
+| `tools/recon/recon.html` | Filling in a Recon without editing markdown by hand: open it in a browser, offline. |
+| `templates/recons-README.md` | Setting up a team's recon register for the first time. |
 | `templates/survey.md` | Always. The structure, the ID scheme, the readiness test, the exit criteria. |
 | `templates/adr-template.md` | Writing a seed ADR from a READY row. |
 | `skills/decision-spine/SKILL.md` | Mapping `DEC-` rows onto spine rows; reading a row's `One-way` marking; any gate or profile question. |

@@ -1,0 +1,519 @@
+<!doctype html>
+<!--
+  SOURCE for tools/recon/recon.html. Edit this file, then run
+      python3 tools/recon/build_page.py
+  which embeds templates/recon.md and writes recon.html. Never edit recon.html by
+  hand: tools/validate.py fails when it does not match this source and the
+  template, because a form that restates the template is a fork of it. ADR 0056.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recon intake</title>
+<style>
+  :root {
+    --bg: #f7f6f2; --panel: #ffffff; --ink: #1d1f23; --muted: #5c6370;
+    --line: #dcd9d0; --accent: #2f5d50; --accent-ink: #ffffff;
+    --guide-bg: #eef3f1; --guide-line: #b9cfc7; --field: #ffffff;
+    --warn: #8a4b08; --warn-bg: #fdf3e2;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #15171a; --panel: #1d2024; --ink: #e7e5df; --muted: #a2a8b3;
+      --line: #343941; --accent: #7fb8a5; --accent-ink: #10221c;
+      --guide-bg: #1c2824; --guide-line: #2f4a41; --field: #24282d;
+      --warn: #f0b467; --warn-bg: #2d2416;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #15171a; --panel: #1d2024; --ink: #e7e5df; --muted: #a2a8b3;
+    --line: #343941; --accent: #7fb8a5; --accent-ink: #10221c;
+    --guide-bg: #1c2824; --guide-line: #2f4a41; --field: #24282d;
+    --warn: #f0b467; --warn-bg: #2d2416;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header.bar { position: sticky; top: 0; z-index: 5; background: var(--panel);
+    border-bottom: 1px solid var(--line); padding: 10px 16px;
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  header.bar .title { font-weight: 700; margin-right: auto; }
+  header.bar .count { color: var(--muted); font-size: 14px; }
+  button { font: inherit; font-size: 14px; padding: 6px 12px; border-radius: 6px;
+    border: 1px solid var(--line); background: var(--field); color: var(--ink); cursor: pointer; }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  main { max-width: 1040px; margin: 0 auto; padding: 16px; }
+  .doc { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 8px 24px 24px; }
+  h1, h2 { line-height: 1.25; }
+  h1 { font-size: 26px; } h2 { font-size: 20px; margin-top: 28px;
+    padding-top: 14px; border-top: 1px solid var(--line); }
+  hr { display: none; }
+  .guide { background: var(--guide-bg); border-left: 3px solid var(--guide-line);
+    border-radius: 0 6px 6px 0; padding: 8px 14px; margin: 10px 0; color: var(--muted); font-size: 14px; }
+  .guide p { margin: 6px 0; } .guide ul { margin: 6px 0; padding-left: 20px; }
+  body.hide-guides .guide { display: none; }
+  p.line { margin: 10px 0; }
+  li.line { margin: 6px 0; }
+  code { font-size: 90%; background: var(--guide-bg); padding: 1px 4px; border-radius: 4px; }
+  input[type=text], textarea { font: inherit; color: var(--ink); background: var(--field);
+    border: 1px solid var(--line); border-radius: 5px; padding: 4px 7px; }
+  input[type=text]:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+  input.inline { width: auto; max-width: 100%; }
+  textarea { width: 100%; min-height: 4.5em; resize: vertical; }
+  .tablewrap { overflow-x: auto; margin: 10px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { border: 1px solid var(--line); padding: 4px; vertical-align: top; text-align: left; }
+  th { background: var(--guide-bg); font-weight: 600; padding: 6px; }
+  td input[type=text] { width: 100%; min-width: 7em; }
+  td.id { font-family: ui-monospace, Menlo, Consolas, monospace; white-space: nowrap; padding: 8px 6px; }
+  td.label { font-weight: 600; white-space: nowrap; padding: 8px 6px; }
+  td.mixed { min-width: 14em; }
+  td.mixed input[type=text] { width: auto; min-width: 8em; }
+  td.act { width: 1%; }
+  button.rm { padding: 2px 8px; color: var(--muted); }
+  .addrow { margin-top: 6px; }
+  .choice label { margin-right: 14px; white-space: nowrap; }
+  .comment { display: none; }
+  .gate { display: flex; gap: 6px; align-items: center; font-size: 13px; color: var(--warn);
+    background: var(--warn-bg); border-radius: 6px; padding: 4px 8px; }
+  #out { white-space: pre-wrap; font: 13px/1.45 ui-monospace, Menlo, Consolas, monospace;
+    background: var(--field); border: 1px solid var(--line); border-radius: 8px; padding: 12px; }
+  .toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+    background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 6px;
+    font-size: 14px; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+  footer { text-align: center; color: var(--muted); font-size: 12px; margin: 24px 0 8px; }
+  @media (max-width: 640px) {
+    .doc { padding: 4px 12px 16px; }
+    input.inline { min-width: 0; width: 100%; }
+  }
+  @media print {
+    header.bar, .guide, button, .gate, footer { display: none !important; }
+    .doc { border: 0; }
+  }
+</style>
+</head>
+<body>
+<header class="bar">
+  <span class="title">Recon intake</span>
+  <span class="count" id="count"></span>
+  <button id="toggle-guides" type="button">Hide guidance</button>
+  <button id="toggle-preview" type="button">Show markdown</button>
+  <button id="copy" type="button" class="primary">Copy markdown</button>
+  <button id="download" type="button">Download .md</button>
+  <span class="gate"><input type="checkbox" id="authorized"><label for="authorized">The model I paste into is authorized for this data</label></span>
+  <button id="copy-ai" type="button" disabled>Copy for an AI review</button>
+  <button id="reset" type="button">Start over</button>
+</header>
+<main>
+  <div class="doc" id="doc"></div>
+  <div id="preview" hidden><h2>Markdown</h2><div id="out"></div></div>
+  <footer>Built from templates/recon.md · works offline · nothing leaves this page unless you copy it · Unit 60460 🐂</footer>
+</main>
+<div class="toast" id="toast"></div>
+
+<script id="template" type="application/json">/*__RECON_TEMPLATE__*/</script>
+
+<script id="core">
+// Pure functions: template text -> model -> markdown. No DOM. Tested by
+// tools/recon/test_recon_page.py under node.
+var ReconCore = (function () {
+  var ID_RE = /^([A-Z]{2,5})-(\d+)$/;
+
+  function segments(text) {
+    var out = [], last = 0, m, re = /\{\{([^}]*)\}\}/g;
+    while ((m = re.exec(text))) {
+      if (m.index > last) out.push({ t: "text", v: text.slice(last, m.index) });
+      out.push({ t: "slot", prompt: m[1], value: "" });
+      last = re.lastIndex;
+    }
+    if (last < text.length) out.push({ t: "text", v: text.slice(last) });
+    return out;
+  }
+
+  function splitRow(line) {
+    var s = line.trim();
+    if (s.charAt(0) === "|") s = s.slice(1);
+    if (s.slice(-1) === "|" && s.slice(-2) !== "\\|") s = s.slice(0, -1);
+    return s.split(/(?<!\\)\|/).map(function (c) { return c.trim(); });
+  }
+
+  function pickOptions(raw) {
+    return raw.split("\\|").map(function (o) {
+      return o.replace(/\{\{[^}]*\}\}/g, "…").trim();
+    });
+  }
+
+  function hintOf(cell) {
+    if (!cell) return "";
+    if (cell.kind === "mixed") return cell.segs.map(function (s) { return s.t === "slot" ? s.prompt : s.v; }).join("");
+    if (cell.kind === "free") return cell.hint || "";
+    return "";
+  }
+
+  function makeCell(raw, first, keyValue, col) {
+    if (keyValue && col === 0) return { kind: "label", v: raw };
+    if (ID_RE.test(raw)) return { kind: "id", v: raw };
+    if (raw.indexOf("\\|") >= 0) return { kind: "pick", options: pickOptions(raw), value: "", raw: raw };
+    if (raw.indexOf("{{") >= 0) return { kind: "mixed", segs: segments(raw) };
+    if (raw === "" && first && first.kind === "pick")
+      return { kind: "pick", options: first.options.slice(), value: "", raw: first.raw };
+    return { kind: "free", value: raw, hint: raw === "" ? hintOf(first) : "" };
+  }
+
+  function parse(text) {
+    var lines = text.replace(/\r\n?/g, "\n").split("\n");
+    var blocks = [], i = 0;
+    while (i < lines.length) {
+      var line = lines[i];
+      if (/^>/.test(line)) {
+        var g = [];
+        while (i < lines.length && /^>/.test(lines[i])) { g.push(lines[i].replace(/^> ?/, "")); i++; }
+        blocks.push({ kind: "guide", lines: g });
+        continue;
+      }
+      if (/^\|/.test(line)) {
+        var rows = [];
+        while (i < lines.length && /^\|/.test(lines[i])) { rows.push(lines[i]); i++; }
+        var header = splitRow(rows[0]);
+        var keyValue = header.every(function (h) { return h === ""; });
+        var body = rows.slice(2).map(splitRow);
+        var firsts = [];
+        var table = { kind: "table", header: rows[0], sep: rows[1], cols: header, keyValue: keyValue, rows: [] };
+        body.forEach(function (cells, r) {
+          table.rows.push(cells.map(function (raw, c) {
+            var cell = makeCell(raw, r === 0 ? null : firsts[c], keyValue, c);
+            if (r === 0) firsts[c] = cell;
+            return cell;
+          }));
+        });
+        table.firsts = firsts;
+        blocks.push(table);
+        continue;
+      }
+      if (line.indexOf("☐") >= 0) {
+        var parts = line.split("☐");
+        blocks.push({ kind: "choice", label: parts[0], options: parts.slice(1).map(function (o) { return o.trim(); }), value: "" });
+      } else if (/^\{\{[^}]*\}\}$/.test(line.trim())) {
+        blocks.push({ kind: "area", prompt: line.trim().slice(2, -2), value: "" });
+      } else if (line.indexOf("{{") >= 0) {
+        blocks.push({ kind: "line", segs: segments(line) });
+      } else {
+        blocks.push({ kind: "static", text: line });
+      }
+      i++;
+    }
+    return { blocks: blocks };
+  }
+
+  function nextId(table) {
+    var prefix = null, max = 0;
+    table.rows.forEach(function (row) {
+      row.forEach(function (cell) {
+        var m = cell.kind === "id" && ID_RE.exec(cell.v);
+        if (m) { prefix = prefix || m[1]; if (m[1] === prefix) max = Math.max(max, +m[2]); }
+      });
+    });
+    return prefix ? prefix + "-" + (max + 1) : null;
+  }
+
+  function addRow(table) {
+    var id = nextId(table);
+    var row = table.firsts.map(function (f) {
+      if (f.kind === "id") return { kind: "id", v: id };
+      if (f.kind === "pick") return { kind: "pick", options: f.options.slice(), value: "", raw: f.raw };
+      return { kind: "free", value: "", hint: hintOf(f) };
+    });
+    table.rows.push(row);
+    return row;
+  }
+
+  function oneLine(v) { return String(v).replace(/\s*\n\s*/g, " ").trim(); }
+  function cellEscape(v) { return oneLine(v).replace(/(?<!\\)\|/g, "\\|"); }
+
+  function segsText(segs, inTable) {
+    return segs.map(function (s) {
+      if (s.t === "text") return s.v;
+      var v = oneLine(s.value);
+      if (!v) return "{{" + s.prompt + "}}";
+      return inTable ? cellEscape(v) : v;
+    }).join("");
+  }
+
+  function cellText(cell) {
+    switch (cell.kind) {
+      case "label": case "id": return cell.v;
+      case "pick": return oneLine(cell.value) ? cellEscape(cell.value) : cell.raw;
+      case "mixed": return segsText(cell.segs, true);
+      default: return cellEscape(cell.value);
+    }
+  }
+
+  function rowIsBlank(row) {
+    return row.every(function (c) {
+      if (c.kind === "id" || c.kind === "label") return true;
+      if (c.kind === "mixed") return false;
+      return !oneLine(c.value);
+    });
+  }
+
+  function render(model) {
+    var out = [];
+    model.blocks.forEach(function (b) {
+      switch (b.kind) {
+        case "guide": return;
+        case "static": out.push(b.text); return;
+        case "line": out.push(segsText(b.segs, false)); return;
+        case "area":
+          var v = String(b.value).trim();
+          out.push(v ? v : "{{" + b.prompt + "}}"); return;
+        case "choice":
+          out.push(b.label + b.options.map(function (o) {
+            return (b.value === o ? "☒ " : "☐ ") + o;
+          }).join(" ")); return;
+        case "table":
+          out.push(b.header, b.sep);
+          b.rows.forEach(function (row) {
+            if (!b.keyValue && rowIsBlank(row)) return;
+            out.push("| " + row.map(cellText).join(" | ") + " |");
+          });
+          return;
+      }
+    });
+    return out.join("\n").replace(/\n{3,}/g, "\n\n").replace(/^\n+/, "").replace(/\n*$/, "\n");
+  }
+
+  function unfilled(markdown) {
+    var body = markdown.replace(/<!--[\s\S]*?-->/g, "");
+    var m = body.match(/\{\{[^}]*\}\}/g);
+    return m ? m.length : 0;
+  }
+
+  function projectName(model) {
+    for (var i = 0; i < model.blocks.length; i++) {
+      var b = model.blocks[i];
+      if (b.kind === "line" && /^# /.test(b.segs[0] && b.segs[0].v || "")) {
+        var s = b.segs.filter(function (x) { return x.t === "slot"; })[0];
+        return s ? oneLine(s.value) : "";
+      }
+    }
+    return "";
+  }
+
+  var AI_PREAMBLE = [
+    "Below is a Recon record in the Causeway format (templates/recon.md). Review it; do not rewrite it.",
+    "List, citing row IDs:",
+    "1. Every {{prompt}} still unfilled.",
+    "2. Every number with no source, or marked said/assumed but leaned on in R5.",
+    "3. Any R5 estimate line whose \"Rests on\" cites nothing, or cites an assumed GR- row or an open OPEN- row that \"Weakest input\" does not name.",
+    "4. Any OUT- row that traces to no PN- row, and any PN- row with no OUT- row.",
+    "5. Any hard constraint (GR-) the team itself could change.",
+    "6. Anything that reads as a guess rather than a recorded fact.",
+    "Do not invent answers. Where a fact is missing, propose an OPEN- row and who to ask. Keep every ID; never renumber.",
+    "",
+    "---",
+    ""
+  ].join("\n");
+
+  return { parse: parse, render: render, addRow: addRow, nextId: nextId,
+           unfilled: unfilled, projectName: projectName, segments: segments,
+           splitRow: splitRow, AI_PREAMBLE: AI_PREAMBLE };
+})();
+if (typeof module !== "undefined") module.exports = ReconCore;
+</script>
+
+<script id="ui">
+(function () {
+  var TEMPLATE = JSON.parse(document.getElementById("template").textContent);
+  var KEY = "causeway-recon:" + hash(TEMPLATE);
+  var model = load() || ReconCore.parse(TEMPLATE);
+  var doc = document.getElementById("doc");
+
+  function hash(s) { var h = 5381; for (var i = 0; i < s.length; i++) h = (h * 33 + s.charCodeAt(i)) >>> 0; return h.toString(36); }
+  function load() { try { var s = localStorage.getItem(KEY); return s ? JSON.parse(s) : null; } catch (e) { return null; } }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(model)); } catch (e) {} }
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function inline(s) {
+    return esc(s).replace(/`([^`]+)`/g, "<code>$1</code>")
+      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+      .replace(/(^|[^*])\*([^*]+)\*/g, "$1<em>$2</em>");
+  }
+  function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+
+  function input(obj, field, placeholder, cls) {
+    var i = document.createElement("input");
+    i.type = "text"; i.value = obj[field] || ""; i.placeholder = placeholder || "";
+    if (cls) i.className = cls;
+    i.setAttribute("aria-label", placeholder || "field");
+    i.addEventListener("input", function () { obj[field] = i.value; changed(); });
+    return i;
+  }
+
+  function segsInto(parent, segs) {
+    segs.forEach(function (s) {
+      if (s.t === "text") parent.appendChild(el("span", null, inline(s.v)));
+      else {
+        var i = input(s, "value", s.prompt, "inline");
+        i.size = Math.min(64, Math.max(10, s.prompt.length + 2));
+        parent.appendChild(i);
+      }
+    });
+  }
+
+  function guide(lines) {
+    var box = el("div", "guide"), list = null, para = [];
+    function flush() { if (para.length) { box.appendChild(el("p", null, inline(para.join(" ")))); para = []; } }
+    lines.forEach(function (l) {
+      if (/^- /.test(l)) { flush(); if (!list) { list = el("ul"); box.appendChild(list); } list.appendChild(el("li", null, inline(l.slice(2)))); }
+      else if (/^\s+\S/.test(l) && list) { var last = list.lastChild; last.innerHTML += " " + inline(l.trim()); }
+      else if (l.trim() === "") { flush(); list = null; }
+      else { list = null; para.push(l); }
+    });
+    flush();
+    return box;
+  }
+
+  var listEl = null, dl = 0;
+  function build() {
+    doc.innerHTML = ""; listEl = null;
+    model.blocks.forEach(function (b) {
+      if (b.kind !== "static" && b.kind !== "line") listEl = null;
+      if (b.kind === "guide") { doc.appendChild(guide(b.lines)); return; }
+      if (b.kind === "area") {
+        var t = document.createElement("textarea");
+        t.value = b.value; t.placeholder = b.prompt; t.setAttribute("aria-label", b.prompt);
+        t.addEventListener("input", function () { b.value = t.value; changed(); });
+        doc.appendChild(t); return;
+      }
+      if (b.kind === "choice") {
+        var p = el("p", "line choice", inline(b.label)), name = "c" + (dl++);
+        b.options.forEach(function (o) {
+          var lab = document.createElement("label"), r = document.createElement("input");
+          r.type = "radio"; r.name = name; r.checked = b.value === o;
+          r.addEventListener("change", function () { b.value = o; changed(); });
+          lab.appendChild(r); lab.appendChild(document.createTextNode(" " + o));
+          p.appendChild(lab);
+        });
+        doc.appendChild(p); return;
+      }
+      if (b.kind === "table") { doc.appendChild(table(b)); return; }
+      var text = b.kind === "static" ? b.text : (b.segs[0] && b.segs[0].t === "text" ? b.segs[0].v : "");
+      if (b.kind === "static") {
+        if (text.trim() === "") { listEl = null; return; }
+        if (text.trim() === "---") { listEl = null; doc.appendChild(el("hr")); return; }
+        if (/^<!--/.test(text)) { doc.appendChild(el("div", "comment")); return; }
+      }
+      var m = /^(#{1,3}) /.exec(text), li = /^- /.test(text);
+      var node;
+      if (m) node = el("h" + m[1].length);
+      else if (li) { if (!listEl) { listEl = el("ul"); doc.appendChild(listEl); } node = el("li", "line"); }
+      else { listEl = null; node = el("p", "line"); }
+      if (b.kind === "static") node.innerHTML = inline(text.replace(/^#{1,3} |^- /, ""));
+      else {
+        var segs = b.segs.slice();
+        if (segs[0] && segs[0].t === "text") segs[0] = { t: "text", v: segs[0].v.replace(/^#{1,3} |^- /, "") };
+        segsInto(node, segs);
+      }
+      if (li) listEl.appendChild(node); else doc.appendChild(node);
+    });
+    changed(true);
+  }
+
+  function table(b) {
+    var wrap = el("div", "tablewrap"), t = el("table"), thead = el("thead"), tr = el("tr");
+    if (!b.keyValue) {
+      b.cols.forEach(function (c) { tr.appendChild(el("th", null, inline(c))); });
+      tr.appendChild(el("th"));
+      thead.appendChild(tr); t.appendChild(thead);
+    }
+    var tbody = el("tbody"); t.appendChild(tbody);
+    function addTr(row) {
+      var r = el("tr");
+      row.forEach(function (cell, ci) {
+        var td = el("td");
+        if (cell.kind === "label") { td.className = "label"; td.innerHTML = inline(cell.v); }
+        else if (cell.kind === "id") { td.className = "id"; td.textContent = cell.v; }
+        else if (cell.kind === "mixed") { td.className = "mixed"; segsInto(td, cell.segs); }
+        else if (cell.kind === "pick") {
+          var id = "dl" + (dl++), list = el("datalist"); list.id = id;
+          cell.options.forEach(function (o) { var op = document.createElement("option"); op.value = o; list.appendChild(op); });
+          var i = input(cell, "value", cell.options.join(" | ")); i.setAttribute("list", id);
+          td.appendChild(i); td.appendChild(list);
+        } else td.appendChild(input(cell, "value", cell.hint || b.cols[ci] || ""));
+        r.appendChild(td);
+      });
+      if (!b.keyValue) {
+        var act = el("td", "act"), rm = el("button", "rm", "✕");
+        rm.type = "button"; rm.title = "Remove this row";
+        rm.addEventListener("click", function () {
+          var k = b.rows.indexOf(row); if (k >= 0) b.rows.splice(k, 1);
+          tbody.removeChild(r); changed();
+        });
+        act.appendChild(rm); r.appendChild(act);
+      }
+      tbody.appendChild(r);
+    }
+    b.rows.forEach(addTr);
+    wrap.appendChild(t);
+    if (!b.keyValue) {
+      var add = el("button", "addrow", "+ Add row"); add.type = "button";
+      add.addEventListener("click", function () { addTr(ReconCore.addRow(b)); changed(); });
+      wrap.appendChild(add);
+    }
+    return wrap;
+  }
+
+  var out = document.getElementById("out"), count = document.getElementById("count");
+  function markdown() { return ReconCore.render(model); }
+  function changed(noSave) {
+    var md = markdown(), n = ReconCore.unfilled(md);
+    count.textContent = n ? n + " prompt" + (n === 1 ? "" : "s") + " still unfilled" : "every prompt filled";
+    if (!document.getElementById("preview").hidden) out.textContent = md;
+    if (!noSave) save();
+  }
+
+  function toast(msg) { var t = document.getElementById("toast"); t.textContent = msg; t.classList.add("show"); setTimeout(function () { t.classList.remove("show"); }, 1800); }
+  function copy(text, msg) {
+    function fallback() {
+      var ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); toast(msg); } catch (e) { toast("Copy failed: use Show markdown and copy by hand"); }
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(function () { toast(msg); }, fallback);
+    else fallback();
+  }
+  function slug(s) { return (s || "untitled").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "untitled"; }
+
+  document.getElementById("copy").addEventListener("click", function () { copy(markdown(), "Markdown copied"); });
+  document.getElementById("download").addEventListener("click", function () {
+    var blob = new Blob([markdown()], { type: "text/markdown" }), a = document.createElement("a");
+    var d = new Date(), day = d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
+    a.href = URL.createObjectURL(blob); a.download = "recon-" + slug(ReconCore.projectName(model)) + "-" + day + ".md";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  });
+  var auth = document.getElementById("authorized"), ai = document.getElementById("copy-ai");
+  auth.addEventListener("change", function () { ai.disabled = !auth.checked; });
+  ai.addEventListener("click", function () { if (auth.checked) copy(ReconCore.AI_PREAMBLE + markdown(), "Copied with review instructions"); });
+  document.getElementById("toggle-guides").addEventListener("click", function (e) {
+    var on = document.body.classList.toggle("hide-guides"); e.target.textContent = on ? "Show guidance" : "Hide guidance";
+  });
+  document.getElementById("toggle-preview").addEventListener("click", function (e) {
+    var p = document.getElementById("preview"); p.hidden = !p.hidden;
+    e.target.textContent = p.hidden ? "Show markdown" : "Hide markdown"; changed(true);
+    if (!p.hidden) p.scrollIntoView({ behavior: "smooth" });
+  });
+  document.getElementById("reset").addEventListener("click", function () {
+    if (!confirm("Clear every field and start a new Recon?")) return;
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    model = ReconCore.parse(TEMPLATE); build();
+  });
+
+  build();
+})();
+</script>
+</body>
+</html>

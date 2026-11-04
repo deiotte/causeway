@@ -167,6 +167,9 @@ VENDORED=(
   "tools/setup/test_env_schema.py"
   "tools/setup/test_setup_launch.py"
   "tools/setup/README.md"
+  # The Recon intake page: one offline file, built from templates/recon.md and
+  # carrying it inside, so it is pinned on the template's terms. ADR 0056.
+  "tools/recon/recon.html"
 )
 
 # The trust anchor for release signatures. Vendored so a consuming project can
