@@ -123,6 +123,22 @@
       "reason": "Seeded once into a consumer's .github/CODEOWNERS and thereafter owned by that repository. It ships with @ORG/TEAM placeholders by construction, because a reviewer map naming teams that do not exist nominates nobody and fails silently; pinning it would make every project that filled in its real teams read as drift."
     },
     {
+      "pattern": "tools/recon/recon.src.html",
+      "reason": "The source tools/recon/build_page.py builds recon.html from. Not digested: the generated page is, and it carries everything this file contributes. A consumer opens the page and never needs the source. ADR 0056."
+    },
+    {
+      "pattern": "tools/recon/build_page.py",
+      "reason": "Builds tools/recon/recon.html from its source and templates/recon.md. Publishing machinery, like tools/build-bundle.sh; tools/validate.py runs it to prove the shipped page matches the template. ADR 0056."
+    },
+    {
+      "pattern": "tools/recon/test_recon_page.py",
+      "reason": "Tests the Recon page's core logic under node and its build. Runs in this repository's CI; a consumer receives the built page, not its test suite. ADR 0056."
+    },
+    {
+      "pattern": "templates/recons-README.md",
+      "reason": "Copied by hand, once, into a team's private Recon register and owned there. The register is not a Causeway project, so sync.sh never seeds it and the digest would pin an index that is the team's content by construction. Shipped in the release archive so a team without git can still get it. ADR 0056."
+    },
+    {
       "pattern": ".gitignore",
       "reason": "Excludes Python bytecode. Repository hygiene, not standard content; a consumer's ignore rules are its own."
     }

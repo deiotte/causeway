@@ -90,6 +90,9 @@ BUNDLE_FILES=(
   "tools/setup/test_env_schema.py"
   "tools/setup/test_setup_launch.py"
   "tools/setup/README.md"
+  # The Recon intake page. Digested because it embeds templates/recon.md: an
+  # edited copy would fill in a template the standard no longer ships. ADR 0056.
+  "tools/recon/recon.html"
   # The trust anchor. Digested so it cannot be swapped without moving the
   # bundle digest — validate.py §13 fails if this is added and sync.sh is not,
   # or the file is named here and does not exist.

@@ -81,6 +81,14 @@ jobs:
           python3 -c 'import ast,sys; ast.parse(open("tools/setup/setup.py").read())'
           python3 -I -m unittest discover -s tools/setup -p 'test_*.py'
 
+      - name: The Recon page matches its template and its logic holds
+        if: '!cancelled()'
+        run: |
+          set -euo pipefail
+          command -v node >/dev/null || { echo "node is required to test the Recon page's core logic"; exit 1; }
+          python3 -I tools/recon/build_page.py --check
+          python3 -I -m unittest discover -s tools/recon -p 'test_*.py'
+
       # sync.sh and check-drift.sh are the two halves of the distribution
       # mechanism and neither has ever been executed by anything but a person.
       # ADR 0001 exists because a copy of the standard went missing; the scripts

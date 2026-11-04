@@ -27,6 +27,37 @@ at the time, because none were.
 
 ---
 
+## v2.14.0 — 2026-11-04
+
+Where a Recon lives, and a page to fill one in. Minor: adds a tool and a template.
+No gate contract, profile, Build DNA, spine, or overlay version changes. Proposed
+source release. Publishing it still requires the signed release workflow.
+
+- **Every Recon lives in one private register**, go and no-go alike. A Recon never
+  gets a repository of its own and never goes in the Causeway repository. On a go,
+  the project repository gets a copy and the register links to it. On a no-go, the
+  register entry is the record. `templates/recons-README.md` is new: a team copies
+  it once into its register. It holds the rules, the steps for adding a Recon from
+  the GitHub website, and an index. It ships in the release archive and is not
+  seeded or pinned.
+- **`tools/recon/recon.html`**, new and vendored: one offline page, nothing to
+  install. It shows the template's guidance as help and its prompts as fields. Add
+  a row and the IDs continue. Work autosaves in the browser. It copies or downloads
+  the record as markdown, with a count of unfilled prompts. **Copy for an AI
+  review** stays disabled until you confirm that the model is authorized for the data.
+- **The page is built from the template, never beside it.**
+  `tools/recon/build_page.py` embeds `templates/recon.md`. `tools/validate.py` §23
+  and a new CI step fail when the page doesn't match. Tests cover the build, the
+  absence of network references, and the page's logic under node.
+- `templates/recon.md`: every blockquote is now guidance and everything else is
+  record. It gains *Where it lives* and *How to fill it in* sections, a `Project
+  repository` header field, and a fill line under each section that had only
+  guidance. No field changed meaning.
+- `skills/survey/SKILL.md`: *Where a Recon lives* and *Filling it in*.
+- ADR 0056 records the decision, why the chat is a review step and not the record,
+  and three declared gaps. The page does not re-open a saved record. Nothing checks
+  the register. The authorization checkbox is honor-system.
+
 ## v2.13.0 — 2026-11-04
 
 The Recon: an intake step before the Survey that records whether to build at all.

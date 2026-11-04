@@ -1725,6 +1725,26 @@ check("the archive carries upgrade-starters.sh",
       "a release that cannot upgrade starters from its archive")
 
 
+# ── 23. The Recon intake page is built from the template, not beside it ─────
+#
+# ADR 0056. tools/recon/recon.html carries templates/recon.md inside it and
+# builds its form from that text. A page edited by hand, or not rebuilt after the
+# template moved, is a second copy of the contract — the fork Build DNA §3 names
+# — and it would produce records the Survey reads as Recon rows while meaning
+# something else. The builder is the only way the template gets in.
+
+import importlib.util as _ilu
+_spec = _ilu.spec_from_file_location("recon_build_page", ROOT / "tools/recon/build_page.py")
+_recon = _ilu.module_from_spec(_spec)
+_spec.loader.exec_module(_recon)
+check("tools/recon/recon.html is current with its source and templates/recon.md",
+      read("tools/recon/recon.html") == _recon.build(),
+      "run python3 tools/recon/build_page.py and commit the result")
+check("the Recon page ships wherever the template does",
+      all("tools/recon/recon.html" in fs for fs in (bundle_paths, set(vendored_files), archive_files)),
+      "a release that carries the template and not the page that fills it")
+
+
 # The README advertises how many assertions this file makes. That number is the
 # one piece of prose about the validator that the validator can verify exactly,
 # and it went stale the first time a check was added.
