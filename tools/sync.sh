@@ -126,6 +126,10 @@ VENDORED=(
   "templates/adr-waiver-template.md"
   "templates/adr-retroactive-template.md"
   "templates/survey.md"
+  # The Recon hands its rows to the Survey with their IDs, so it is vendored on
+  # the Survey's terms: an edited copy would mint IDs the Survey reads as its own
+  # while meaning something else. ADR 0055.
+  "templates/recon.md"
   "templates/field-note.md"
   "rules/security.md"
   "rules/secrets.md"

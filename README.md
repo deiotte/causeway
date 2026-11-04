@@ -47,7 +47,7 @@ The same record helps before a change: the next coding session can read the proj
 
 ## What the workflow asks you to do
 
-1. **Surface the facts before choosing a design.** The Survey records purpose, boundaries, workload, invariants, failure responses, and unknowns. Decisions become `READY`, `BLOCKED`, `PROBE`, or `NOT-A-DECISION`. A missing measurement can become a bounded experiment instead of an invented certainty.
+1. **Surface the facts before choosing a design.** Before the build is decided, a Recon records the problem in its owner's words, the go/no-go it supports, and an estimate that cites what it rests on. Once it is decided, the Survey records purpose, boundaries, workload, invariants, failure responses, and unknowns. Decisions become `READY`, `BLOCKED`, `PROBE`, or `NOT-A-DECISION`. A missing measurement can become a bounded experiment instead of an invented certainty.
 2. **Establish what this system owes.** Its architectural role and failure consequences determine the applicable decision scope and gate profile. A person with authority declares the placement; the delivery team does not simply select an easier gate.
 3. **Record important choices and their reasons.** ADRs identify alternatives, the constraints that distinguished them, consequences, evidence, and conditions for reconsideration. Applicable Decision Spine rows need ADR closure; waivers name an owner and expiry.
 4. **Build with shared instructions and reviewable changes.** The standard provides engineering defaults. Project files hold the actual stack, commands, constraints, and owned exceptions. Tests and review establish behavior; prose instructions alone do not.
@@ -89,7 +89,7 @@ bash tools/verify-release.sh
 bash tools/doctor.sh --json
 ```
 
-The review downloaded and exercised this release. The checksum and signature verified; the drift check verified 32 members of what was then a 34-file bundle, with the two optional ServiceNow files absent (the 39-file consumer bundle at this release adds the setup tool's five files, which that review predates). Doctor reported:
+The review downloaded and exercised this release. The checksum and signature verified; the drift check verified 32 members of what was then a 34-file bundle, with the two optional ServiceNow files absent (the 40-file consumer bundle at this release adds the setup tool's five files and the Recon template, which that review predates). Doctor reported:
 
 ```json
 {
@@ -134,7 +134,7 @@ Measure the trial: onboarding effort, monthly upkeep, a decision the intake chan
 
 | Area | Implemented here | Boundary |
 |---|---|---|
-| Intake and design | Survey, 94-row Decision Spine, ADR and waiver templates | Humans and agents apply the methods; semantic correctness is not automatically established |
+| Intake and design | Recon, Survey, 94-row Decision Spine, ADR and waiver templates | Humans and agents apply the methods; semantic correctness is not automatically established |
 | Shared engineering instructions | Build DNA, topic rules, coding-tool pointers | Instructions cannot enforce agent behavior or approve a release |
 | Distribution | Manifest, pinning, drift detection, signed-release verification, installer, starter upgrades | Integrity checks cover specified surfaces; handled rollback does not establish crash-atomic installation |
 | Ongoing maintenance | Adoption doctor, constraint-impact reports, field-note queue | Advisory reports depend on the records supplied; no automatic disposition or design change |
@@ -152,7 +152,7 @@ Review date: **2026-10-30**. Security-review baseline: [`5e74d00`](https://githu
 
 | Locally executed evidence | Result | What it supports |
 |---|---|---|
-| `tools/validate.py` | 794 assertions passed | Internal agreement among the standard's artifacts and guarded references |
+| `tools/validate.py` | 801 assertions passed | Internal agreement among the standard's artifacts and guarded references |
 | Bundle and adapter checks | Passed | Manifest reproduction and shipped skill pointers |
 | Setup parser, launch, HTTP, and file-write tests | 50 run; one expected skip, no failures | Covered loopback-origin checks, token handling, private atomic writes, `.env` git exclusion, and existing setup behavior |
 | Credential scan / release-authorization suites | 21 / 14 passed; no failures | Synthetic provider-shaped fixtures found in tree and history without echoing them; suppressions exact and named; only a stable release tag on main is authorized. The scan of this repository's tree and history found nothing. Repository settings that hold the signing key (ADR 0054) are not verifiable from a checkout |
@@ -172,7 +172,7 @@ Release signatures attest the declared contract bundle identity. The bundle dige
 | `AGENTS.md` | Engineering defaults and role obligations |
 | `rules/` | Topic-specific engineering guidance |
 | `skills/` | Survey, Decision Spine, placement, policy references, and field-note methods |
-| `templates/` | Project starters, Survey, ADRs, waivers, and field notes |
+| `templates/` | Project starters, Recon, Survey, ADRs, waivers, and field notes |
 | `gate/` | Product evaluator contract |
 | `conformance/` | Bounded evaluator compatibility fixtures |
 | `tools/` | Installation, diagnostics, impact analysis, upgrades, the setup page, validation, and tests |

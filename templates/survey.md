@@ -21,6 +21,7 @@
 | **Survey version** | v0.1 |
 | **Date** | YYYY-MM-DD |
 | **Surveyor(s)** | {{name}} + Claude |
+| **Recon** | {{path and version of the confirmed Recon this starts from}} \| *none* |
 | **Causeway tier** | operational \| mission \| core |
 | **Criticality class** | C1 \| C2 \| C3 — *declared by PO/Service Owner/Customer/Sponsor, by name* |
 | **Declared by** | {{name, role, date}} |
@@ -79,6 +80,15 @@ renumber. A deleted row keeps its ID with status `withdrawn` and one line saying
 | `DEC-n` | Decision surface — something with a real alternative |
 | `PR-n` | Probe — a time-boxed spike that decides one `DEC-` row |
 | `OPEN-n` | Open question — unresolved, with an owner and a trigger |
+| `PN-n` | Pain point — where today's process breaks, how often, at what cost. Born in a Recon |
+| `OUT-n` | Target outcome — a metric with a baseline and a target, tracing to a `PN-`. Born in a Recon |
+
+**Starting from a Recon.** Where a confirmed Recon (`templates/recon.md`) precedes this
+Survey, its rows arrive with their IDs and keep them. `PN-` and `OUT-` rows seed S0.1
+and S0.2, `GR-` rows open S1 still carrying their verification state, `DEC-` rows land
+in S4.2, `OPEN-` rows carry over open, and the Recon probe's answer is evidence for
+S4. Continue each sequence from the highest number the Recon used. A Recon row
+marked `assumed` is still assumed here: the Survey verifies it or keeps the `OPEN-`.
 
 ---
 
@@ -91,11 +101,13 @@ renumber. A deleted row keeps its ID with status `withdrawn` and one line saying
 
 > Two or three sentences. Whose problem, what it costs them today, why now. If you
 > cannot write this without using the name of a technology, the frame is not done.
+> Where a Recon exists, its short version and its `PN-` rows are the first draft.
 
 ## S0.2 What "done" looks like
 
 > Observable, from outside the system. "The watch officer sees the alert within 30s
-> of the detection" — not "the alert service is deployed."
+> of the detection" — not "the alert service is deployed." Where a Recon exists, cite
+> its `OUT-` rows: each already carries a baseline, a target and a date.
 
 ## S0.3 Explicitly out of scope
 

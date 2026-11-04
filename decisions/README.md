@@ -200,6 +200,7 @@ Roles, intake, and front doors.
 | [0029](0029-make-a-shipped-skill-reachable.md) | Make a shipped skill reachable, and check that it stays reachable | Accepted |
 | [0031](0031-adopt-the-survey-as-the-intake-layer.md) | Adopt the Survey as the intake artifact, and earn its gate before spending it | Accepted |
 | [0035](0035-give-the-contributor-a-front-door.md) | Give the contributor a front door, and seed it where GitHub already looks | Accepted |
+| [0055](0055-run-a-recon-before-the-survey.md) | Run a Recon before the Survey — record whether to build, for the person who decides, and make the estimate show what it rests on | Proposed |
 
 ### Publication and governance
 
