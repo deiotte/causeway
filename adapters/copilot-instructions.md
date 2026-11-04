@@ -15,4 +15,6 @@ When a build is being scoped rather than written — someone says "let's spec th
 out", asks what still needs deciding, wants a handoff package generated, or is
 working on a system whose ADRs keep getting rewritten — read
 `skills/survey/SKILL.md` first. It runs the intake that decides which decisions are
-ready to be recorded at all.
+ready to be recorded at all. Earlier still — a first session with the person who
+owns a problem, a proof of concept to scope, an estimate or roadmap for a go/no-go —
+the same skill runs a Recon (`templates/recon.md`) to decide whether to build at all.

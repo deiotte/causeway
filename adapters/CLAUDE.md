@@ -15,6 +15,9 @@
   invariants, and a readiness verdict on every decision before any ADR is written.
   Invoked when scoping a new system or feature, when asked what still needs to be
   decided, when generating a handoff package, and when a build's ADRs keep churning.
+  Before the build is decided, it runs a Recon (`templates/recon.md`): the record
+  of a first session with a problem owner, a probe to scope, and an estimate that
+  shows what it rests on, for a go/no-go.
 
 ## Precedence
 

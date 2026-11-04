@@ -1,6 +1,6 @@
 ---
 name: survey
-description: Run a Causeway Survey — the structured intake that produces a build spec before any ADR is written or any Claude Code handoff package is generated. Use when starting a new project, system, or major feature; when someone says "let's spec this out," "package this for Claude Code," or "write the handoff"; when a design conversation has been running long enough to have real content in it; when an existing build keeps amending or invalidating its ADRs; or when a set of ADRs exists but nothing has been built against them yet. Also use when asked what still needs to be decided before building.
+description: Run a Causeway Survey — the structured intake that produces a build spec before any ADR is written or any Claude Code handoff package is generated. Use when starting a new project, system, or major feature; when someone says "let's spec this out," "package this for Claude Code," or "write the handoff"; when a design conversation has been running long enough to have real content in it; when an existing build keeps amending or invalidating its ADRs; or when a set of ADRs exists but nothing has been built against them yet. Also use when asked what still needs to be decided before building. Before any of that, run its Recon when someone has just met, or is about to meet, the person who owns a problem — a discovery session, a first meeting, "should we build this," "what would it take," a proof of concept to scope, or an estimate, schedule or roadmap to produce for a go/no-go.
 ---
 
 # Survey
@@ -19,6 +19,47 @@ the exit criteria.
 
 ---
 
+## Before Step 0 — Recon: should this be built at all?
+
+The Survey assumes the build is happening. Somebody decided that, usually in a
+meeting with the person who owns the problem, and usually with nothing written down
+but an estimate. **Recon** is the record of that meeting: `templates/recon.md`. Run it
+when the request is still a problem rather than a project — a first session with a
+problem owner, a "what would it take," a proof of concept to scope, a go/no-go to
+prepare for.
+
+It is the same instrument at a different altitude, and the differences are the point:
+
+- **The reader is the problem owner, not an engineer.** Two pages, their words. A
+  Recon that reads like a Survey has been written for the wrong person and will not
+  be read by the right one.
+- **Draft, then ratify, all of it.** Step 2's habit, applied to the whole record: the
+  problem owner confirms or corrects it by name, and the probe starts against the
+  confirmed version.
+- **Rows get IDs from the start.** `PN-` pain points, `OUT-` outcomes that trace to
+  them, `GR-` hard constraints with a verification state, `DEC-` for soft
+  constraints, `OPEN-` for every fact nobody had, `PR-1` for the probe. These are the
+  Survey's IDs. On a go, they carry into the Survey unchanged.
+- **The probe answers one question, in a fixed time, on synthetic data.** It is a
+  `PR-` row with a time box, the way S4.3 defines one. Real users or production data
+  make it a production system, and `skills/decision-spine/reference/placement.md`
+  says what that owes.
+- **The estimate shows what it rests on.** Causeway has no estimating method and
+  does not want one. It requires each line — labor, schedule, cost, staffing — to cite
+  the rows it depends on, give a range, and name its weakest input. An estimate is the
+  most load-bearing number a project ever produces, and S1's rule about numbers with
+  no owner applies to it first.
+- **An overdue question proceeds on a stated assumption.** The row is marked
+  `assumed`, the readout hears it, and the assumption may steer the probe. It may
+  never become an ADR (hard rule 1 below), never be marked verified, and never sit
+  in the estimate unflagged. That is the difference between a logged assumption and
+  the anti-pattern *filling `OPEN-` rows with plausible answers*: one is labeled.
+
+**Do not run a Recon** when the build is already decided and funded — go to Step 0 —
+or for anything Step 0 would decline to survey. A readout of **go** starts the Survey
+from the Recon's rows. **No-go** is a result: one line on why, kept for the next
+person who walks the same route.
+
 ## Step 0 — Decide whether to survey at all
 
 A Survey that a project does not need is worse than none: the team learns the
@@ -32,6 +73,7 @@ any build whose ADRs are already churning.
 purpose is to answer one question. For these, say so in one line and just help.
 
 If unsure, ask exactly one question: *"Is this getting its own repo?"* If yes, survey.
+If nobody has decided that yet, it is a Recon question, not a Survey one.
 
 ## Step 0.5 — Pick the mode
 
@@ -353,6 +395,7 @@ sits between someone and the fun part.
 
 | File | Read when |
 |---|---|
+| `templates/recon.md` | Before the build is decided: a first session with a problem owner, a probe to scope, an estimate for a go/no-go. |
 | `templates/survey.md` | Always. The structure, the ID scheme, the readiness test, the exit criteria. |
 | `templates/adr-template.md` | Writing a seed ADR from a READY row. |
 | `skills/decision-spine/SKILL.md` | Mapping `DEC-` rows onto spine rows; reading a row's `One-way` marking; any gate or profile question. |
@@ -363,10 +406,13 @@ sits between someone and the fun part.
 The Survey is the **intake artifact**, upstream of everything else in Causeway:
 
 ```
-Survey  →  ADRs  →  handoff package  →  build
-(spec)     (seam)   (CLAUDE/AGENTS/    (Claude Code,
-                     SECURITY/docs)     under the standard)
+Recon     →  Survey  →  ADRs  →  handoff package  →  build
+(go/no-go)   (spec)     (seam)   (CLAUDE/AGENTS/    (Claude Code,
+                                  SECURITY/docs)     under the standard)
 ```
+
+The Recon decides whether there is a Survey to run. It is not a fourth layer: it
+uses the Survey's IDs, hands its rows to the Survey on a go, and closes nothing.
 
 The division of labour is exact: **the Survey says whether a spine row is ready to
 close, the ADR closes it, and the gate checks it closed.**

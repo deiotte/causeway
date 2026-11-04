@@ -105,6 +105,7 @@ ARCHIVE_FILES=(
   "templates/adr-waiver-template.md"
   "templates/adr-retroactive-template.md"
   "templates/survey.md"
+  "templates/recon.md"
   "templates/field-note.md"
   "templates/field-note-issue-form.yml"
   "templates/field-notes-README.md"

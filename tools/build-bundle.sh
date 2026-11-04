@@ -68,6 +68,10 @@ BUNDLE_FILES=(
   "templates/adr-waiver-template.md"
   "templates/adr-retroactive-template.md"
   "templates/survey.md"
+  # The Recon's rows enter the Survey with their IDs, so it is digested on the
+  # Survey's terms. A quietly edited copy would mint IDs the Survey reads as its
+  # own while meaning something else. See ADR 0055.
+  "templates/recon.md"
   "templates/field-note.md"
   "rules/security.md"
   "rules/secrets.md"

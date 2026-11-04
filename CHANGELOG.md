@@ -27,6 +27,35 @@ at the time, because none were.
 
 ---
 
+## v2.13.0 — 2026-11-04
+
+The Recon: an intake step before the Survey that records whether to build at all.
+Minor: adds a template and a skill section. No gate contract, profile, Build DNA,
+spine, or overlay version changes. Proposed source release. Publishing it still
+requires the signed release workflow.
+
+- `templates/recon.md`, new and vendored. A two-page record of a first session with
+  the person who owns a problem, written for them. It holds the decision it supports
+  and who makes it, by name. It holds pain points (`PN-`) with frequency, cost and
+  source, hard constraints (`GR-`) with a verification state, soft constraints as
+  `DEC-` rows, and compliance as design inputs. It holds outcomes (`OUT-`) that trace
+  to pain points, and one probe (`PR-1`) with one question, a time box and synthetic
+  data. It ends with an estimate, open questions, and a readout: go, go with
+  conditions, reframe, or no-go. The problem owner confirms the record by name before
+  the probe starts.
+- **The estimate shows what it rests on.** Each line cites its rows, gives a range,
+  and names its weakest input. Causeway prescribes no estimating method.
+- **An overdue open question proceeds on its stated assumption.** It is marked
+  `assumed` and reported at the readout. It may never become an ADR.
+- `templates/survey.md`: `PN-` and `OUT-` added to the prefix table, plus a `Recon`
+  header field. A Recon's rows carry into the Survey with their IDs unchanged.
+- `skills/survey/SKILL.md`: *Before Step 0 — Recon*, with matching updates to the
+  description, Files table and diagram. All four adapters name the moment.
+- `tools/motd.sh`: the bull has a callsign. Unit 60460, reporting.
+- ADR 0055 records the decision, the alternatives it rejected, and three declared
+  gaps. Nothing checks a Recon. `impact.sh` does not read one. The evidence so far is
+  one organization's template.
+
 ## v2.12.1 — 2026-10-30
 
 Security fixes for setup and distribution. Patch: no gate contract, profile,

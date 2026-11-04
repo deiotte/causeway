@@ -11,5 +11,6 @@ cat <<'ART'
     (`._   /
      \ `-.'
       `.__.'          the ground was prepared in advance.
+                      — Unit 60460, reporting.
 ART
 echo "causeway-standard v$(cat "$(dirname "${BASH_SOURCE[0]}")/../VERSION")"
