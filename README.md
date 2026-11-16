@@ -138,11 +138,11 @@ Measure the trial: onboarding effort, monthly upkeep, a decision the intake chan
 | Shared engineering instructions | Build DNA, topic rules, coding-tool pointers | Instructions cannot enforce agent behavior or approve a release |
 | Distribution | Manifest, pinning, drift detection, signed-release verification, installer, starter upgrades | Integrity checks cover specified surfaces; handled rollback does not establish crash-atomic installation |
 | Ongoing maintenance | Adoption doctor, constraint-impact reports, field-note queue | Advisory reports depend on the records supplied; no automatic disposition or design change |
-| Product evaluation | 27 check definitions, 14 input classes, four profiles, eight verdicts, receipt contract | The executable evaluator and evidence infrastructure belong elsewhere |
-| Evaluator conformance | 9 fixtures over 5 checks | They do not establish compatibility across all 27 checks |
+| Product evaluation | 29 check definitions, 16 input classes, four profiles, eight verdicts, receipt contract | The executable evaluator and evidence infrastructure belong elsewhere |
+| Evaluator conformance | 9 fixtures over 5 checks | They do not establish compatibility across all 29 checks |
 | ServiceNow | Optional responsibility/evidence mapping and JSON projection; overlay 1.14 | No ServiceNow connector, ATF runner, Instance Scan collector, or complete evidence-to-receipt integration |
 
-Profiles derive from architectural tier and criticality, rather than being selected independently. The current Decision Spine is 0.8 and gate configuration is 0.8. Required checks that cannot execute must not be represented as success. `tests-with-source` remains advisory at every profile.
+Profiles derive from architectural tier and criticality, rather than being selected independently. The current Decision Spine is 0.8 and gate configuration is 0.9. Required checks that cannot execute must not be represented as success. `tests-with-source` remains advisory at every profile.
 
 Named approvers are required records on eight decision rows. A person's name in a file does not authenticate approval. An evidence reference does not establish the evidence is adequate. A green standard-validation run does not validate a consuming product or establish an ATO, accreditation, security, or production readiness.
 
@@ -152,7 +152,7 @@ Review date: **2026-10-30**. Security-review baseline: [`5e74d00`](https://githu
 
 | Locally executed evidence | Result | What it supports |
 |---|---|---|
-| `tools/validate.py` | 824 assertions passed | Internal agreement among the standard's artifacts and guarded references |
+| `tools/validate.py` | 843 assertions passed | Internal agreement among the standard's artifacts and guarded references |
 | Bundle and adapter checks | Passed | Manifest reproduction and shipped skill pointers |
 | Setup parser, launch, HTTP, and file-write tests | 50 run; one expected skip, no failures | Covered loopback-origin checks, token handling, private atomic writes, `.env` git exclusion, and existing setup behavior |
 | Credential scan / release-authorization suites | 21 / 14 passed; no failures | Synthetic provider-shaped fixtures found in tree and history without echoing them; suppressions exact and named; only a stable release tag on main is authorized. The scan of this repository's tree and history found nothing. Repository settings that hold the signing key (ADR 0054) are not verifiable from a checkout |
@@ -161,7 +161,7 @@ Review date: **2026-10-30**. Security-review baseline: [`5e74d00`](https://githu
 | Throwaway signed-archive / stub publication suites | 13 / 12 passed; no failures | Covered signature/tampering refusals and publication orchestration; no production key-custody assurance |
 | Published archive installation | Not repeated on current release assets | Prior v2.10.0 published-archive validation is historical; this review used disposable-key archive fixtures |
 
-No external product evaluator was run in this review. Independent team outcomes, evaluator coverage of the complete contract, and the return on recordkeeping remain unestablished. The standard's index records 32 open items across four registers; tracked gaps are not closed controls.
+No external product evaluator was run in this review. Independent team outcomes, evaluator coverage of the complete contract, and the return on recordkeeping remain unestablished. The standard's index records 33 open items across four registers; tracked gaps are not closed controls.
 
 Release signatures attest the declared contract bundle identity. The bundle digest does not cover the whole archive: installer code, adapters, and several project-owned starters sit outside it. Run drift verification as well as signature verification. Operational key lifecycle, receipt storage, access controls, retention, and replay need their own implementation and evidence.
 

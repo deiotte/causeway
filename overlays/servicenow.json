@@ -3,13 +3,13 @@
   "$authority": "No gate check reads this file. An overlay may not change what any check does (overlays/README.md, containment rules), and publishing dispositions in JSON does not make them gate input. This exists so an engine, a register scaffold or a dashboard can consume the mapping without parsing markdown.",
   "schema_version": "1.0",
   "overlay": "servicenow",
-  "overlay_version": "1.16",
+  "overlay_version": "1.17",
   "ratified_against": {
     "spine": "0.8",
-    "gate_config": "0.8",
-    "build_dna": "1.17"
+    "gate_config": "0.9",
+    "build_dna": "1.18"
   },
-  "reconciled_at_standard": "2.15.0",
+  "reconciled_at_standard": "2.16.0",
   "counts": {
     "inherited": 11,
     "shared": 39,
@@ -691,6 +691,14 @@
     "baseline": {
       "source_controlled": "The approved inventory for the system.",
       "update_set_only": "Same."
+    },
+    "vuln-report": {
+      "source_controlled": "Advisory matches against the sbom inventory: spokes, Store apps, and any widget build's npm packages. The instance's own platform patch level is ServiceNow's, inherited.",
+      "update_set_only": "Same. The inventory does not depend on how the app was delivered."
+    },
+    "sast-report": {
+      "source_controlled": "SARIF from an analyzer over script includes, business rules, client scripts and widget code, or Instance Scan findings converted to SARIF.",
+      "update_set_only": "Instance Scan findings converted to SARIF. Nothing in this overlay ships the converter."
     }
   },
   "check_evidence": {
@@ -871,11 +879,24 @@
         "gate-config"
       ],
       "reads": "The ADR, not the instance. The platform models service ownership; it does not model an Authorizing Official."
+    },
+    "known-vulnerabilities": {
+      "inputs": [
+        "vuln-report",
+        "gate-config"
+      ],
+      "reads": "Advisory matches against the spoke, Store app and widget-build inventory. A platform vulnerability is ServiceNow's to patch on its release cadence; the instance's upgrade schedule is evidence for that, not a finding here."
+    },
+    "static-analysis": {
+      "inputs": [
+        "sast-report"
+      ],
+      "reads": "SARIF over the app's scripts, or Instance Scan findings converted to SARIF. An Instance Scan check suppressed without a reason is the unjustified suppression the check counts."
     }
   },
   "engine_exposure": {
     "$comment": "Derived from gate/checks.json and gate/profiles.json, restated here so an adopter can see the cost before running anything. tools/validate.py recomputes it.",
-    "checks_total": 27,
+    "checks_total": 29,
     "checks_reading_a_repo_class": [
       "adoption-horizon-60d",
       "ao-signature-sa510",

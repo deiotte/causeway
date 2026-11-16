@@ -2,8 +2,8 @@
   "$comment": "Stable check specifications. The integration contract between Causeway and any engine that executes it. See gate/gate-configuration.md §11.",
   "$authority": "This file defines WHAT each check means and WHAT INPUT it needs. profiles.json defines WHERE each one blocks. An engine needs both.",
   "schema_version": "1.0",
-  "standard_version": "2.15.0",
-  "gate_config_version": "0.8",
+  "standard_version": "2.16.0",
+  "gate_config_version": "0.9",
   "spine_version": "0.8",
 
   "input_classes": {
@@ -21,7 +21,9 @@
     "repo-tree": "Arbitrary read access to the product repository working tree.",
     "repo-manifests": "Dependency manifests, lockfiles and ecosystem configuration in the working tree.",
     "repo-changeset": "The set of files changed by the proposed change, with git rename and deletion scoring.",
-    "repo-git": "Repository git metadata — tags of either kind, annotated or lightweight, and their dates. Tag topology stopped being load-bearing at gate configuration v0.7: what an engine reads is a tag matching the release pattern, and which kind it was is recorded as release_proof rather than filtered on."
+    "repo-git": "Repository git metadata — tags of either kind, annotated or lightweight, and their dates. Tag topology stopped being load-bearing at gate configuration v0.7: what an engine reads is a tag matching the release pattern, and which kind it was is recorded as release_proof rather than filtered on.",
+    "vuln-report": "Known-vulnerability matches for the build under evaluation: for each, the component, the advisory identifier, the severity, whether it is on a known-exploited list (and that list's due date), and the date it was first reported against this system. Produced by any scanner that matches the build's SBOM against an advisory database; the standard names no scanner.",
+    "sast-report": "Static analysis results for the revision under evaluation, as SARIF 2.1.0: each result's rule, level and location, and any suppression with its justification. The standard names no analyzer."
   },
 
   "verdicts": {
@@ -520,6 +522,47 @@
       "remediation": "Obtain the AO signature and record the name, role and date in the ADR frontmatter.",
       "introduced_in": "0.1",
       "engine_contract": 1,
+      "exit_code": 1
+    },
+    {
+      "id": "known-vulnerabilities",
+      "title": "Known vulnerabilities inside their window",
+      "question": "Has any known vulnerability in what this system ships been open longer than its remediation window?",
+      "description": "Reads the known-vulnerability matches for the build and compares each one's age against the remediation window for its severity. A match inside its window is reported and passes; one past its window fails. A match on a known-exploited list takes the shorter of its severity window and the list's own due date. Counts are reported and never judged: forty fresh matches inside their windows pass, and one critical open for two months does not.",
+      "inputs": ["vuln-report", "gate-config"],
+      "applicability": "always. A build with no third-party components passes on an empty report. A missing report is unsupported, never a pass.",
+      "waiverable": true,
+      "waiver_form": "adr-waiver",
+      "evidence": ["advisory_sources", "report_generated", "findings_by_severity", "past_window", "known_exploited", "oldest_open_days", "windows_applied"],
+      "thresholds": {
+        "window_days": { "critical": 15, "high": 30, "moderate": 90, "low": 180 },
+        "known_exploited": "the list's due date, or the severity window if that is shorter",
+        "override": "ato-gate.json vulnerability_windows may shorten a window. Lengthening one past these defaults takes a waiver ADR."
+      },
+      "controls": ["ra-5", "si-2", "sr-3", "cm-8"],
+      "spine_rows": ["SA-5.8"],
+      "remediation": "Upgrade or remove the component, or ship the vendor's fix. Where neither fits inside the window, a waiver ADR names the compensating control, a named approver and an expiry. A report regenerated until the database stops matching is not remediation.",
+      "introduced_in": "0.9",
+      "engine_contract": 1,
+      "open_item": 15,
+      "exit_code": 1
+    },
+    {
+      "id": "static-analysis",
+      "title": "Static analysis has no unresolved errors",
+      "question": "Did static analysis of this revision report an error that nobody fixed or justified?",
+      "description": "Reads the SARIF results for the revision. An error-level result fails unless it carries a suppression with a written justification. Warning and note results are reported and never fail. A suppression with no justification counts as unresolved: the point is that a silenced result says why.",
+      "inputs": ["sast-report"],
+      "applicability": "always where the repository holds source an analyzer supports. not_applicable for a repository with none, recorded with the languages found.",
+      "waiverable": true,
+      "waiver_form": "adr-waiver",
+      "evidence": ["analyzers", "rules_run", "results_by_level", "errors_unresolved", "suppressions", "suppressions_without_justification"],
+      "controls": ["sa-11", "si-10", "ra-5"],
+      "spine_rows": ["SA-8.3"],
+      "remediation": "Fix the code, or suppress the result in the analyzer with a justification a reviewer can check. Turning a rule off for the whole repository is a waiver and needs one.",
+      "introduced_in": "0.9",
+      "engine_contract": 1,
+      "open_item": 15,
       "exit_code": 1
     }
   ]

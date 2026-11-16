@@ -74,7 +74,9 @@
     { "id": "dr-drill-cadence",      "G0": "skip",  "G1": "skip",  "G2": "warn",  "G3": "block" },
     { "id": "exposure-review",       "G0": "skip",  "G1": "skip",  "G2": "skip",  "G3": "block" },
     { "id": "promotion-review",      "G0": "skip",  "G1": "skip",  "G2": "skip",  "G3": "block" },
-    { "id": "ao-signature-sa510",    "G0": "skip",  "G1": "warn",  "G2": "warn",  "G3": "block" }
+    { "id": "ao-signature-sa510",    "G0": "skip",  "G1": "warn",  "G2": "warn",  "G3": "block" },
+    { "id": "known-vulnerabilities", "G0": "warn",  "G1": "warn",  "G2": "warn",  "G3": "warn"  },
+    { "id": "static-analysis",       "G0": "warn",  "G1": "warn",  "G2": "warn",  "G3": "warn"  }
   ],
   "named_approver_rows": [
     "SA-1.8", "SA-1.9", "SA-2.11", "SA-5.7", "SA-5.10", "SA-5.13", "SA-5.16",

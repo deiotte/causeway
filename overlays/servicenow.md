@@ -3,9 +3,9 @@
 | | |
 |---|---|
 | **Overlay** | `overlays/servicenow` · machine-readable projection in `servicenow.json` |
-| **Version** | 1.16 |
-| **Ratified against** | Decision Spine v0.8 · Gate configuration v0.8 · Build DNA v1.17 |
-| **Reconciled at** | Causeway 2.15.0. History, not a currency claim — the row above is what CI enforces. |
+| **Version** | 1.17 |
+| **Ratified against** | Decision Spine v0.8 · Gate configuration v0.9 · Build DNA v1.18 |
+| **Reconciled at** | Causeway 2.16.0. History, not a currency claim — the row above is what CI enforces. |
 | **Applies to** | Development, configuration, and integration work delivered on a ServiceNow instance |
 | **Governs** | Nothing. Causeway core governs. See `overlays/README.md`. |
 
@@ -45,6 +45,22 @@
 > What 1.2 adds is `overlays/servicenow.json`: the same overlay, machine-readable.
 > §1 also now states the posture the rest of the document has always assumed and
 > never wrote down. Both exist for the same reason — see below.
+
+> ## Ratified again at 1.17
+>
+> **Build DNA moved to 1.18** only to restate the gate's check count in open item 6.
+>
+> **Gate configuration moved to 0.9** (ADR 0059): two checks, `known-vulnerabilities`
+> and `static-analysis`, and two input classes, `vuln-report` and `sast-report`.
+> Both checks file findings at every profile and block nowhere, so no profile's
+> blocking count moved.
+>
+> **No row moved.** `servicenow.json` gives both checks a platform evidence
+> statement and both classes a source. A platform vulnerability stays ServiceNow's,
+> inherited; the check reads what the app adds — spokes, Store apps, widget
+> builds. Instance Scan is this platform's static analyzer, and its findings count
+> once converted to SARIF. No converter ships here, which is a gap in tooling, not
+> in the mapping.
 
 > ## Ratified again at 1.16
 >
@@ -468,9 +484,9 @@ anywhere else. It is also the section teams skip first.
 | Short-form rows inherited | 1 of 23 (SA-4.1) |
 | Named-approver rows, all dispositions | 8 of 8 still require a name |
 | One-way rows given platform vocabulary in §6 | 5 of 28 |
-| Checks reading at least one `repo-*` input class | 17 of 27 |
+| Checks reading at least one `repo-*` input class | 17 of 29 |
 | Of those, blocking at G2 | 10 of 16 |
-| Input classes an update-set-only shop cannot supply | 5 of 14, or 6 with no documentation repository either |
+| Input classes an update-set-only shop cannot supply | 5 of 16, or 6 with no documentation repository either |
 | Rows added, retired, or reclassified by this overlay | **0** |
 
 That last line is the containment rule holding. If a future revision of this
@@ -625,8 +641,8 @@ date. **Quietly load-bearing stops being an available state.**
 
 The table below is the curated subset — checks whose evidence is not obvious on
 this platform, or where the obvious answer is wrong. **`servicenow.json` carries a
-platform evidence statement for all 27**, with the input classes each one reads,
-so an engine integrator does not have to infer the other sixteen from silence.
+platform evidence statement for all 29**, with the input classes each one reads,
+so an engine integrator does not have to infer the other eighteen from silence.
 `validate.py` fails the build if the JSON and `checks.json` disagree about what a
 check reads.
 
@@ -734,9 +750,10 @@ read a repository reports the configuration error, not the promote-or-sunset blo
 The governance conversation this platform most needs to have is the one that gets
 hidden by an unreadable engine.
 
-**An instance-only engine blocks at G0.** Ten of the 27 checks read no `repo-*`
-class at all. Those ten are executable against the portfolio record, the TA record,
-the catalog and the evidence store — and they are not enough at any profile:
+**An instance-only engine blocks at G0.** Twelve of the 29 checks read no `repo-*`
+class at all. Those twelve are executable against the portfolio record, the TA
+record, the catalog, the evidence store and the two scanner reports — and they are
+not enough at any profile:
 
 | Profile | Blocking checks | Of those, needing a `repo-*` class |
 |---|---|---|

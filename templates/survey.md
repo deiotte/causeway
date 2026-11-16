@@ -483,7 +483,7 @@ evidence that intake is improving.
 > Run this before generating the handoff package, not after.
 >
 > **Not a Causeway gate.** The gate is the machine-readable contract in `gate/` —
-> four profiles, 27 checks, eight verdicts, an external evaluator. This is a
+> four profiles, 29 checks, eight verdicts, an external evaluator. This is a
 > human-run checklist with no evaluator and no exit code, and it is deliberately
 > named apart from the gate so the two are never read as one thing.
 
