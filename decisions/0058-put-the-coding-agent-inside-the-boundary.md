@@ -1,7 +1,7 @@
 ---
 adr: "0058"
 title: Put the coding agent inside the boundary — a workspace rule, committed starter settings, and a doctor finding
-status: Proposed
+status: Approved
 date: 2026-11-16
 spine_rows: []         # process layer only; closes no design row
 survey_rows: []
@@ -12,8 +12,8 @@ revisit_if: A coding tool Causeway adapts to (Claude Code, Gemini, Copilot, Curs
   this ADR says; or an adopter reports the starter deny list blocked legitimate work
   often enough that teams delete it rather than adding to it.
 approver:
-  name:
-  role: Maintainer review pending
+  name: Karl
+  role: Human
 supersedes:
 superseded_by:
 supersession_cause:
