@@ -11,8 +11,8 @@ revisit_if: Two Surveys at G2 or above finish S3.4 with every row disposed `desi
   and none `not defended` or `open` — that is a list written to look finished, and the
   prompts are not producing honest rows. Also revisit if teams report the prompts need
   a security specialist to answer; the section was written so that they do not.
-approver: 
-  name: Karl 
+approver:
+  name: Karl
   role: Human
 supersedes:
 superseded_by:

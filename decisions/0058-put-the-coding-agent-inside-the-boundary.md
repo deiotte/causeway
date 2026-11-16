@@ -1,7 +1,7 @@
 ---
 adr: "0058"
 title: Put the coding agent inside the boundary — a workspace rule, committed starter settings, and a doctor finding
-status: Approved
+status: Accepted
 date: 2026-11-16
 spine_rows: []         # process layer only; closes no design row
 survey_rows: []
