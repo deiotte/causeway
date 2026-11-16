@@ -42,3 +42,11 @@
 /rules/                         @ORG/ENGINEERING
 /bundle/                        @ORG/ENGINEERING
 /.causeway-lock                 @ORG/ENGINEERING
+
+# The coding agent's instructions and settings. Every future session reads
+# these, so a change here steers all of them; review it the way you review CI.
+# rules/agent-workspace.md, ADR 0058.
+/CLAUDE.md                      @ORG/ENGINEERING
+/.claude/                       @ORG/ENGINEERING
+/.mcp.json                      @ORG/ENGINEERING
+/.github/workflows/             @ORG/ENGINEERING

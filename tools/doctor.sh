@@ -510,6 +510,52 @@ for f in GEMINI.md .github/copilot-instructions.md .cursor/rules/causeway.mdc; d
   fi
 done
 
+# ── The agent's own settings ─────────────────────────────────────────────────
+#
+# The committed deny list for the coding agent (rules/agent-workspace.md,
+# ADR 0058). Present and shaped right is checked. Whether a session honored it,
+# and whether a sandbox sits under it, is not something a file can show.
+
+AGENT_REMEDY="Copy templates/agent-settings.json to .claude/settings.json, commit it, and add to it. rules/agent-workspace.md says what it does and what it leaves to you."
+if [ ! -f .claude/settings.json ]; then
+  finding agent.settings incomplete ".claude/settings.json" \
+    "Nothing committed limits what a coding agent may read or run in this project, so each person's local setup is the only limit." \
+    "$AGENT_REMEDY"
+elif ! command -v python3 >/dev/null 2>&1; then
+  finding agent.settings unverified ".claude/settings.json" \
+    "python3 is not available here to read the agent settings." "Run doctor.sh on a machine with python3."
+else
+  IFS='|' read -r st why < <(python3 - <<'PY'
+import json
+try:
+    d = json.load(open(".claude/settings.json"))
+    assert isinstance(d, dict)
+except Exception:
+    print("incomplete|The file is not a JSON object, so the agent ignores it or refuses to start."); raise SystemExit
+perm = d.get("permissions") if isinstance(d.get("permissions"), dict) else {}
+deny = [r for r in (perm.get("deny") or []) if isinstance(r, str)]
+gaps = []
+if not any(r.startswith("Read(") and ".env" in r and "example" not in r for r in deny):
+    gaps.append("no deny rule keeps the agent from reading .env")
+if perm.get("disableBypassPermissionsMode") != "disable":
+    gaps.append("the bypass mode is not turned off")
+if perm.get("defaultMode") == "bypassPermissions":
+    gaps.append("defaultMode is bypassPermissions")
+if any(r.startswith("Read(") and ".env.example" in r for r in deny):
+    gaps.append("a deny rule blocks .env.example, which the setup page is built from")
+if gaps:
+    print("incomplete|Committed, but " + "; ".join(gaps) + ".")
+else:
+    print(f"ok|Committed, with {len(deny)} deny rule{'' if len(deny) == 1 else 's'} and the bypass mode off.")
+PY
+)
+  if [ "$st" = ok ]; then
+    finding agent.settings ok ".claude/settings.json" "$why"
+  else
+    finding agent.settings incomplete ".claude/settings.json" "$why" "$AGENT_REMEDY"
+  fi
+fi
+
 # ── Starter files the project owns ───────────────────────────────────────────
 
 for f in CLAUDE.md CONTRIBUTING.md START-HERE.md .github/pull_request_template.md; do

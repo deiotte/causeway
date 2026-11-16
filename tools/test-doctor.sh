@@ -65,10 +65,10 @@ python3 -c "import json;d=json.load(open('$WORK/doc.json'));assert d['format']==
   || bad "a fresh sync is installed and intact, adoption incomplete, evaluation not claimed"
 fresh_incomplete="$(python3 -c "import json
 print(' '.join(sorted(f['id'] for f in json.load(open('$WORK/doc.json'))['findings'] if f['status']=='incomplete')))")"
-want="ci.drift gate.evaluator install.release placement.system_json policy.reference reviewers.codeowners starter.CLAUDE.md starter.CONTRIBUTING.md starter.START-HERE.md starter.open_items starter.pull_request_template.md"
+want="agent.settings ci.drift gate.evaluator install.release placement.system_json policy.reference reviewers.codeowners starter.CLAUDE.md starter.CONTRIBUTING.md starter.START-HERE.md starter.open_items starter.pull_request_template.md"
 [ "$fresh_incomplete" = "$want" ] \
-  && ok "a fresh sync is incomplete on exactly the eleven things a sync cannot do" \
-  || bad "a fresh sync is incomplete on exactly the eleven things a sync cannot do" "got: $fresh_incomplete"
+  && ok "a fresh sync is incomplete on exactly the twelve things a sync cannot do" \
+  || bad "a fresh sync is incomplete on exactly the twelve things a sync cannot do" "got: $fresh_incomplete"
 expect "branch protection is unverified, never passed" reviewers.required unverified
 expect "required checks are unverified, never passed" ci.required unverified
 python3 -c "import json
@@ -125,6 +125,8 @@ cat > "$P/.causeway/policy.json" <<JSON
     "evidence": "https://grc.acme.example/exceptions/1187" } ],
   "none": null }
 JSON
+# The agent's committed deny list, copied from the starter. ADR 0058.
+mkdir -p "$P/.claude"; cp "$P/templates/agent-settings.json" "$P/.claude/settings.json"
 doctor "$P"
 n_inc="$(python3 -c "import json;print(json.load(open('$WORK/doc.json'))['counts']['incomplete'])")"
 [ "$n_inc" = 0 ] && [ "$(state adoption)" = complete-except-unverified ] \
@@ -176,6 +178,27 @@ expect "CI that does not run the drift check is incomplete" ci.drift incomplete
 
 reset; sed -i 's/.*Gate evaluator.*/- **Gate evaluator:** [ENGINE AND VERSION]/' "$P/CLAUDE.md"; doctor "$P"
 expect "a placeholder evaluator line is incomplete" gate.evaluator incomplete
+
+# ── The agent's own settings. ADR 0058 ──────────────────────────────────────
+
+reset; doctor "$P"
+expect "the starter agent settings, copied as shipped, are ok" agent.settings ok
+
+reset; rm "$P/.claude/settings.json"; doctor "$P"
+expect "no committed agent settings is incomplete" agent.settings incomplete
+
+reset; printf '{ "permissions": {\n' > "$P/.claude/settings.json"; doctor "$P"
+expect "agent settings that are not JSON are incomplete" agent.settings incomplete
+
+reset; printf '{ "permissions": { "deny": ["Read(**/.env)"] } }\n' > "$P/.claude/settings.json"; doctor "$P"
+expect "agent settings that leave the bypass mode on are incomplete" agent.settings incomplete
+
+reset; printf '{ "permissions": { "deny": [], "disableBypassPermissionsMode": "disable" } }\n' > "$P/.claude/settings.json"; doctor "$P"
+expect "agent settings that let the agent read .env are incomplete" agent.settings incomplete
+
+reset; printf '{ "permissions": { "deny": ["Read(**/.env)", "Read(**/.env.example)"], "disableBypassPermissionsMode": "disable" } }\n' \
+  > "$P/.claude/settings.json"; doctor "$P"
+expect "agent settings that hide .env.example from the setup page are incomplete" agent.settings incomplete
 
 # ── Managed policy: the reference, its pin, and its exceptions. ADR 0050 ─────
 

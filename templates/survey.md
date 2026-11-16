@@ -57,6 +57,7 @@ through the full Survey produces theater, and the team stops believing the instr
 | S2 Load (capabilities + walkthroughs) | short | ✅ | ✅ | ✅ |
 | S3.1–S3.2 Bearings (invariants + failure modes) | invariants only | ✅ | ✅ | ✅ |
 | S3.3 Deliberate non-defenses | — | optional | ✅ | ✅ |
+| S3.4 Threats | — | inbound interfaces only | ✅ | ✅ |
 | S4 Spans (decision inventory) | one-way doors only | ✅ | ✅ | ✅ |
 | S5 Handoff (derivation + premortem) | ✅ | ✅ | ✅ | ✅ |
 | Premortem | 1 item | 3 items | 3 items | 5 items + named reviewer |
@@ -66,6 +67,11 @@ explicit statement of what it is *not* defending against, because at G2 the diff
 between a threat that was considered and dismissed and one nobody raised is the
 difference an assessor will ask about. Below G2 that statement is a nicety; at G2 it
 is the record.
+
+S3.4 is where S3.3 gets its list. A statement of what you are not defending against is
+only as good as the list of threats it was chosen from, and without S3.4 that list is
+whatever the room happened to think of. At G1 it covers the interfaces where something
+you do not control sends something in; at G2 and above it covers every prompt.
 
 **IDs are permanent.** Every row in this document carries an ID. ADRs cite them,
 the handoff package cites them, and supersession traces back through them. Never
@@ -77,6 +83,7 @@ renumber. A deleted row keeps its ID with status `withdrawn` and one line saying
 | `LD-n` | Load — a capability, flow, or volume the system must carry |
 | `IV-n` | Invariant — something that must be true at all times |
 | `FM-n` | Failure mode — a way this breaks, and the designed response |
+| `TH-n` | Threat — someone who would misuse the system, how they would try, and where the answer lives |
 | `DEC-n` | Decision surface — something with a real alternative |
 | `PR-n` | Probe — a time-boxed spike that decides one `DEC-` row |
 | `OPEN-n` | Open question — unresolved, with an owner and a trigger |
@@ -255,6 +262,77 @@ here and it becomes a rule in the handoff package instead of a regression.
 > Required at G2 and above. Threats, loads, and failure classes that are out of scope
 > by decision rather than by oversight. Each of these is a `DEC-` if anyone could
 > reasonably disagree — and at G2 someone will ask, so the row is the answer.
+>
+> Every `TH-` row that S3.4 disposes as `not defended` appears here by its ID. A threat
+> that is not defended and not listed here was not decided; it was dropped.
+
+| Row | Not defended against | Why not | Accepted by |
+|---|---|---|---|
+| TH-n / DEC-n | | | {{name}} |
+
+## S3.4 Threats
+
+> Who would want this system to do something it should not, and how they would try.
+> Work it from the seams you have already found: every S2.3 interface with direction
+> `in` or `both`, and every hop in an S2.2 walkthrough where data arrives from
+> something you do not control. That is a trust boundary, and a trust boundary
+> nobody looked at from the other side is where attacks start.
+>
+> This is not a security review and it is not a design. Its only job is to make
+> sure each threat ends somewhere a later reader can find it.
+
+| ID | Boundary or asset | Who | What they would try | Disposition | Answered by | Never do |
+|---|---|---|---|---|---|---|
+| TH-1 | LD-n / GR-n | | | designed \| not defended \| open | IV-n / FM-n / DEC-n / S3.3 / OPEN-n | |
+
+**Disposition** is the deliverable, the way **Designed response** is in S3.2. Every row
+ends in exactly one of three places:
+
+- **designed**: an `IV-` row that states what must stay true, an `FM-` row with a
+  designed response, or a `DEC-` row where the defense is a real choice. Name it in
+  *Answered by*.
+- **not defended**: the row appears in S3.3 with why and who accepted it.
+- **open**: an `OPEN-` row with an owner and a trigger. Nothing that rests on it is READY.
+
+A threat row with no disposition is not a finding. It is a worry, and worries do not
+survive into the handoff package.
+
+The **Never do** column works the way it does in S3.2: the tempting shortcut that
+reopens the threat. "Log the request body to debug the 401" and "turn off the
+signature check in staging" are the two that recur. Written here, they become rules
+in `CLAUDE.md`.
+
+### Prompts — work each boundary through these
+
+Plain questions, in the order of the STRIDE categories they come from. Ask each one
+of every inbound boundary until it stops producing rows.
+
+1. **Pretend to be someone else.** What does this boundary trust about the caller,
+   and what would it take to fake it? (Spine SA-5.1, SA-5.3.)
+2. **Change something they should not.** Data in transit, data at rest, and the
+   build itself: a dependency, a CI step, an artifact between build and deploy.
+   (SA-5.6, SA-5.7, SA-5.8, SA-5.14.)
+3. **Deny they did it.** Which action would you need to prove happened, by whom, after
+   the fact? If the answer is "we'd check the logs," which log, and can its writer
+   edit it? (SA-2.10.)
+4. **See something they should not.** Start from the classification `GR-` rows. The
+   usual leak is not the front door: it is an error message, a log line, a trace, a
+   backup, or a prompt sent to a model provider. (SA-6.8, SA-5.16.)
+5. **Stop it working.** What is the cheapest request that costs this system the most?
+   (SA-7.2, SA-7.7.)
+6. **Get more power than they were given.** Where is authorization enforced, and
+   which path reaches the data without passing through it? (SA-5.2.)
+7. **Talk the model into it.** Only where there is an inference path. Text the model
+   reads is a caller. Which tool could a sentence inside an uploaded document make it
+   call? (SA-5.15, `rules/inference.md`.)
+8. **Already inside.** What can someone with legitimate access do that leaves no
+   trace: an administrator, an operator, a CI job, and the coding agent building
+   this system (`rules/agent-workspace.md`)?
+
+**Who** is a kind of actor with a motive, not a name: an anonymous internet caller,
+a signed-in user acting on another user's data, a compromised dependency, an
+operator with a grudge, a document carrying instructions. Two actors trying the same
+thing for different reasons are usually one row.
 
 ---
 
@@ -353,13 +431,13 @@ because nobody had to discover anything.
 | `README.md` build order | LD priorities, DEC dependency order | |
 | `CLAUDE.md` project section | S0.1, S0.2 | |
 | `CLAUDE.md` environment constraints | all `GR-` rows marked platform/environment | **verbatim** — this is the section that saves agent hours |
-| `CLAUDE.md` Do-NOT list | FM `Never do` column | |
+| `CLAUDE.md` Do-NOT list | FM and TH `Never do` columns | |
 | `AGENTS.md` repo-specific rules | `GR-` rows that bind how we build | only additions to Causeway; nothing relaxes it |
-| `SECURITY.md` | `IV-` rows, S3.3, classification `GR-` rows | |
+| `SECURITY.md` | `IV-` rows, S3.3, S3.4 trust boundaries, classification `GR-` rows | |
 | `docs/CONTRACTS.md` | S2.3 interfaces | |
 | `docs/FAILURE-MODES.md` | S3.2 | |
 | `decisions/` seed ADRs | S4.2 rows with verdict `READY` **only** | `survey_rows` and `forces` are copied from the row, not authored |
-| Fixtures / test data | S2.2 walkthroughs | each walkthrough should be a fixture |
+| Fixtures / test data | S2.2 walkthroughs, S3.4 `designed` rows | each walkthrough should be a fixture; each designed threat should be an abuse-case test that tries it and fails |
 | Definition of green | IV checks + `GR-` verification | |
 
 ## S5.2 Premortem
@@ -418,6 +496,8 @@ evidence that intake is improving.
 - [ ] Every `IV-` row is stated so a test could check it
 - [ ] Every `FM-` row has a designed response
 - [ ] S3.3 is complete if the profile is G2 or above
+- [ ] S3.4 covers every inbound S2.3 interface at G1, and every prompt at G2 or above
+- [ ] Every `TH-` row has a disposition, and every `not defended` row appears in S3.3
 - [ ] Every one-way door in scope appears in S4.2
 - [ ] Every `DEC-` row has a verdict; no row is verdict-less
 - [ ] **No `DEC-` row is marked READY while anything in its `Depends on` is open**

@@ -49,6 +49,9 @@ BUNDLE_FILES=(
   "skills/decision-spine/reference/placement.md"
   "skills/decision-spine/reference/managed-policy.md"
   "templates/managed-policy.json"
+  # The coding agent's starter settings, copied by the project to
+  # .claude/settings.json. Vendored with the rule that explains it. ADR 0058.
+  "templates/agent-settings.json"
   "skills/decision-spine/reference/references.md"
   # The practitioner capture path. The skill defines what an interview may and
   # may not put in a practitioner's mouth, and the template defines the shape a
@@ -79,6 +82,7 @@ BUNDLE_FILES=(
   "rules/tests.md"
   "rules/dependencies.md"
   "rules/inference.md"
+  "rules/agent-workspace.md"
   "tools/check-drift.sh"
   "tools/verify-release.sh"
   "tools/doctor.sh"
