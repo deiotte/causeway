@@ -5,7 +5,7 @@ status: Proposed        # Proposed | Accepted | Deferred | Waived | Deprecated |
 date: YYYY-MM-DD
 spine_rows: [SA-0.0]    # design-layer rows this ADR closes. Required.
 survey_rows: []         # the Survey DEC- row this came from. Optional; copied, not authored.
-forces: []              # the Survey rows that discriminated (GR-/LD-/IV-/FM-). Optional.
+forces: []              # the Survey rows that discriminated (GR-/LD-/IV-/FM-/TH-). Optional.
 door:                   # one-way | two-way. Read from the spine row's One-way column.
 revisit_if:             # the condition that would legitimately reopen this. tools/impact.sh shows it
                         # when a constraint this ADR cites in forces changes.
@@ -45,6 +45,11 @@ not a decision record.
 ## Consequences
 
 What becomes easier. What becomes harder. What we are now committed to.
+
+**Security.** What this changes about who can reach what: a trust boundary added or
+moved, a `TH-` row answered or reopened, a new dependency or service, data going
+somewhere it did not go before. "None" is an answer. A blank is not, because a
+reviewer cannot tell it from a question nobody asked.
 
 ## Revisit if
 

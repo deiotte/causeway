@@ -27,6 +27,14 @@
 - [ ] Deviates from the standard? → a row in the `CLAUDE.md` exceptions register, pointing at its ADR
 - [ ] New dependency? → pinned exactly, justified here, checked against `rules/dependencies.md`
 - [ ] No secrets, credentials, or real data anywhere in the diff
+
+### Security
+
+- [ ] Touches authentication, authorization, sessions, cryptography, file handling, or anything that crosses a trust boundary? → say which here, and get a reviewer who will read it for that
+- [ ] New input, route, or outbound call? → validated, authorized and tested against `rules/security.md`, including one test that tries the abuse and fails
+- [ ] Changes a Survey `TH-` row's answer, or adds a boundary the Survey does not have? → the Survey is amended in this PR
+- [ ] Static analysis and the vulnerability scan ran; anything new is fixed, or suppressed with a reason written down
+- [ ] Agent-written? → the diff was read for new network calls, new dependencies or MCP servers, changed CI or agent settings, and weakened tests (`rules/agent-workspace.md`)
 - [ ] Learned an environment quirk the hard way? → added to `CLAUDE.md` so the next session inherits it
 
 ## [CALLSIGN]

@@ -205,6 +205,7 @@ Roles, intake, and front doors.
 | [0057](0057-list-the-threats-before-choosing-what-not-to-defend.md) | List the threats before choosing what not to defend — the Survey gains S3.4 and the TH- prefix | Accepted |
 | [0058](0058-put-the-coding-agent-inside-the-boundary.md) | Put the coding agent inside the boundary — a workspace rule, committed starter settings, and a doctor finding | Accepted |
 | [0059](0059-check-known-vulnerabilities-and-static-analysis.md) | Check known vulnerabilities against a remediation window, and static analysis for unjustified errors — two advisory gate checks | Proposed |
+| [0060](0060-hold-everyday-code-and-review-to-a-security-floor.md) | Hold everyday code and review to a security floor — a broader security rule, a patch-window rule, and security prompts in the PR and ADR templates | Proposed |
 
 ### Publication and governance
 

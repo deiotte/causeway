@@ -51,6 +51,17 @@ requires the signed release workflow.
 - New input classes `vuln-report` and `sast-report`. 29 checks, 16 input classes.
 - ADR 0059 records the decision, why no spine row was added for the window, and four
   declared gaps.
+- **`rules/security.md` is now the application security floor**, not ten lines for
+  API folders: input validation, no string-built queries or commands, authorization on
+  every request and every object, output encoding, errors and logs that leak nothing,
+  server-side request allowlists, cryptography, static analysis, and one abuse test
+  per defended threat. OWASP ASVS is named as the fuller checklist.
+- **`rules/dependencies.md` gains *Keeping current***: scan in CI, windows are
+  deadlines, update PRs are reviewed rather than auto-merged.
+- **The PR template gains a Security block** of five checkboxes, and **the ADR
+  template a Security consequence** where "None" is an answer and a blank is not.
+  `upgrade-starters.sh` offers the PR block to existing projects.
+- ADR 0060 records the decision and three declared gaps.
 
 ## v2.15.0 — 2026-11-16
 
