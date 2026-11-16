@@ -1,7 +1,7 @@
 ---
 adr: "0059"
 title: Check known vulnerabilities against a remediation window, and static analysis for unjustified errors — two advisory gate checks
-status: Proposed
+status: Accepted
 date: 2026-11-16
 spine_rows: []         # gate contract only; closes no design row
 survey_rows: []
@@ -12,8 +12,8 @@ revisit_if: After one warn cycle, most known-vulnerabilities findings are for co
   means the input needs tightening before either check blocks anyone. Also revisit if
   an engine integrator reports that no scanner it can run produces first-seen dates.
 approver:
-  name:
-  role: Maintainer review pending
+  name: Karl
+  role: Maintainer
 supersedes:
 superseded_by:
 supersession_cause:
