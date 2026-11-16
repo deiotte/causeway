@@ -1,7 +1,7 @@
 ---
 adr: "0057"
 title: List the threats before choosing what not to defend — the Survey gains S3.4 and the TH- prefix
-status: Proposed
+status: Accepted
 date: 2026-11-16
 spine_rows: []         # process layer only; closes no design row
 survey_rows: []
@@ -11,9 +11,9 @@ revisit_if: Two Surveys at G2 or above finish S3.4 with every row disposed `desi
   and none `not defended` or `open` — that is a list written to look finished, and the
   prompts are not producing honest rows. Also revisit if teams report the prompts need
   a security specialist to answer; the section was written so that they do not.
-approver:
-  name:
-  role: Maintainer review pending
+approver: 
+  name: Karl 
+  role: Human
 supersedes:
 superseded_by:
 supersession_cause:
