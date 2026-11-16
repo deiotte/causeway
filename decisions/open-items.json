@@ -1,10 +1,10 @@
 {
   "$comment": "The open-items index. Every numbered open item this repository carries, in one place, with its state. Build DNA §8 states the rule; tools/validate.py §17 checks this file against the four registers it names.",
   "$authority": "This file owns an item's STATE — status, the ADRs that opened and closed it, the version each happened in, its register and number. It does not own the item's ARGUMENT, which stays in the prose entry and is the reason the entry keeps its number when it closes. Where this file and a prose entry disagree about status, the disagreement is a build failure rather than a precedence rule: one of the two is wrong and a commit that moved only one of them is the defect.",
-  "$not_gate_input": "No gate check reads this file. The gate has 27 checks and none of them is 'the index is current' — see AGENTS.md open item 6, which records that gap rather than closing it by assertion.",
-  "$attribution": "opened_by and closed_by are null where the record does not state them: null for 21 items of 42, across 4 registers whose history predates this index. Two rounds of renumbering ran through that history, and inventing an attribution to fill a cell would be manufacturing exactly the evidence this repository refuses to manufacture elsewhere. Null means 'not attributable from the record', not 'nobody opened it'. Every item opened from v1.10.0 forward carries its ADR. These three numbers are anchored in tools/validate.py and derive from the items below — the first version of this sentence said six registers, a count left over from a draft that included two README lists deliberately excluded from the index, and nothing checked it. ADR 0027.",
+  "$not_gate_input": "No gate check reads this file. The gate has 29 checks and none of them is 'the index is current' — see AGENTS.md open item 6, which records that gap rather than closing it by assertion.",
+  "$attribution": "opened_by and closed_by are null where the record does not state them: null for 21 items of 43, across 4 registers whose history predates this index. Two rounds of renumbering ran through that history, and inventing an attribution to fill a cell would be manufacturing exactly the evidence this repository refuses to manufacture elsewhere. Null means 'not attributable from the record', not 'nobody opened it'. Every item opened from v1.10.0 forward carries its ADR. These three numbers are anchored in tools/validate.py and derive from the items below — the first version of this sentence said six registers, a count left over from a draft that included two README lists deliberately excluded from the index, and nothing checked it. ADR 0027.",
   "schema_version": "1.0",
-  "standard_version": "2.15.0",
+  "standard_version": "2.16.0",
   "registers": {
     "build-dna": {
       "document": "AGENTS.md",
@@ -372,6 +372,22 @@
       "$note": "Split out of gate-config-8 so that item could close. §4's fourth release-evidence source names a platform release record and nothing supplies it: repo-git is git metadata by definition, and an application version field is not a git object of any kind. overlays/servicenow.md §8 has described this since overlay 1.1. Same question as gate-config-11 one layer down — that asks which classes an engine supplies, this asks for a class that does not exist to supply — so they are related, not merged. Narrowed at gate configuration v0.8 by ADR 0034: oneway-closure no longer declares repo-git, so a platform with no git can run it on repo-decisions and system-record. What still wants a platform release record is tests-with-source alone, which warns at all four profiles and whose promotion has not engaged. Same question, no longer on a critical path."
     },
     {
+      "id": "gate-config-15",
+      "register": "gate-config",
+      "number": 15,
+      "title": "Two security checks block nowhere",
+      "status": "open",
+      "opened_by": "0059",
+      "opened_in": "gate configuration v0.9",
+      "closed_by": null,
+      "closed_in": null,
+      "upstream_of": [],
+      "blocked_on": [
+        "first-adopter-evidence"
+      ],
+      "$note": "known-vulnerabilities and static-analysis arrived warn-only at every profile, because §9 says blocking behavior is earned by a warn cycle. Decided direction: known-vulnerabilities blocks at G1 and above, static-analysis at G2 and above. Undecided: when, which waits on what the first cycle fires on. Both read input classes no engine has declared, the same gap gate-config-11 records for every class."
+    },
+    {
       "id": "gate-config-spine-version-drift",
       "register": "gate-config",
       "number": null,
@@ -602,8 +618,8 @@
     }
   ],
   "counts": {
-    "open": 32,
+    "open": 33,
     "closed": 10,
-    "total": 42
+    "total": 43
   }
 }

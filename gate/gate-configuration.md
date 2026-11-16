@@ -1,6 +1,6 @@
 # Causeway Gate Configuration
 
-**Version:** 0.8
+**Version:** 0.9
 **Depends on:** Decision Spine v0.8 (gate profiles G0–G3, criticality class, † rows,
 adoption horizon)
 **Implements in:** any conforming engine — see §11 for the engine contract
@@ -149,6 +149,8 @@ downgrades to a finding. The *Modifiers* subsection below lists them.
 | **Exposure review current** | catalog record | – | – | – | • |
 | **Promotion review current** | catalog record | – | – | – | • |
 | **AO signature on SA-5.10** | ADR frontmatter | – | ○ | ○ | • |
+| **Known vulnerabilities inside their window** — none past its remediation window | vulnerability report | ○ | ○ | ○ | ○ |
+| **Static analysis** — no error-level result unfixed or unjustified | SARIF | ○ | ○ | ○ | ○ |
 
 Two things worth noticing in that table. The security floor blocks at *every*
 profile — secrets, SBOM drift, dependency provenance, install-script execution,
@@ -156,6 +158,11 @@ named approvers, waiver expiry, as-built notification — and even a
 citizen-developer sandbox app cannot get under it. And the one-way-door check is
 `○` at G0 rather than `–`: a sandbox app sees the finding, it just isn't stopped
 by it.
+
+The two security checks added in v0.9, `known-vulnerabilities` and
+`static-analysis`, file findings at every profile and block nowhere yet. That is the
+rule in §9, not a judgment that they matter less: a check earns blocking behavior
+after a warn cycle shows what it fires on. Item 15 in §10 tracks the promotion.
 
 ### Modifiers
 
@@ -413,6 +420,47 @@ not a waiverable finding at any profile: a waiver would have to say "arbitrary
 third-party code may execute on our CI runners until a date," and nobody who
 reads that sentence signs it.
 
+### `known-vulnerabilities` — windows, not counts
+
+`known_vulnerabilities_check(vuln_report, gate_config)`
+
+- Each match in the report has a severity and the date it was first reported
+  against this system. Its age is today minus that date.
+- **A match past its window fails.** Defaults: critical 15 days, high 30, moderate
+  90, low 180. These are the windows US federal practice already uses — CISA BOD
+  19-02 for critical and high on internet-facing systems, the FedRAMP continuous
+  monitoring guidance for high, moderate and low — so a system under either has
+  no second number to reconcile.
+- **A match on a known-exploited list** — CISA's KEV catalog or the equivalent the
+  system names — takes the shorter of its severity window and the list's due date.
+- **Counts never fail.** A count says how busy the advisory database was this week.
+  An age past a window says somebody was told and nothing happened, which is the
+  fact the check exists to catch.
+- `ato-gate.json` `vulnerability_windows` may shorten any window. Lengthening one
+  past the default is a waiver ADR, not configuration: it is a sentence someone has
+  to sign.
+- **A missing report is `unsupported`, never a pass.** An engine that cannot supply
+  `vuln-report` has not found zero vulnerabilities.
+
+The input class names no scanner on purpose. What the check needs is a match list
+with first-seen dates, and every serious scanner can produce one from the SBOM the
+`sbom-drift` check already reads. The first-seen date is the part a scanner does not
+remember by itself: the engine keeps it, in the evidence store, from the first
+receipt that reported the match.
+
+### `static-analysis` — justified, not silent
+
+`static_analysis_check(sast_report)`
+
+- Reads SARIF 2.1.0, the format nearly every analyzer can write.
+- **An `error`-level result fails** unless it carries a suppression with a
+  non-empty justification. `warning` and `note` are reported and never fail.
+- **A suppression with no justification is unresolved.** Silencing a finding is
+  often right; silencing it without a reason a reviewer can read is how a real
+  injection ships with a comment that says `nolint`.
+- Which analyzer, and which rules it runs, is the system's choice under SA-8.3. The
+  check reads results, not configuration.
+
 ### `tests-with-source` — what it measures, and what it does not
 
 Build DNA §7 asks for one prompt, one commit. This gate does not check that and
@@ -557,6 +605,9 @@ paths, thresholds, and named exclusions.
     // only. See §4, release_state.
     "release_tag_pattern": "^release-[0-9]{4}\\.[0-9]{2}$"
   },
+  // Shortens known-vulnerabilities windows (days). May not lengthen one; that
+  // is a waiver ADR. Recorded by the system's SA-5.8 ADR. See §4.
+  "vulnerability_windows": { "critical": 7, "high": 30, "moderate": 90, "low": 180 },
   "named_approvers": {
     "SA-1.8":  { "name": "...", "role": "Data Owner" },
     "SA-1.9":  { "name": "...", "role": "AO" },
@@ -743,6 +794,12 @@ first `if`.
     nobody has counted; §6 exclusions are the intended answer for those, and if
     the exclusion list turns out longer than the violation list the check is
     measuring the wrong thing.
+11. **Run `known-vulnerabilities` and `static-analysis` warn-only** (v0.9). After
+    one cycle, decide promotion per profile from two numbers: how many findings
+    were past their window or unjustified, and how many of those were real. A
+    vulnerability check that fires mostly on components the build never loads, or
+    a static analyzer whose errors are mostly false positives, needs its input
+    tightened before it blocks anyone. §10 item 15.
 
 Steps 1 and 3 are the whole risk. If the portfolio backfill in step 1 stalls,
 the default in §3 means every unbackfilled system resolves to C1 and gets the
@@ -885,7 +942,7 @@ checked. See ADR 0025.
     which is ADR 0012's reasoning applied to this document.
 
 11. **No engine has declared its input classes against any platform.** §11 publishes
-    the contract and asks an engine to declare which of the 14 input classes it can
+    the contract and asks an engine to declare which of the 16 input classes it can
     supply. None has. `overlays/servicenow.md` open item 6 has recorded the platform
     half of this since overlay 1.1 and said the finding belonged upstream; there was
     no upstream item to send it to, so it stayed in a document only that overlay's
@@ -943,6 +1000,16 @@ checked. See ADR 0025.
     longer on anybody's critical path, which is the difference between owed and
     urgent. See ADR 0034.
 
+15. **Two security checks block nowhere.** `known-vulnerabilities` and
+    `static-analysis` arrived in v0.9 filing findings at every profile, because §9
+    says a check earns blocking behavior from a warn cycle rather than receiving it
+    by declaration. The decided direction is blocking at G1 and above for
+    `known-vulnerabilities`, and at G2 and above for `static-analysis`; what is not
+    decided is when, and that waits on what the first cycle fires on. Both read a
+    new input class, `vuln-report` and `sast-report`, which no engine has declared
+    yet — the same gap item 11 records for every class. Opened in gate
+    configuration v0.9 by ADR 0059.
+
 **Closed in v0.4: `spine.version` drift.** Item 4 through v0.3, carried unratified
 since Decision Spine v0.4. The standing recommendation — forced at the next TA
 renewal or promotion — did not survive being read against §4: `ta-valid` and
@@ -981,7 +1048,7 @@ Three machine-readable artifacts, vendored and checksummed like everything else.
 | `bundle/manifest.json` | Which exact bytes of the above a given evaluation ran against. |
 
 `checks.json` is the new one and it carries the part that was never written down:
-for each of the 27 checks, a stable id, the question it answers in a sentence, its
+for each of the 29 checks, a stable id, the question it answers in a sentence, its
 applicability rule, its waiver eligibility and form, the evidence keys it
 contributes to the receipt, its control mappings, its spine rows, remediation
 text, the version that introduced it, and an **engine contract number**.
@@ -1001,7 +1068,7 @@ nothing about the engine actually changed because it could already read
 
 `checks.json` declares **input classes** instead. Each check names what it must be
 able to read: `repo-decisions`, `repo-manifests`, `repo-changeset`, `system-record`,
-`ta-record`, and nine others. An engine declares the classes it can supply.
+`ta-record`, and eleven others. An engine declares the classes it can supply.
 
 ```yaml
 engine:
@@ -1028,7 +1095,7 @@ stated in terms of a capability rather than a list, and closing it once unlocks
 every check that reads the changed-file set rather than one.
 
 The classes also make the largest integration cost visible at the top rather than
-at the bottom. Seventeen of the 27 checks read one of the six `repo-*` classes.
+at the bottom. Seventeen of the 29 checks read one of the six `repo-*` classes.
 An engine evaluating portfolio records and SBOMs is not most of the way to
 executing this standard, whatever its check count suggests, and an input-class
 declaration says so in one line.

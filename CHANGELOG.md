@@ -27,6 +27,42 @@ at the time, because none were.
 
 ---
 
+## v2.16.0 — 2026-11-16
+
+Known vulnerabilities, static analysis, and security in everyday review. Minor:
+two advisory gate checks and two input classes, normative text, and template
+prompts. No check blocks anywhere it did not block before, and no spine row moved.
+Gate configuration moves to 0.9 and Build DNA to 1.18; the ServiceNow overlay is
+re-ratified at 1.17 with no row moved. Proposed source release. Publishing it still
+requires the signed release workflow.
+
+- **`known-vulnerabilities`**, new gate check: fails when a known vulnerability in
+  what the build ships has been open past its remediation window. Defaults are
+  critical 15 days, high 30, moderate 90, low 180, from CISA BOD 19-02 and FedRAMP
+  continuous monitoring; a known-exploited match takes the list's due date if that is
+  sooner. `ato-gate.json` `vulnerability_windows` may shorten a window, and
+  lengthening one takes a waiver ADR. Counts never fail. A missing report is
+  `unsupported`, never a pass.
+- **`static-analysis`**, new gate check: fails on an error-level SARIF result that is
+  neither fixed nor suppressed with a written justification.
+- **Both are advisory at every profile** until a warn cycle earns blocking, per
+  gate configuration §9. §10 item 15 records the direction: G1 and above for
+  `known-vulnerabilities`, G2 and above for `static-analysis`.
+- New input classes `vuln-report` and `sast-report`. 29 checks, 16 input classes.
+- ADR 0059 records the decision, why no spine row was added for the window, and four
+  declared gaps.
+- **`rules/security.md` is now the application security floor**, not ten lines for
+  API folders: input validation, no string-built queries or commands, authorization on
+  every request and every object, output encoding, errors and logs that leak nothing,
+  server-side request allowlists, cryptography, static analysis, and one abuse test
+  per defended threat. OWASP ASVS is named as the fuller checklist.
+- **`rules/dependencies.md` gains *Keeping current***: scan in CI, windows are
+  deadlines, update PRs are reviewed rather than auto-merged.
+- **The PR template gains a Security block** of five checkboxes, and **the ADR
+  template a Security consequence** where "None" is an answer and a blank is not.
+  `upgrade-starters.sh` offers the PR block to existing projects.
+- ADR 0060 records the decision and three declared gaps.
+
 ## v2.15.0 — 2026-11-16
 
 Security at intake, and the coding agent inside the boundary. Minor: adds a Survey

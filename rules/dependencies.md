@@ -46,6 +46,24 @@ laptop. They run before anyone has read a line of what arrived.
 - SBOM on every build; drift from the authorized state fails the build
   (Spine SA-5.8). That gate already exists — don't route around it.
 
+## Keeping current
+
+A pinned dependency is a dependency nobody updates by accident, which also means
+nobody updates it unless someone decides to.
+
+- **Scan the SBOM against an advisory database in CI**, and keep the report. The
+  `known-vulnerabilities` check reads it (gate configuration §4).
+- **A known vulnerability has a deadline, not a priority.** Defaults: critical 15
+  days, high 30, moderate 90, low 180, and sooner when it is on a known-exploited
+  list with an earlier due date. A system that needs a shorter window records it in
+  `ato-gate.json` and its SA-5.8 ADR. One that needs longer writes a waiver ADR with
+  a compensating control, a name and an expiry.
+- **Automated update pull requests are welcome; automatic merges of them are not.**
+  An update is a new version from the same publishers, and §"Adding one" still
+  applies to what it pulls in.
+- **Update on a cadence, not only on alarm.** A dependency three major versions
+  behind turns a fifteen-day fix into a migration.
+
 ## Runtime
 
 - **Node belongs on the build side of the boundary, not the run side.** Compile

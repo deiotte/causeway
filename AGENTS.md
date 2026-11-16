@@ -1,6 +1,6 @@
 # Build DNA
 
-**Version:** 1.17 — document of record
+**Version:** 1.18 — document of record
 **Layer:** Process. See `skills/decision-spine/` for the design layer.
 **Seam:** §8 (ADR discipline). Every Decision Spine row lands in an ADR governed
 by the rules in this document. That is the only place the two layers touch.
@@ -950,7 +950,7 @@ comes to reference a different item than the one it closed.
 6. **Nothing enforces the index in a consuming project, and that now covers
    field-note dispositions too.** §8 states the rule and `tools/validate.py`
    checks this repository's own index against its own four registers. A consuming
-   project gets the template, the rule, and no check — the gate has 27 checks and
+   project gets the template, the rule, and no check — the gate has 29 checks and
    none of them reads `decisions/open-items.json`, because an index is a
    discipline before it is a control and promoting it to a blocking check on its
    first release would be deciding that before anyone has run it. This is the same
