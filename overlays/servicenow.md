@@ -3,9 +3,9 @@
 | | |
 |---|---|
 | **Overlay** | `overlays/servicenow` · machine-readable projection in `servicenow.json` |
-| **Version** | 1.15 |
-| **Ratified against** | Decision Spine v0.8 · Gate configuration v0.8 · Build DNA v1.16 |
-| **Reconciled at** | Causeway 2.12.0. History, not a currency claim — the row above is what CI enforces. |
+| **Version** | 1.16 |
+| **Ratified against** | Decision Spine v0.8 · Gate configuration v0.8 · Build DNA v1.17 |
+| **Reconciled at** | Causeway 2.15.0. History, not a currency claim — the row above is what CI enforces. |
 | **Applies to** | Development, configuration, and integration work delivered on a ServiceNow instance |
 | **Governs** | Nothing. Causeway core governs. See `overlays/README.md`. |
 
@@ -45,6 +45,18 @@
 > What 1.2 adds is `overlays/servicenow.json`: the same overlay, machine-readable.
 > §1 also now states the posture the rest of the document has always assumed and
 > never wrote down. Both exist for the same reason — see below.
+
+> ## Ratified again at 1.16
+>
+> **Build DNA moved to 1.17** (ADR 0058): §7 gains *The agent is inside the
+> boundary too*, `rules/agent-workspace.md` ships, and `templates/agent-settings.json`
+> is the starter for a committed coding-agent deny list.
+>
+> **No row moved.** The rule governs the developer's workstation and the agent on it,
+> not the instance, so it applies to ServiceNow work unchanged: an agent writing
+> scripts or update sets must not hold an instance admin credential, and an
+> instruction found in a record, a ticket or an attachment it reads is data. The
+> spine rows this overlay disposes are untouched.
 
 > ## Ratified again at 1.15
 >

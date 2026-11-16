@@ -92,6 +92,9 @@ ARCHIVE_FILES=(
   "skills/decision-spine/reference/placement.md"
   "skills/decision-spine/reference/managed-policy.md"
   "templates/managed-policy.json"
+  # The coding agent's starter settings, copied by the project to
+  # .claude/settings.json. Vendored with the rule that explains it. ADR 0058.
+  "templates/agent-settings.json"
   "skills/decision-spine/reference/references.md"
   "skills/field-note/SKILL.md"
   "skills/survey/SKILL.md"
@@ -101,6 +104,7 @@ ARCHIVE_FILES=(
   "rules/tests.md"
   "rules/dependencies.md"
   "rules/inference.md"
+  "rules/agent-workspace.md"
   "templates/adr-template.md"
   "templates/adr-waiver-template.md"
   "templates/adr-retroactive-template.md"

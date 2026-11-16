@@ -29,9 +29,11 @@ at the time, because none were.
 
 ## v2.15.0 — 2026-11-16
 
-Security at intake. Minor: adds a Survey section and a prefix. No gate contract,
-profile, Build DNA, spine, or overlay version changes. Proposed source release.
-Publishing it still requires the signed release workflow.
+Security at intake, and the coding agent inside the boundary. Minor: adds a Survey
+section and a prefix, a rule, a template and an advisory doctor finding. No gate
+contract, profile or spine change. Build DNA moves to 1.17; the ServiceNow overlay is
+re-ratified at 1.16 with no row moved. Proposed source release. Publishing it still
+requires the signed release workflow.
 
 - **Survey S3.4, Threats.** S3.3 asked what the system is deliberately not
   defending against, and nothing produced the list it chooses from. S3.4 works each
@@ -49,6 +51,28 @@ Publishing it still requires the signed release workflow.
 - ADR 0057 records the decision, the methods and the spine row it did not adopt, and
   three declared gaps: nothing checks S3.4, the prompts are a floor and not a method,
   and no Survey has run it yet.
+- **Build DNA §7, *The agent is inside the boundary too*.** A coding agent runs with
+  the machine's credentials and reads text written by strangers, so it gets the
+  treatment §5 gives the package registry. No production credentials where an agent
+  runs; content is data, never instructions; the deny list is committed; MCP servers
+  and plugins are dependencies; agent instruction files are code.
+- **`rules/agent-workspace.md`**, new and vendored: what the agent can reach, run and
+  trust, and what to read for in an agent-written diff.
+- **`templates/agent-settings.json`**, new and vendored: a Claude Code
+  `.claude/settings.json` starter. Denies reading or editing `.env` and its local and
+  production variants, `secrets/`, `*.pem`, `*.key` and home-directory credentials;
+  denies `sudo`, printing the environment and force-pushing; asks before other pushes;
+  turns bypass mode off. Leaves `.env.example` readable for the setup page, and leaves
+  the sandbox to the project, because it does not run on native Windows.
+- **`tools/doctor.sh` reports `agent.settings`**: incomplete when no settings file is
+  committed, it does not parse, `.env` is readable, bypass is not off, or
+  `.env.example` is hidden. A fresh sync is now incomplete on twelve things, not eleven.
+- `templates/CODEOWNERS` names `CLAUDE.md`, `.claude/`, `.mcp.json` and
+  `.github/workflows/` for review.
+- ADR 0058 records the decision, why the starter is copied rather than seeded and the
+  sandbox is left off, and four declared gaps: the deny list is bypassable, only
+  Claude Code has a starter, doctor checks shape not effect, and the CI surface still
+  has no rule.
 
 ## v2.14.0 — 2026-11-04
 

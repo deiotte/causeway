@@ -107,6 +107,9 @@ VENDORED=(
   # read at the moment a project has nothing yet. ADR 0050.
   "skills/decision-spine/reference/managed-policy.md"
   "templates/managed-policy.json"
+  # The coding agent's starter settings, copied by the project to
+  # .claude/settings.json. Vendored with the rule that explains it. ADR 0058.
+  "templates/agent-settings.json"
   "skills/decision-spine/reference/references.md"
   # The practitioner capture path, vendored so an agent in a consuming project
   # reads the same interview rules and the same note shape the standard ships.
@@ -137,6 +140,7 @@ VENDORED=(
   "rules/tests.md"
   "rules/dependencies.md"
   "rules/inference.md"
+  "rules/agent-workspace.md"
   # The consumer-facing drift check itself. sync.sh has printed "Add
   # check-drift.sh to CI" since v1.0 and never shipped the script, so the
   # instruction could only be followed by someone who also had a clone of the

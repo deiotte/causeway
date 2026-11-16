@@ -203,6 +203,7 @@ Roles, intake, and front doors.
 | [0055](0055-run-a-recon-before-the-survey.md) | Run a Recon before the Survey — record whether to build, for the person who decides, and make the estimate show what it rests on | Proposed |
 | [0056](0056-keep-recons-in-one-register-and-fill-them-from-a-page.md) | Keep every Recon in one private register, and fill it in from an offline page built from the template | Proposed |
 | [0057](0057-list-the-threats-before-choosing-what-not-to-defend.md) | List the threats before choosing what not to defend — the Survey gains S3.4 and the TH- prefix | Proposed |
+| [0058](0058-put-the-coding-agent-inside-the-boundary.md) | Put the coding agent inside the boundary — a workspace rule, committed starter settings, and a doctor finding | Proposed |
 
 ### Publication and governance
 

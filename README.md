@@ -89,7 +89,7 @@ bash tools/verify-release.sh
 bash tools/doctor.sh --json
 ```
 
-The review downloaded and exercised this release. The checksum and signature verified; the drift check verified 32 members of what was then a 34-file bundle, with the two optional ServiceNow files absent (the 41-file consumer bundle at this release adds the setup tool's five files, the Recon template and the Recon intake page, which that review predates). Doctor reported:
+The review downloaded and exercised this release. The checksum and signature verified; the drift check verified 32 members of what was then a 34-file bundle, with the two optional ServiceNow files absent (the 43-file consumer bundle at this release adds the setup tool's five files, the Recon template, the Recon intake page, and the agent-workspace rule and its starter settings, which that review predates). Doctor reported:
 
 ```json
 {
@@ -152,7 +152,7 @@ Review date: **2026-10-30**. Security-review baseline: [`5e74d00`](https://githu
 
 | Locally executed evidence | Result | What it supports |
 |---|---|---|
-| `tools/validate.py` | 817 assertions passed | Internal agreement among the standard's artifacts and guarded references |
+| `tools/validate.py` | 824 assertions passed | Internal agreement among the standard's artifacts and guarded references |
 | Bundle and adapter checks | Passed | Manifest reproduction and shipped skill pointers |
 | Setup parser, launch, HTTP, and file-write tests | 50 run; one expected skip, no failures | Covered loopback-origin checks, token handling, private atomic writes, `.env` git exclusion, and existing setup behavior |
 | Credential scan / release-authorization suites | 21 / 14 passed; no failures | Synthetic provider-shaped fixtures found in tree and history without echoing them; suppressions exact and named; only a stable release tag on main is authorized. The scan of this repository's tree and history found nothing. Repository settings that hold the signing key (ADR 0054) are not verifiable from a checkout |
