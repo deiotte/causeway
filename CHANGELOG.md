@@ -27,6 +27,29 @@ at the time, because none were.
 
 ---
 
+## v2.15.0 — 2026-11-16
+
+Security at intake. Minor: adds a Survey section and a prefix. No gate contract,
+profile, Build DNA, spine, or overlay version changes. Proposed source release.
+Publishing it still requires the signed release workflow.
+
+- **Survey S3.4, Threats.** S3.3 asked what the system is deliberately not
+  defending against, and nothing produced the list it chooses from. S3.4 works each
+  inbound S2.3 interface and walkthrough hop through eight plain prompts (pretend to
+  be someone else, change something, deny it, see something, stop it working, get
+  more power, talk the model into it, already inside). Each names the spine rows it
+  usually lands on.
+- **`TH-` is a new permanent prefix.** Every `TH-` row ends `designed` (an `IV-`,
+  `FM-` or `DEC-` row answers it), `not defended` (listed in S3.3 with who accepted
+  it) or `open` (an `OPEN-` row, and nothing resting on it is READY). A `Never do`
+  column carries the tempting security shortcut into the `CLAUDE.md` Do-NOT list.
+- S3.3 gains a table with an *Accepted by* column. The Depth table, derivation map
+  and exit criteria cover S3.4. `skills/survey/SKILL.md` says how to run it.
+  `tools/impact.sh` already reads `TH-` IDs; nothing in it changed.
+- ADR 0057 records the decision, the methods and the spine row it did not adopt, and
+  three declared gaps: nothing checks S3.4, the prompts are a floor and not a method,
+  and no Survey has run it yet.
+
 ## v2.14.0 — 2026-11-04
 
 Where a Recon lives, and a page to fill one in. Minor: adds a tool and a template.

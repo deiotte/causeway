@@ -165,7 +165,7 @@ The profile derives from tier × class and sets which sections apply. Read the D
 table in `templates/survey.md` and **state the depth in one line before starting**, so
 the user knows what they are in for:
 
-> *"Mission + C2 → G2. Full Survey: all six sections, S3.3 required, three premortem items."*
+> *"Mission + C2 → G2. Full Survey: all six sections, S3.3 and S3.4 required, three premortem items."*
 
 ## Step 2 — Draft first, then ratify. Never interrogate.
 
@@ -246,6 +246,17 @@ S3.3 — what you are deliberately *not* defending against — is required at G2
 above, and is the section that separates a G2 Survey from a G1 one. At G2 an assessor
 will ask, and the difference between a threat considered and dismissed and one nobody
 raised is exactly what they are asking about.
+
+S3.4 — threats — is what S3.3 chooses from. Work it from the trust boundaries the
+earlier sections already found: every inbound S2.3 interface and every walkthrough hop
+where data arrives from something you do not control. Draft candidate `TH-` rows from
+the prompts, mark them `proposed`, and ask the user to correct them, the same as any
+other section. Do not let a row stand without a disposition: `designed` names the
+`IV-`, `FM-`, or `DEC-` row that answers it, `not defended` moves it to S3.3 with a
+name, and `open` makes it an `OPEN-` that blocks whatever rests on it. The user is
+rarely a security specialist and does not need to be. The prompts are plain questions
+on purpose; your job is to keep asking them at each boundary until they stop producing
+rows, and to say when a boundary was skipped.
 
 ### S4 Spans — hold the readiness test
 Enumerate every decision surface first, *then* judge readiness. Judging as you go
