@@ -3,9 +3,9 @@
 | | |
 |---|---|
 | **Overlay** | `overlays/servicenow` · machine-readable projection in `servicenow.json` |
-| **Version** | 1.17 |
-| **Ratified against** | Decision Spine v0.8 · Gate configuration v0.9 · Build DNA v1.18 |
-| **Reconciled at** | Causeway 2.16.0. History, not a currency claim — the row above is what CI enforces. |
+| **Version** | 1.18 |
+| **Ratified against** | Decision Spine v0.8 · Gate configuration v0.9 · Build DNA v2.0 |
+| **Reconciled at** | Causeway 3.0.0. History, not a currency claim — the row above is what CI enforces. |
 | **Applies to** | Development, configuration, and integration work delivered on a ServiceNow instance |
 | **Governs** | Nothing. Causeway core governs. See `overlays/README.md`. |
 
@@ -45,6 +45,18 @@
 > What 1.2 adds is `overlays/servicenow.json`: the same overlay, machine-readable.
 > §1 also now states the posture the rest of the document has always assumed and
 > never wrote down. Both exist for the same reason — see below.
+
+> ## Ratified again at 1.18
+>
+> **Build DNA moved to 2.0** (ADR 0061): `AGENTS.md` became a numbered rules card
+> and the argument moved to `docs/build-dna/`. The section numbers this overlay
+> cites are unchanged, so every `§N` reference below still lands. Two rules moved
+> in substance. §7's *one prompt, one commit* became *one pull request, one commit
+> on main*, enforced by squash merging (ADR 0065); §7's row below is re-read
+> against it. §8 gains *the approver's merge is the approval* (ADR 0065); the
+> named-approver rows still need a name, so no disposition moved.
+>
+> **No row moved.**
 
 > ## Ratified again at 1.17
 >
@@ -599,7 +611,7 @@ deviation-by-ADR shape.
 | §5 The registry is inside the boundary | The Store is a registry. So is every spoke publisher. So is npm, if a widget build exists. |
 | §6 Definition of green | **ATF suite passing, Instance Scan clean, and zero unacknowledged skip records.** A build with failing ATF or an unread Instance Scan finding is red, whatever the demo looked like. |
 | §6 The build and the test path reach nothing | Cannot be taken literally: ATF runs *on an instance*, so the test path reaches the instance under test by construction. The honest translation is **the merge-gating suite reaches nothing beyond that instance** — no live spoke, no vendor sandbox, no production integration; integration surfaces are mocked, which is what the `contract-tests` row in §8 already asks of ATF. Contract tests against a live spoke are legitimate, named, and kept out of the gate, exactly as core says. The local-cache clause applies in full to a widget or UI Builder npm build and has no equivalent for platform artifacts, because a Store install is not a build step. **Declared gap:** a scoped application has no offline build in §6's sense — the instance is the build environment — and this overlay says so rather than inventing one. |
-| §7 One prompt, one commit | Applies to the app repository. Update-set-only delivery makes it unobservable — see §6. |
+| §7 One pull request, one commit on main | Applies to the app repository, where squash merging enforces it. Update-set-only delivery has no pull request to squash and makes it unobservable — see §6. |
 | §8 Exceptions register | Doubles as the **customization ledger**: one row per modified out-of-box artifact, each with an ADR and a revisit date. At upgrade, *what did we touch* already exists instead of being archaeology. |
 | §8 Thin project files | The app's `CLAUDE.md` carries instance URLs per environment, scope name, table inventory with license class, integration endpoints, and its exceptions rows. Everything else is imported. |
 | §8 The open-items index | **A separate register from the customization ledger, and merging them loses both.** A ledger row is a deviation somebody owns; an open item is a question an ADR declined to answer. The platform has two native surfaces that look like open items and are not — **skip records at upgrade and Instance Scan findings are inputs, not entries**: a finding becomes an index item only when an ADR reads it and leaves something open, and until then it belongs in the queue it came from. One platform-specific way to get this wrong: **the index is a property of the application, not of the instance.** Eleven inherited-row ADRs are identical across every app on an instance (open item 7), so an instance-wide index is a tempting economy, and it makes an item's status ambiguous the first time two apps disagree about it — the same error §9's row warns about for profiles, one register over. **Declared gap:** update-set-only delivery has no repository to keep `decisions/open-items.json` in, which is the same missing surface that leaves five input classes unsuppliable in §8, and this overlay declares it rather than nominating a table to stand in. **Relations are the only mechanism this overlay has for a finding about core.** The containment rules say an overlay may not change a row, a flag or a check, so when §10 concludes something about core the overlay can record it and nothing else — and three of its eight items said *the finding belongs upstream* while two of them had no upstream item to name. That is the platform-specific shape of the rule: on a platform whose overlay is forbidden from fixing what it finds, an `upstream_of` edge with a real target is the difference between a finding that is owned and one that is merely written down. Standard v1.11.0 opened gate configuration items 11 and 12 to be those targets. |

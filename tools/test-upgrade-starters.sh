@@ -54,8 +54,8 @@ printf '* @lantern/engineering\n' > "$P/.github/CODEOWNERS"
 
 bash "$STANDARD_DIR/tools/upgrade-starters.sh" "$P" --out "$WORK/r0" > "$WORK/r0.txt"
 n_up="$(grep -c '^  up-to-date' "$WORK/r0.txt" || true)"
-[ "$n_up" -eq 9 ] && ok "against the release it was seeded from, all nine starters are up-to-date" \
-  || bad "against the release it was seeded from, all nine starters are up-to-date" "$n_up up-to-date"
+[ "$n_up" -eq 10 ] && ok "against the release it was seeded from, all ten starters are up-to-date" \
+  || bad "against the release it was seeded from, all ten starters are up-to-date" "$n_up up-to-date"
 
 # ── Report: says what would happen, writes nothing ───────────────────────────
 
@@ -155,9 +155,9 @@ bash "$STANDARD_DIR/tools/sync.sh" "$P" >/dev/null 2>&1
 rm "$P/START-HERE.md"
 bash "$STANDARD_DIR/tools/sync.sh" "$P" >/dev/null 2>&1
 [ "$(grep -c ' START-HERE.md ' "$P/.causeway/starters.txt")" -eq 1 ] \
-  && [ "$(grep -vc '^#' "$P/.causeway/starters.txt")" -eq 9 ] \
-  && ok "re-seeding one starter replaces its line and keeps the other eight" \
-  || bad "re-seeding one starter replaces its line and keeps the other eight"
+  && [ "$(grep -vc '^#' "$P/.causeway/starters.txt")" -eq 10 ] \
+  && ok "re-seeding one starter replaces its line and keeps the other nine" \
+  || bad "re-seeding one starter replaces its line and keeps the other nine"
 
 echo ""
 echo "$PASS passed, $FAIL failed"

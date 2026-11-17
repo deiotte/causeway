@@ -136,12 +136,13 @@ If something here looks "wrong" against the standard, check that table first —
 it may be wrong on purpose, with an ADR saying why. Rediscovering a deliberate
 deviation and "fixing" it is the most expensive way to read that table.
 
-**3. One prompt, one commit; tests ship with the behavior.** One request to your
-assistant produces one commit you could revert on its own. New or changed
+**3. One purpose per pull request; tests ship with the behavior.** A pull request
+does one thing, and it lands on the default branch as one squash-merged commit you
+could revert on its own, so the commits on your branch are only working notes. New or changed
 behavior arrives with tests in the same change, including the unhappy paths —
 bad input, 401/403, timeouts. These are the two things a reviewer will notice
-you skipped. (Exploring? Declare it as a spike in the branch name or PR body,
-and rewrite it into clean commits before it merges.)
+you skipped. (Exploring? Declare it as a spike in the branch name or PR body.
+It lands as one commit like everything else.)
 
 **4. A contested choice needs an ADR.** If you or your assistant weighed a real
 alternative — this library or that one, this data shape or that one — that

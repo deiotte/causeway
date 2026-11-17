@@ -679,13 +679,60 @@ else
     "Recorded:$(echo "$ev" | sed 's/.*\*\*Gate evaluator:\*\*//' | cut -c1-80)"
 fi
 
+# ── Coverage — what the setup is being used for. ADR 0063. ───────────────────
+#
+# Until v3.0.0 this report ended at setup, and a project with every starter
+# filled in read "complete" while 2 of its 94 spine rows were closed and no ADR
+# cited a constraint. Both are true, and only the second says whether the record
+# is any use. So doctor now states the coverage beside the setup, measured by the
+# vendored reference evaluator rather than by a second implementation here, and
+# says plainly when it could not measure it. Coverage is reported, not scored: it
+# is not a finding, and it never changes doctor's exit status.
+
+COV_STATE="not-measured"; COV_LINE="not measured — tools/evaluate.py or python3 is not available here"
+COV_JSON='{ "state": "not-measured" }'
+if command -v python3 >/dev/null 2>&1 && [ -f tools/evaluate.py ] && [ -f system.json ]; then
+  cov="$(python3 -I tools/evaluate.py . --json --advisory 2>/dev/null | python3 -c '
+import json, os, re, sys, glob
+try:
+    r = json.load(sys.stdin)
+except Exception:
+    sys.exit(1)
+c = r.get("checks", {}).get("class-scoped-closure", {}).get("evidence", {})
+if "rows_in_scope" not in c:
+    sys.exit(1)
+accepted = forces = 0
+for p in sorted(glob.glob("decisions/[0-9]*.md")):
+    try:
+        fm = open(p, encoding="utf-8").read().split("---", 2)[1]
+    except (UnicodeDecodeError, IndexError):
+        continue
+    if re.search(r"^status:\s*Accepted\b", fm, re.M):
+        accepted += 1
+        m = re.search(r"^forces:\s*\[(.*?)\]", fm, re.M | re.S)
+        if m and re.search(r"[A-Z]+-\d+", m.group(1)):
+            forces += 1
+survey = next((s for s in ("survey.md", "SURVEY.md", "docs/survey.md", "docs/SURVEY.md", "decisions/survey.md") if os.path.isfile(s)), "")
+closed, scope, waived = c["rows_closed"], c["rows_in_scope"], len(c["rows_waived"])
+state = "complete" if closed + waived >= scope else ("none" if closed + waived == 0 else "partial")
+print(state, closed, scope, waived, accepted, forces, survey or "-", r.get("profile", ""), sep="|")
+' 2>/dev/null)" || cov=""
+  if [ -n "$cov" ]; then
+    IFS='|' read -r COV_STATE c_closed c_scope c_waived c_acc c_forces c_survey c_profile <<< "$cov"
+    [ "$c_survey" = "-" ] && c_survey_h="none" || c_survey_h="$c_survey"
+    COV_LINE="spine $c_closed/$c_scope rows closed at $c_profile, $c_waived waived · forces cited by $c_forces of $c_acc accepted ADRs · survey: $c_survey_h"
+    COV_JSON="{ \"state\": \"$COV_STATE\", \"profile\": \"$c_profile\", \"rows_in_scope\": $c_scope, \"rows_closed\": $c_closed, \"rows_waived\": $c_waived, \"accepted_adrs\": $c_acc, \"adrs_citing_forces\": $c_forces, \"survey\": $([ "$c_survey" = "-" ] && echo null || echo "\"$c_survey\"") }"
+  fi
+fi
+
 # ── Report ───────────────────────────────────────────────────────────────────
 
 n_ok=0; n_inc=0; n_unv=0
 for s in "${STATUSES[@]}"; do
   case "$s" in ok) n_ok=$((n_ok+1));; incomplete) n_inc=$((n_inc+1));; unverified) n_unv=$((n_unv+1));; esac
 done
-if [ "$n_inc" -gt 0 ]; then ADOPTION="incomplete"; else ADOPTION="complete-except-unverified"; fi
+# "setup-", because setup is all this state measures. Coverage is beside it.
+if [ "$n_inc" -gt 0 ]; then ADOPTION="incomplete"; else ADOPTION="setup-complete-except-unverified"; fi
 [ "$INSTALLED" -eq 1 ] || ADOPTION="not-installed"
 
 if [ "$JSON" -eq 1 ]; then
@@ -697,6 +744,7 @@ if [ "$JSON" -eq 1 ]; then
   printf '    "integrity": "%s",\n' "$INTEGRITY"
   printf '    "adoption": "%s",\n' "$ADOPTION"
   printf '    "evaluated": "not-determined-by-doctor"\n  },\n'
+  printf '  "coverage": %s,\n' "$COV_JSON"
   printf '  "placement": { "state": "%s", "tier": "%s", "criticality_class": "%s" },\n' \
     "$PLACEMENT_STATE" "$(esc "$P_TIER")" "$(esc "$P_CLASS")"
   printf '  "counts": { "ok": %d, "incomplete": %d, "unverified": %d },\n' "$n_ok" "$n_inc" "$n_unv"
@@ -730,6 +778,7 @@ echo "  installed:   $([ "$INSTALLED" -eq 1 ] && echo yes || echo no)"
 echo "  integrity:   $INTEGRITY"
 echo "  placement:   $PLACEMENT_STATE"
 echo "  adoption:    $ADOPTION  ($n_ok ok, $n_inc incomplete, $n_unv unverified)"
+echo "  coverage:    $COV_LINE"
 echo "  evaluated:   not determined here — doctor checks setup, not the gate."
-echo "               Run your evaluator against gate/checks.json for a verdict."
+echo "               python3 tools/evaluate.py runs the checks it implements; ADR 0063."
 exit 0

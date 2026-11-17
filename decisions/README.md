@@ -114,8 +114,11 @@ The process layer's content.
 | ADR | Decision | Status |
 |---|---|---|
 | [0002](0002-disfavor-npm-hosted-dependencies.md) | Treat the package registry as inside the authorization boundary, and disfavor npm | Accepted |
-| [0003](0003-one-prompt-one-commit.md) | Bind one commit to one prompt, and gate only the part CI can see | Accepted |
+| [0003](0003-one-prompt-one-commit.md) | Bind one commit to one prompt, and gate only the part CI can see. Superseded by 0065. | Superseded |
 | [0022](0022-publish-build-dna-1.6.md) | Publish Build DNA 1.6 — adoption contract, declared gaps, pinning, offline builds, gate routing | Accepted |
+| [0061](0061-load-a-rules-card-and-read-the-argument-on-demand.md) | Load a rules card and read the argument on demand — AGENTS.md becomes a numbered card, and the reasoning moves to docs/build-dna/ | Accepted |
+| [0064](0064-backfill-systems-that-already-exist-and-upgrade-in-one-pull-request.md) | Backfill systems that already exist, and upgrade in one pull request — two skills for the adoption Causeway actually gets | Accepted |
+| [0065](0065-the-pull-request-is-the-unit-and-the-merge-is-the-approval.md) | The pull request is the unit of work, it lands as one commit, and the approver's merge is the approval | Accepted |
 
 ### Decision Spine
 
@@ -139,6 +142,7 @@ What an engine owes, what it reads, and how a check earns the right to block.
 | [0006](0006-promote-tests-with-source.md) | Promote tests-with-source on its definition, behind a derived release marker | Accepted |
 | [0009](0009-publish-the-engine-contract.md) | Publish the engine contract — standard bundle, check specifications, conformance fixtures | Accepted |
 | [0033](0033-read-release-evidence-not-tag-topology.md) | Read release evidence, not tag topology | Accepted |
+| [0063](0063-ship-a-reference-evaluator-and-report-coverage.md) | Ship a reference evaluator for a slice of the gate, and make doctor report coverage beside setup | Accepted |
 
 ### Platform overlays
 
@@ -174,6 +178,7 @@ Pinning, signing, and installing — which copy, and how anyone would know if it
 | [0052](0052-configure-from-a-page-built-from-the-env-example.md) | Configure from a page built from `.env.example` — vendor the setup tool, and make the four field lessons rules | Accepted |
 | [0053](0053-enforce-setup-and-distribution-boundaries.md) | Enforce setup origins, private file writes, destination ancestry and signed content | Proposed |
 | [0054](0054-sign-only-reviewed-code-and-scan-the-merge-path.md) | Sign only reviewed code, from main's definition, and scan this repository's merge path for credentials | Proposed |
+| [0062](0062-install-skills-and-agent-settings-where-the-agent-looks.md) | Install skills and agent settings where the agent looks — skill pointers under .claude/skills/, and a seeded .claude/settings.json | Accepted |
 
 ### The standard's own CI and record-keeping
 

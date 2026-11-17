@@ -6,12 +6,27 @@
   and front-load the critical parts.
 -->
 
-## House standard (imported — read first)
+## Rules that outlive a single change
+
+<!--
+  The most useful lines in this file, so they come first, above the standard.
+  Each one is a thing that is expensive or impossible to undo once violated,
+  stated as a rule with its reason in one line: an output whose bytes someone
+  else recomputes, a boundary that decides who owns the code, a decision that is
+  locked and why. Numbered, so a review can cite one. Keep this list short; if
+  it grows past a screen, the rest belongs in docs/ and an ADR. Build DNA 2.0.
+-->
+
+1. [The rule.] — [Why, in one line. The ADR that records it.]
+
+## House standard (imported)
 
 @AGENTS.md
 
-> Everything below is this project's specifics and any documented, owned
-> deviations from the standard.
+> `AGENTS.md` is the rules card: short, numbered, loaded every session. The
+> reasoning behind each rule is in `docs/build-dna/`, and the procedures are skills
+> under `.claude/skills/causeway-*`. Everything below is this project's specifics
+> and any documented, owned deviations from the standard.
 >
 > **New here?** `CONTRIBUTING.md` walks a new developer through setup, the gate,
 > and a first pull request, in order. This file is the reference it points at.

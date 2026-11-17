@@ -36,6 +36,21 @@ BUNDLE_FILES=(
   "VERSION"
   "RELEASED"
   "AGENTS.md"
+  # The argument behind the rules card, one file per section. Digested with the
+  # card because the card cites it for every rule: a project that edited its copy
+  # would keep the rule and quietly change the reason. ADR 0061.
+  "docs/build-dna/00-layering-and-roles.md"
+  "docs/build-dna/01-north-star.md"
+  "docs/build-dna/02-services-by-default.md"
+  "docs/build-dna/03-adapters-and-pinning.md"
+  "docs/build-dna/04-brownfield.md"
+  "docs/build-dna/05-security-as-code.md"
+  "docs/build-dna/06-testable-reliable-observable.md"
+  "docs/build-dna/07-building-with-ai.md"
+  "docs/build-dna/08-adr-discipline.md"
+  "docs/build-dna/09-guidance-versus-enforcement.md"
+  "docs/build-dna/10-fun-clause.md"
+  "docs/build-dna/open-items.md"
   "gate/profiles.json"
   "gate/checks.json"
   "gate/gate-configuration.md"
@@ -67,6 +82,9 @@ BUNDLE_FILES=(
   # A project that quietly edited either would still be calling the result a
   # Survey while §8's rules read a different artifact. See ADR 0031.
   "skills/survey/SKILL.md"
+  # Brownfield intake and the upgrade procedure. ADR 0064.
+  "skills/backfill/SKILL.md"
+  "skills/upgrade/SKILL.md"
   "templates/adr-template.md"
   "templates/adr-waiver-template.md"
   "templates/adr-retroactive-template.md"
@@ -88,6 +106,8 @@ BUNDLE_FILES=(
   "tools/doctor.sh"
   "tools/field-notes.sh"
   "tools/impact.sh"
+  # The reference evaluator. ADR 0063.
+  "tools/evaluate.py"
   # The setup page and its tests. ADR 0052.
   "tools/setup/setup.py"
   "tools/setup/env_schema.py"

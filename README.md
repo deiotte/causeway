@@ -8,7 +8,7 @@ Working code leaves questions unanswered. Can the data leave this environment? W
 
 Causeway puts those answers beside the code, links them, and defines checks that a separate evaluator can apply. You do more explicit thinking and recordkeeping up front so future work has something reliable to build on.
 
-**Status:** the standard, installer, diagnostics, change-impact tool, and conformance fixtures are implemented. This repository does not ship the product gate evaluator. Reduced rework, faster delivery, and successful independent adoption remain unmeasured.
+**Status:** the standard, installer, diagnostics, change-impact tool, conformance fixtures, and a reference evaluator for a slice of the gate are implemented. The reference evaluator runs 8 of the 29 checks and reports the rest as unsupported; a conforming engine for the whole contract does not exist yet. Reduced rework, faster delivery, and successful independent adoption remain unmeasured.
 
 ## Why develop this way?
 
@@ -70,26 +70,27 @@ Causeway also has architectural opinions: services by default, vendor adapters, 
 
 ## Try the shipped tools on Linux
 
-This example installs the published **v2.10.0** archive into an empty, disposable project. Acquisition needs internet access; installation and the diagnostics run offline. Use Bash, Python 3, GNU command-line utilities, tar, curl, and OpenSSH with signing support.
+This example installs the **v3.0.0** archive into an empty, disposable project. Acquisition needs internet access; installation and the diagnostics run offline. Use Bash, Python 3, GNU command-line utilities, tar, curl, and OpenSSH with signing support. The version here is checked against `VERSION` by `tools/validate.py`, so it moves with every release.
 
 ```bash
 mkdir causeway-trial
 cd causeway-trial
 
-curl -fLO https://github.com/deiotte/causeway/releases/download/v2.10.0/causeway-2.10.0.tar.gz
-curl -fLO https://github.com/deiotte/causeway/releases/download/v2.10.0/causeway-2.10.0.tar.gz.sha256
-sha256sum -c causeway-2.10.0.tar.gz.sha256
-tar -xzf causeway-2.10.0.tar.gz
+curl -fLO https://github.com/deiotte/causeway/releases/download/v3.0.0/causeway-3.0.0.tar.gz
+curl -fLO https://github.com/deiotte/causeway/releases/download/v3.0.0/causeway-3.0.0.tar.gz.sha256
+sha256sum -c causeway-3.0.0.tar.gz.sha256
+tar -xzf causeway-3.0.0.tar.gz
 
 mkdir project
-bash causeway-2.10.0/tools/sync.sh "$PWD/project" --require-release
+bash causeway-3.0.0/tools/sync.sh "$PWD/project" --require-release
 cd project
 bash tools/check-drift.sh
 bash tools/verify-release.sh
 bash tools/doctor.sh --json
+python3 tools/evaluate.py --coverage
 ```
 
-The review downloaded and exercised this release. The checksum and signature verified; the drift check verified 32 members of what was then a 34-file bundle, with the two optional ServiceNow files absent (the 43-file consumer bundle at this release adds the setup tool's five files, the Recon template, the Recon intake page, and the agent-workspace rule and its starter settings, which that review predates). Doctor reported:
+The 58-file consumer bundle now carries the rules card and its argument in `docs/build-dna/`, the reference evaluator, and the backfill and upgrade skills; the sync also installs Claude Code skill pointers under `.claude/skills/causeway-*` and seeds `.claude/settings.json`. This install path is exercised on every pull request against an archive signed with a throwaway key (`tools/test-release-archive.sh`); the last download of a published archive that a review exercised end to end was v2.10.0. On a fresh sync, doctor reports:
 
 ```json
 {
@@ -100,6 +101,8 @@ The review downloaded and exercised this release. The checksum and signature ver
 }
 ```
 
+beside a `coverage` block that says how many spine rows are closed at the project's profile, how many accepted ADRs cite the constraints they rest on, and whether a Survey exists.
+
 These are distinct states. You have installed a standard; you have not supplied your project's constraints, decisions, reviewers, policy reference, evaluator, or merge enforcement. Doctor lists missing setup and remedies. It is advisory and exits zero even with findings; it is not a CI pass/fail gate.
 
 The signature verifies against the bundled public key. Establish trust in that key independently if the delivery channel is untrusted. The checksum detects a mismatch with its sidecar; the sidecar alone does not authenticate the publisher.
@@ -109,7 +112,7 @@ The signature verifies against the bundled public key. Establish trust in that k
 The source repository carries the fuller synthetic example described above:
 
 ```bash
-git clone --branch v2.10.0 --depth 1 https://github.com/deiotte/causeway.git causeway-source
+git clone --branch v3.0.0 --depth 1 https://github.com/deiotte/causeway.git causeway-source
 cd causeway-source
 bash tools/test-impact.sh
 ```
@@ -138,7 +141,7 @@ Measure the trial: onboarding effort, monthly upkeep, a decision the intake chan
 | Shared engineering instructions | Build DNA, topic rules, coding-tool pointers | Instructions cannot enforce agent behavior or approve a release |
 | Distribution | Manifest, pinning, drift detection, signed-release verification, installer, starter upgrades | Integrity checks cover specified surfaces; handled rollback does not establish crash-atomic installation |
 | Ongoing maintenance | Adoption doctor, constraint-impact reports, field-note queue | Advisory reports depend on the records supplied; no automatic disposition or design change |
-| Product evaluation | 29 check definitions, 16 input classes, four profiles, eight verdicts, receipt contract | The executable evaluator and evidence infrastructure belong elsewhere |
+| Product evaluation | 29 check definitions, 16 input classes, four profiles, eight verdicts, receipt contract; `tools/evaluate.py`, a reference evaluator for 8 checks | The reference evaluator writes no receipt and reports 21 checks unsupported; a full engine and evidence infrastructure belong elsewhere |
 | Evaluator conformance | 9 fixtures over 5 checks | They do not establish compatibility across all 29 checks |
 | ServiceNow | Optional responsibility/evidence mapping and JSON projection; overlay 1.14 | No ServiceNow connector, ATF runner, Instance Scan collector, or complete evidence-to-receipt integration |
 
@@ -152,7 +155,7 @@ Review date: **2026-10-30**. Security-review baseline: [`5e74d00`](https://githu
 
 | Locally executed evidence | Result | What it supports |
 |---|---|---|
-| `tools/validate.py` | 850 assertions passed | Internal agreement among the standard's artifacts and guarded references |
+| `tools/validate.py` | 897 assertions passed | Internal agreement among the standard's artifacts and guarded references |
 | Bundle and adapter checks | Passed | Manifest reproduction and shipped skill pointers |
 | Setup parser, launch, HTTP, and file-write tests | 50 run; one expected skip, no failures | Covered loopback-origin checks, token handling, private atomic writes, `.env` git exclusion, and existing setup behavior |
 | Credential scan / release-authorization suites | 21 / 14 passed; no failures | Synthetic provider-shaped fixtures found in tree and history without echoing them; suppressions exact and named; only a stable release tag on main is authorized. The scan of this repository's tree and history found nothing. Repository settings that hold the signing key (ADR 0054) are not verifiable from a checkout |
@@ -161,7 +164,7 @@ Review date: **2026-10-30**. Security-review baseline: [`5e74d00`](https://githu
 | Throwaway signed-archive / stub publication suites | 13 / 12 passed; no failures | Covered signature/tampering refusals and publication orchestration; no production key-custody assurance |
 | Published archive installation | Not repeated on current release assets | Prior v2.10.0 published-archive validation is historical; this review used disposable-key archive fixtures |
 
-No external product evaluator was run in this review. Independent team outcomes, evaluator coverage of the complete contract, and the return on recordkeeping remain unestablished. The standard's index records 33 open items across four registers; tracked gaps are not closed controls.
+No external product evaluator was run in this review. Independent team outcomes, evaluator coverage of the complete contract, and the return on recordkeeping remain unestablished. The standard's index records 34 open items across four registers; tracked gaps are not closed controls.
 
 Release signatures attest the declared contract bundle identity. The bundle digest does not cover the whole archive: installer code, adapters, and several project-owned starters sit outside it. Run drift verification as well as signature verification. Operational key lifecycle, receipt storage, access controls, retention, and replay need their own implementation and evidence.
 
@@ -169,7 +172,8 @@ Release signatures attest the declared contract bundle identity. The bundle dige
 
 | Path | Purpose |
 |---|---|
-| `AGENTS.md` | Engineering defaults and role obligations |
+| `AGENTS.md` | The rules card: engineering defaults and role obligations, numbered |
+| `docs/build-dna/` | The argument behind each rule, one file per section, and Build DNA's open items |
 | `rules/` | Topic-specific engineering guidance |
 | `skills/` | Survey, Decision Spine, placement, policy references, and field-note methods |
 | `templates/` | Project starters, Recon and its register, Survey, ADRs, waivers, and field notes |

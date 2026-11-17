@@ -67,7 +67,7 @@ is the design and not a breach.
 
 | Field | What it tells you |
 |---|---|
-| `status` | `Proposed`, `Accepted`, `Deferred`, `Waived`, `Deprecated`, `Superseded`. Only `Accepted` is a decision in force. |
+| `status` | `Proposed`, `Accepted`, `Deferred`, `Waived`, `Deprecated`, `Superseded`. Only `Accepted` is a decision in force. Write a new ADR `Accepted` in the pull request that carries it: the approver's review and merge is the approval (Build DNA 8.7). Use `Proposed` only when the approver asks to hold it open. |
 | `spine_rows` | The Decision Spine rows this closes. Empty is legitimate for a process-only decision; say so in a comment. |
 | `door` | `one-way` or `two-way`, read from the spine row. One-way doors close before production code. |
 | `approver` | A named person, required on the eight † rows. A role is not a name. |

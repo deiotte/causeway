@@ -1,7 +1,8 @@
 ---
 adr: "0000"
 title: <short imperative title — the decision, not the topic>
-status: Proposed        # Proposed | Accepted | Deferred | Waived | Deprecated | Superseded
+status: Accepted        # Accepted when the approver's merge of this PR is the approval (Build DNA 8.7);
+                        # Proposed only to hold it open. Also: Deferred | Waived | Deprecated | Superseded
 date: YYYY-MM-DD
 spine_rows: [SA-0.0]    # design-layer rows this ADR closes. Required.
 survey_rows: []         # the Survey DEC- row this came from. Optional; copied, not authored.
