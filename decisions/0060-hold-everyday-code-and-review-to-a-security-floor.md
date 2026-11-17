@@ -1,7 +1,7 @@
 ---
 adr: "0060"
 title: Hold everyday code and review to a security floor — a broader security rule, a patch-window rule, and security prompts in the PR and ADR templates
-status: Proposed
+status: Accepted
 date: 2026-11-16
 spine_rows: []         # process layer only; closes no design row
 survey_rows: []
@@ -12,8 +12,8 @@ revisit_if: Pull requests in an adopting project routinely tick the Security box
   changes that plainly moved a boundary. Either means the prompts became ceremony and
   need to be fewer or sharper.
 approver:
-  name:
-  role: Maintainer review pending
+  name: Karl
+  role: Maintainer
 supersedes:
 superseded_by:
 supersession_cause:
