@@ -96,6 +96,20 @@ echo "Causeway standard v$VERSION ($RELEASED) -> $TARGET"
 # Files vendored verbatim. Anything not on this list is the project's own.
 VENDORED=(
   "AGENTS.md"
+  # The argument behind the rules card. Vendored so "read the section a change
+  # touches" can be followed with no clone of the standard. ADR 0061.
+  "docs/build-dna/00-layering-and-roles.md"
+  "docs/build-dna/01-north-star.md"
+  "docs/build-dna/02-services-by-default.md"
+  "docs/build-dna/03-adapters-and-pinning.md"
+  "docs/build-dna/04-brownfield.md"
+  "docs/build-dna/05-security-as-code.md"
+  "docs/build-dna/06-testable-reliable-observable.md"
+  "docs/build-dna/07-building-with-ai.md"
+  "docs/build-dna/08-adr-discipline.md"
+  "docs/build-dna/09-guidance-versus-enforcement.md"
+  "docs/build-dna/10-fun-clause.md"
+  "docs/build-dna/open-items.md"
   "skills/decision-spine/SKILL.md"
   "skills/decision-spine/reference/spine.md"
   "skills/decision-spine/reference/gate-profiles.md"
@@ -121,6 +135,14 @@ VENDORED=(
   # it called one, and the ADR fields that cite its row IDs would be reading a
   # different artifact than the one the readiness test was written against.
   "skills/survey/SKILL.md"
+  # Intake for a system that already exists, and the upgrade procedure. Vendored
+  # for the reason the Survey is: a project whose agent improvised either would
+  # still be calling the result a backfill or an upgrade. ADR 0064.
+  "skills/backfill/SKILL.md"
+  "skills/upgrade/SKILL.md"
+  # The reference evaluator. Runs in the consuming project, so it travels with
+  # the standard the way doctor.sh does. ADR 0063.
+  "tools/evaluate.py"
   "gate/profiles.json"
   "gate/checks.json"
   "gate/gate-configuration.md"
@@ -603,6 +625,19 @@ plan_managed "$STANDARD_DIR/adapters/GEMINI.md" "GEMINI.md"
 plan_managed "$STANDARD_DIR/adapters/.cursor/rules/causeway.mdc" ".cursor/rules/causeway.mdc"
 plan_managed "$STANDARD_DIR/adapters/copilot-instructions.md" ".github/copilot-instructions.md"
 
+# Claude Code skill pointers (ADR 0062). Claude Code discovers skills under
+# .claude/skills/ and nowhere else, so a skill vendored at skills/ alone is a
+# skill an agent learns of only if it reads the adapter that names it. Each
+# pointer carries the vendored skill's own description and sends the agent to
+# the vendored file. The causeway- prefix is Causeway's namespace there: those
+# directories are replaced on every sync, and a project's own skills sit beside
+# them untouched.
+for ptr in "$STANDARD_DIR"/adapters/claude-skills/causeway-*/SKILL.md; do
+  [ -f "$ptr" ] || continue
+  rel="${ptr#"$STANDARD_DIR"/adapters/claude-skills/}"
+  plan_always "$ptr" ".claude/skills/$rel"
+done
+
 # The license travels with the copy (ADR 0037). Apache-2.0 asks anyone who
 # redistributes the standard to pass on LICENSE and NOTICE, and vendoring is the
 # first step of every redistribution, so the copy carries both from the start.
@@ -627,6 +662,15 @@ if [ -f "$TARGET/CLAUDE.md" ] && ! links_to_agents "CLAUDE.md" \
   NOTES+=("               @AGENTS.md")
   NOTES+=("           CLAUDE.md.causeway shows the current shim in full.")
 fi
+
+# The coding agent's committed deny list (ADR 0058), seeded rather than left
+# for the project to copy. Until v3.0.0 the template was vendored and the copy
+# was an instruction; none of the three adopting projects surveyed for ADR 0062
+# had made it. Seeded once and owned thereafter: a project adds to it, and a
+# re-sync never takes a rule away.
+plan_seed "$STANDARD_DIR/templates/agent-settings.json" ".claude/settings.json" \
+  "  created .claude/settings.json from templates/agent-settings.json — review the deny list and commit it" \
+  "  .claude/settings.json exists, left alone (templates/agent-settings.json is the current starter)"
 
 # The open-items index, seeded on the same terms as CLAUDE.md and for the same
 # reason: sync.sh writes the shape once and the project owns the content. An

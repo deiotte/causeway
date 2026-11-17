@@ -27,6 +27,66 @@ at the time, because none were.
 
 ---
 
+## v3.0.0 — 2026-11-17
+
+The builder's release: what an agent loads, where it finds the procedures, and
+whether anyone can see the record being used. Major, for three reasons a pinned
+project would notice: `AGENTS.md` is restructured into a rules card (Build DNA
+2.0), doctor's setup state is renamed, and ADR 0003's one-prompt-one-commit rule
+is superseded. No gate check changes its semantics, no verdict or input contract
+moved, the profile matrix is unchanged, and no spine row moved. The ServiceNow
+overlay is re-ratified at 1.18 against Build DNA 2.0 with no row moved.
+
+**Breaking, and what to do about it.**
+
+- **`AGENTS.md` is a rules card** (ADR 0061). About 11 KB instead of 61 KB: numbered
+  rules under the same ten section numbers, one line of reason each. Every `§N`
+  citation still resolves. The argument moved verbatim to `docs/build-dna/`, one
+  file per section, vendored and digested with the card. A project that quoted a
+  paragraph of the old essay should now cite the rule number (`8.7`) or the
+  argument file.
+- **Doctor's setup state `complete-except-unverified` is now
+  `setup-complete-except-unverified`** (ADR 0063), because setup is all it
+  measures. A script that matched the old string must be updated.
+- **ADR 0003 is superseded by ADR 0065.** The pull request is the unit of work, it
+  lands on `main` as one squashed commit, and the approver's merge is the approval:
+  an ADR is written `Accepted` with the approver named, and merging it is the
+  sign-off. Projects that require a separate approval edit may keep doing so.
+
+**Added.**
+
+- **`tools/evaluate.py`, a reference evaluator** (ADR 0063), vendored into every
+  project. It runs the five checks the conformance fixtures pin and the three
+  closure checks, reports every other required check `unsupported`, and exits 4
+  on a real project as the contract says it must. `--advisory` exits 0 for a warn
+  cycle, `--coverage` prints the closure counts, `--conform` runs the fixtures
+  (9 of 9 match). Build DNA open item 12 records what it does not do.
+- **Doctor reports coverage beside setup**: spine rows closed of rows in scope at
+  the profile, waived rows, accepted ADRs citing `forces`, and whether a Survey
+  exists. A report, never a finding; doctor still exits zero.
+- **`skills/backfill/`** (ADR 0064): bring an existing system under the decision
+  record by writing the Ground its decisions rest on and closing rows with
+  coverage or retroactive ADRs that cite it.
+- **`skills/upgrade/`** (ADR 0064): move a project to a newer published release in
+  one pull request whose body starts with what the reviewer does in the GitHub web
+  UI.
+- **Skills and agent settings where the agent looks** (ADR 0062). `sync.sh`
+  installs a pointer skill per Causeway skill under `.claude/skills/causeway-*/`
+  and seeds `.claude/settings.json` from `templates/agent-settings.json`;
+  `upgrade-starters.sh` offers upgrades to it like any other starter.
+  `render-adapters.sh` generates the pointers.
+- **`validate.py` guards** the card's size, that every section has its argument
+  file, and that the README's install URLs name the current version.
+- **The project `CLAUDE.md` template puts the project's own durable rules first**,
+  above the import.
+
+**Open items.** Build DNA item 9 (skills a consumer's agent cannot find) closed by
+ADR 0062. Items 12 (the evaluator covers a slice) and 13 (a second ADR register
+cannot be read) opened. Build DNA's register moved to
+`docs/build-dna/open-items.md`, numbers unchanged.
+
+---
+
 ## v2.16.0 — 2026-11-16
 
 Known vulnerabilities, static analysis, and security in everyday review. Minor:

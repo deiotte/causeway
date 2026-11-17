@@ -1,14 +1,14 @@
 ---
 adr: "0003"
 title: Bind one commit to one prompt, and gate only the part CI can see
-status: Accepted
+status: Superseded
 date: 2026-08-08
 spine_rows: []
 approver:
   name: Karl
   role: CTO
 supersedes:
-superseded_by:
+superseded_by: "0065"
 ---
 
 ## Context

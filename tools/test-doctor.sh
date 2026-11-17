@@ -65,10 +65,10 @@ python3 -c "import json;d=json.load(open('$WORK/doc.json'));assert d['format']==
   || bad "a fresh sync is installed and intact, adoption incomplete, evaluation not claimed"
 fresh_incomplete="$(python3 -c "import json
 print(' '.join(sorted(f['id'] for f in json.load(open('$WORK/doc.json'))['findings'] if f['status']=='incomplete')))")"
-want="agent.settings ci.drift gate.evaluator install.release placement.system_json policy.reference reviewers.codeowners starter.CLAUDE.md starter.CONTRIBUTING.md starter.START-HERE.md starter.open_items starter.pull_request_template.md"
+want="ci.drift gate.evaluator install.release placement.system_json policy.reference reviewers.codeowners starter.CLAUDE.md starter.CONTRIBUTING.md starter.START-HERE.md starter.open_items starter.pull_request_template.md"
 [ "$fresh_incomplete" = "$want" ] \
-  && ok "a fresh sync is incomplete on exactly the twelve things a sync cannot do" \
-  || bad "a fresh sync is incomplete on exactly the twelve things a sync cannot do" "got: $fresh_incomplete"
+  && ok "a fresh sync is incomplete on exactly the eleven things a sync cannot do" \
+  || bad "a fresh sync is incomplete on exactly the eleven things a sync cannot do" "got: $fresh_incomplete"
 expect "branch protection is unverified, never passed" reviewers.required unverified
 expect "required checks are unverified, never passed" ci.required unverified
 python3 -c "import json
@@ -129,7 +129,7 @@ JSON
 mkdir -p "$P/.claude"; cp "$P/templates/agent-settings.json" "$P/.claude/settings.json"
 doctor "$P"
 n_inc="$(python3 -c "import json;print(json.load(open('$WORK/doc.json'))['counts']['incomplete'])")"
-[ "$n_inc" = 0 ] && [ "$(state adoption)" = complete-except-unverified ] \
+[ "$n_inc" = 0 ] && [ "$(state adoption)" = setup-complete-except-unverified ] \
   && ok "a configured project has nothing incomplete; the settings stay unverified" \
   || bad "a configured project has nothing incomplete; the settings stay unverified" \
          "$(python3 -c "import json;print([f['id'] for f in json.load(open('$WORK/doc.json'))['findings'] if f['status']=='incomplete'])")"

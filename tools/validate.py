@@ -239,6 +239,30 @@ check("AGENTS.md declares a parseable document version",
       "expected a '**Version:** N.N' line in the header")
 
 
+# The rules card stays a card. ADR 0061 split a 61 KB essay into a numbered card
+# that every adopting session loads and an argument read on demand. Nothing but
+# this check stops the card from growing back one well-meant paragraph at a time.
+CARD_MAX_LINES, CARD_MAX_BYTES = 250, 14000
+card_bytes = len(agents.encode("utf-8"))
+card_lines = agents.count("\n")
+check(f"AGENTS.md is a rules card: at most {CARD_MAX_LINES} lines and {CARD_MAX_BYTES} bytes",
+      card_lines <= CARD_MAX_LINES and card_bytes <= CARD_MAX_BYTES,
+      f"{card_lines} lines, {card_bytes} bytes. Move argument to docs/build-dna/, "
+      "or raise the bound in an ADR that says why the card needs it.")
+for sec in range(1, 11):
+    check(f"AGENTS.md §{sec} has its argument file in docs/build-dna/",
+          any((ROOT / "docs/build-dna").glob(f"{sec:02d}-*.md")),
+          f"no docs/build-dna/{sec:02d}-*.md")
+
+# The front door installs the version this tree is. Until v3.0.0 the README's
+# trial still installed v2.10.0 six releases later, because nothing compared it
+# to VERSION. ADR 0061.
+trial_versions = set(re.findall(r"releases/download/v([0-9.]+)/", read("README.md")))
+check("README's trial installs the version in VERSION",
+      trial_versions == {version},
+      f"README downloads {sorted(trial_versions)}, VERSION is {version}")
+
+
 # ── 8. Spine counts tie to the table ────────────────────────────────────────
 
 # Scoped to the nine section tables. The Authority section cross-lists the eight
@@ -1513,8 +1537,10 @@ check("every file the archive declares exists",
 # Overlays reach the archive through the same find(1) globs build-bundle.sh
 # uses, so they are correct by construction and are excluded from the literal
 # comparisons below rather than restated.
+# The Build DNA argument files and the Claude Code skill pointers are found the
+# same way (ADRs 0061 and 0062).
 def _globbed(path: str) -> bool:
-    return path.startswith("overlays/")
+    return path.startswith(("overlays/", "docs/build-dna/", "adapters/claude-skills/"))
 
 # The statement and its signature are appended only when the tree has been
 # signed, so they cannot appear in the static list. They must still be named in

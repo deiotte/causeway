@@ -47,6 +47,7 @@ VERSION="$(cat "$STANDARD_DIR/VERSION")"
 STARTERS=(
   "templates/project-CLAUDE.md:CLAUDE.md"
   "templates/open-items.json:decisions/open-items.json"
+  "templates/agent-settings.json:.claude/settings.json"
   "templates/decisions-README.md:decisions/README.md"
   "templates/practitioner-START-HERE.md:START-HERE.md"
   "templates/contributor-START-HERE.md:CONTRIBUTING.md"

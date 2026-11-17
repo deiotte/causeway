@@ -2,12 +2,12 @@
   "$comment": "The open-items index. Every numbered open item this repository carries, in one place, with its state. Build DNA §8 states the rule; tools/validate.py §17 checks this file against the four registers it names.",
   "$authority": "This file owns an item's STATE — status, the ADRs that opened and closed it, the version each happened in, its register and number. It does not own the item's ARGUMENT, which stays in the prose entry and is the reason the entry keeps its number when it closes. Where this file and a prose entry disagree about status, the disagreement is a build failure rather than a precedence rule: one of the two is wrong and a commit that moved only one of them is the defect.",
   "$not_gate_input": "No gate check reads this file. The gate has 29 checks and none of them is 'the index is current' — see AGENTS.md open item 6, which records that gap rather than closing it by assertion.",
-  "$attribution": "opened_by and closed_by are null where the record does not state them: null for 21 items of 43, across 4 registers whose history predates this index. Two rounds of renumbering ran through that history, and inventing an attribution to fill a cell would be manufacturing exactly the evidence this repository refuses to manufacture elsewhere. Null means 'not attributable from the record', not 'nobody opened it'. Every item opened from v1.10.0 forward carries its ADR. These three numbers are anchored in tools/validate.py and derive from the items below — the first version of this sentence said six registers, a count left over from a draft that included two README lists deliberately excluded from the index, and nothing checked it. ADR 0027.",
+  "$attribution": "opened_by and closed_by are null where the record does not state them: null for 21 items of 45, across 4 registers whose history predates this index. Two rounds of renumbering ran through that history, and inventing an attribution to fill a cell would be manufacturing exactly the evidence this repository refuses to manufacture elsewhere. Null means 'not attributable from the record', not 'nobody opened it'. Every item opened from v1.10.0 forward carries its ADR. These three numbers are anchored in tools/validate.py and derive from the items below — the first version of this sentence said six registers, a count left over from a draft that included two README lists deliberately excluded from the index, and nothing checked it. ADR 0027.",
   "schema_version": "1.0",
-  "standard_version": "2.16.0",
+  "standard_version": "3.0.0",
   "registers": {
     "build-dna": {
-      "document": "AGENTS.md",
+      "document": "docs/build-dna/open-items.md",
       "section": "Open items",
       "label": "Build DNA",
       "numbers_stable_since": "1.6"
@@ -122,7 +122,7 @@
       "blocked_on": [
         "gate-check-decision"
       ],
-      "$note": "The field-note clause of the candidate check — no note undisposed past an age the project chose — has its instrument since ADR 0048 (standard v2.8.0): tools/field-notes.sh reports age against the project's own respond_within_days, and doctor.sh summarises it. Still advisory; the age is the project's, and the check is still not in the gate."
+      "$note": "The field-note clause of the candidate check — no note undisposed past an age the project chose — has its instrument since ADR 0048 (standard v2.8.0): tools/field-notes.sh reports age against the project's own respond_within_days, and doctor.sh summarises it. Still advisory; the age is the project's, and the check is still not in the gate. Field evidence at standard v3.0.0: an adopting project derives the index from ADR frontmatter (scripts/check-decisions.py --write) and fails CI on disagreement; see the entry."
     },
     {
       "id": "build-dna-7",
@@ -156,14 +156,11 @@
       "register": "build-dna",
       "number": 9,
       "title": "A pointer is not discovery",
-      "status": "open",
+      "status": "closed",
       "opened_by": "0029",
       "opened_in": "Build DNA 1.10",
-      "closed_by": null,
-      "closed_in": null,
-      "blocked_on": [
-        "first-adopter-evidence"
-      ]
+      "closed_by": "0062",
+      "closed_in": "Build DNA 2.0"
     },
     {
       "id": "build-dna-10",
@@ -615,11 +612,41 @@
         "first-adopter-evidence"
       ],
       "$note": "Opened by the release that vendored tools/setup. §6's Configure, set up, run rests on one project, one maintainer, three field runs on one Linux workstation. Closes against a second adopter's report or a field note naming a case the four rules do not cover."
+    },
+    {
+      "id": "build-dna-12",
+      "register": "build-dna",
+      "number": 12,
+      "title": "The reference evaluator covers a slice, not the contract",
+      "status": "open",
+      "opened_by": "0063",
+      "opened_in": "Build DNA 2.0",
+      "closed_by": null,
+      "closed_in": null,
+      "blocked_on": [
+        "conformance-schema"
+      ],
+      "$note": "Adoption-horizon arithmetic and waiver reading are not implemented; closure checks report unsupported when closed_against is older than the vendored spine."
+    },
+    {
+      "id": "build-dna-13",
+      "register": "build-dna",
+      "number": 13,
+      "title": "A second ADR register cannot be read",
+      "status": "open",
+      "opened_by": "0064",
+      "opened_in": "Build DNA 2.0",
+      "closed_by": null,
+      "closed_in": null,
+      "blocked_on": [
+        "first-adopter-evidence"
+      ],
+      "$note": "An adopting project's separate concept-documents register. Candidate: a system.json external-register declaration plus an ID-to-row mapping file, designed after that project's backfill runs."
     }
   ],
   "counts": {
-    "open": 33,
-    "closed": 10,
-    "total": 43
+    "open": 34,
+    "closed": 11,
+    "total": 45
   }
 }

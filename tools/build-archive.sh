@@ -98,6 +98,8 @@ ARCHIVE_FILES=(
   "skills/decision-spine/reference/references.md"
   "skills/field-note/SKILL.md"
   "skills/survey/SKILL.md"
+  "skills/backfill/SKILL.md"
+  "skills/upgrade/SKILL.md"
   "rules/security.md"
   "rules/secrets.md"
   "rules/database.md"
@@ -134,6 +136,7 @@ ARCHIVE_FILES=(
   "tools/doctor.sh"
   "tools/field-notes.sh"
   "tools/impact.sh"
+  "tools/evaluate.py"
   # The setup page and its tests. ADR 0052.
   "tools/setup/setup.py"
   "tools/setup/env_schema.py"
@@ -154,6 +157,16 @@ done < <(find overlays -name '*.md' | LC_ALL=C sort)
 while IFS= read -r o; do
   ARCHIVE_FILES+=("$o")
 done < <(find overlays -name '*.json' | LC_ALL=C sort)
+
+# The argument behind the rules card, and the Claude Code skill pointers sync.sh
+# installs from it. Found rather than listed, like the overlays, so a section or
+# a skill added later cannot be left out of the archive. ADRs 0061 and 0062.
+while IFS= read -r o; do
+  ARCHIVE_FILES+=("$o")
+done < <(find docs/build-dna -name '*.md' | LC_ALL=C sort)
+while IFS= read -r o; do
+  ARCHIVE_FILES+=("$o")
+done < <(find adapters/claude-skills -name 'SKILL.md' | LC_ALL=C sort)
 
 # The signature material, when this tree has been signed. Carried *inside* the
 # archive rather than published beside it, so that the whole trust chain is one

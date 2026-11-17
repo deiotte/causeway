@@ -175,6 +175,14 @@ jobs:
         if: '!cancelled()'
         run: ./tools/test-impact.sh
 
+      # ADR 0063. The reference evaluator matches every conformance fixture,
+      # never reports an unsupported check as a pass, and honors the exit codes.
+      - name: The reference evaluator matches the conformance fixtures
+        if: '!cancelled()'
+        run: |
+          python3 -I tools/evaluate.py --conform
+          ./tools/test-evaluate.sh
+
       - name: Drift detection actually detects drift
         if: '!cancelled()'
         run: |

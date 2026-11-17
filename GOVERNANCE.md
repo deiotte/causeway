@@ -26,9 +26,17 @@ are made the way the standard tells everyone else to make them.
    gets an ADR in `decisions/`, by Build DNA §8.
 3. **The ADR is the record.** It names the alternatives, the forces that decided
    between them, and the issue it came from. If your issue shaped it, it says so.
-4. **The change ships in a release.** `VERSION`, `RELEASED` and `CHANGELOG.md` move
-   together, and the release is signed (ADR 0019) and published as a reproducible
-   archive (ADR 0030).
+   It arrives `Accepted` in the pull request that carries the change, and the
+   maintainer's review and merge of that pull request is the approval (ADR 0065).
+   Pull requests land by squash merge only, one commit each.
+4. **The change ships in a release, promptly.** `VERSION`, `RELEASED` and
+   `CHANGELOG.md` move together, and the release is signed (ADR 0019) and published
+   as a reproducible archive (ADR 0030). A version that reaches `main` is
+   published as a release before the next version is started: adopting projects
+   can only pin what is published, and versions that never ship strand the
+   changes in them. To publish from the web UI: Releases → *Draft a new release* →
+   choose the tag `vX.Y.Z` (*create new tag on publish*, target `main`) → *Publish
+   release*, then watch the `release-candidate` and `release` runs in Actions.
 
 The standard's own CI — `tools/validate.py` and the steps in
 `.github/workflows/standard.yml` — must be green before anything merges. The

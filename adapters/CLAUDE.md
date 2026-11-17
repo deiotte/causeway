@@ -19,6 +19,16 @@
   of a first session with a problem owner, a probe to scope, and an estimate that
   shows what it rests on, for a go/no-go.
 
+- `skills/backfill/` — bring a system that already exists under the decision
+  record: existing decisions become Ground rows and closed spine rows. Invoked
+  when Causeway arrived after the build, when most spine rows are open on a system
+  that has answers, or when `impact.sh` finds nothing.
+- `skills/upgrade/` — move the project to a newer published Causeway release in
+  one reviewable pull request. Invoked when asked to upgrade, re-sync or re-pin.
+
+`tools/sync.sh` also installs each of these as `.claude/skills/causeway-<name>/`,
+where Claude Code discovers it without this list.
+
 ## Precedence
 
 managed policy > this file / project rules > user (~/.claude/CLAUDE.md)

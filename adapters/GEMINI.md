@@ -19,3 +19,11 @@ working on a system whose ADRs keep getting rewritten — read
 ready to be recorded at all. Earlier still — a first session with the person who
 owns a problem, a proof of concept to scope, an estimate or roadmap for a go/no-go —
 the same skill runs a Recon (`templates/recon.md`) to decide whether to build at all.
+
+When Causeway arrived after the system was built — most spine rows open on a
+system that plainly has answers, ADRs with empty `forces`, `impact.sh` finding
+nothing — read `skills/backfill/SKILL.md`. It turns decisions the project has
+already made into Ground rows and closed spine rows without re-arguing them.
+
+When asked to upgrade, re-sync or re-pin Causeway, read `skills/upgrade/SKILL.md`.
+It produces one reviewable pull request from the signed release archive.
