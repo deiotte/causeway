@@ -27,6 +27,22 @@ at the time, because none were.
 
 ---
 
+## v3.0.1 — 2026-11-18
+
+A patch to the agent starter settings that v3.0.0 began seeding. Nothing anyone owes
+changed: no gate check, verdict, input contract, profile cell or spine row moved, and
+Build DNA stays at 2.0.
+
+- **Agents may push a branch without a prompt** (ADR 0066). The starter
+  `.claude/settings.json` asked before every `git push`. Once v3.0.0 seeded it into
+  every project, an agent in a cloud session stopped at that prompt with nobody to
+  answer it, and the first project to adopt v3.0.0 had to write its own ADR to carve
+  it out. The rule is removed. Force-push stays denied, and the human step is the
+  pull request merge (ADR 0065) on a protected default branch. A project that wants
+  the prompt can add it to its own settings. `upgrade-starters.sh` offers the change.
+
+---
+
 ## v3.0.0 — 2026-11-17
 
 The builder's release: what an agent loads, where it finds the procedures, and

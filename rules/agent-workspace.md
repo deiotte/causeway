@@ -68,8 +68,12 @@ it is there. What it does, and what it leaves alone on purpose:
   cloud, SSH, container and package-registry credentials in the home directory.
   `.env.example` stays readable, because the setup page (Build DNA §6) is built from it
   and it must never hold a real value.
-- **Denies `sudo`, printing the environment, and force-pushing.** Asks before any
-  other push.
+- **Denies `sudo`, printing the environment, and force-pushing.** An ordinary push
+  is allowed without a prompt. A push to a branch is reversible and reaches nothing
+  until a person merges the pull request it opens, and that merge is the approval
+  (Build DNA 7.6, ADR 0065). The control on `main` is branch protection, not a
+  prompt in the agent's session: a prompt stalls every cloud or unattended session
+  and protects nothing a protected branch does not. ADR 0066.
 - **Turns the bypass mode off**, and does not auto-enable MCP servers a repository
   declares.
 - **Does not turn on the sandbox.** Claude Code's sandbox (`sandbox.enabled`) is the
