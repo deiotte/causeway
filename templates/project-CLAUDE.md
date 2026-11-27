@@ -104,3 +104,12 @@ Deviations from the standard. Every row needs an ADR.
 - **Rows in scope:** [94 / 89 / 23]
 - **Register:** `decisions/`
 - **Last review:**
+
+## Open items
+
+Numbered, and the numbers are never reused. Each item's state lives in
+`decisions/open-items.json`, which names this heading as the `project` register;
+the argument lives here. `tools/check-register.py` fails if this heading moves
+and the index is not told.
+
+1. **[REPLACE — the first thing an ADR left open, or delete this line and the example item in the index.]**

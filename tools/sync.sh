@@ -125,6 +125,8 @@ VENDORED=(
   # .claude/settings.json. Vendored with the rule that explains it. ADR 0058.
   "templates/agent-settings.json"
   "skills/decision-spine/reference/references.md"
+  # How an ADR is written so it is true. Read by the adr-author agent. ADR 0068.
+  "skills/decision-spine/reference/writing-an-adr.md"
   # The practitioner capture path, vendored so an agent in a consuming project
   # reads the same interview rules and the same note shape the standard ships.
   # A project whose agent invented its own interview would be collecting
@@ -140,9 +142,17 @@ VENDORED=(
   # still be calling the result a backfill or an upgrade. ADR 0064.
   "skills/backfill/SKILL.md"
   "skills/upgrade/SKILL.md"
+  # The agents, vendored for the reason the skills are: the .claude/agents/
+  # pointers send Claude Code here, and any other tool's agent reads them as
+  # instructions from the adapter. ADRs 0068 and 0069.
+  "agents/adr-author.md"
+  "agents/security-reviewer.md"
   # The reference evaluator. Runs in the consuming project, so it travels with
   # the standard the way doctor.sh does. ADR 0063.
   "tools/evaluate.py"
+  # The register check. Runs in the consuming project and reads evaluate.py's
+  # parser, so it travels beside it. ADR 0067.
+  "tools/check-register.py"
   "gate/profiles.json"
   "gate/checks.json"
   "gate/gate-configuration.md"
@@ -636,6 +646,15 @@ for ptr in "$STANDARD_DIR"/adapters/claude-skills/causeway-*/SKILL.md; do
   [ -f "$ptr" ] || continue
   rel="${ptr#"$STANDARD_DIR"/adapters/claude-skills/}"
   plan_always "$ptr" ".claude/skills/$rel"
+done
+
+# Claude Code agent pointers (ADR 0068), on the skill pointers' terms: Claude
+# Code discovers subagents under .claude/agents/, each pointer sends the agent
+# to the vendored agents/<name>.md, and the causeway- prefix is the namespace.
+# Replaced on every sync; a project's own agents beside them are never touched.
+for ptr in "$STANDARD_DIR"/adapters/claude-agents/causeway-*.md; do
+  [ -f "$ptr" ] || continue
+  plan_always "$ptr" ".claude/agents/$(basename "$ptr")"
 done
 
 # The license travels with the copy (ADR 0037). Apache-2.0 asks anyone who

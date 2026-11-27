@@ -115,6 +115,14 @@ jobs:
           test -f "$PROJECT/decisions/README.md" \
             || { echo "no decisions/README.md seeded"; exit 1; }
 
+          # The agents land where Claude Code looks, and the seeded record
+          # already ties: the starters agree with each other (ADRs 0067, 0068).
+          for a in adr-author security-reviewer; do
+            test -f "$PROJECT/.claude/agents/causeway-$a.md" \
+              || { echo "no .claude/agents/causeway-$a.md installed"; exit 1; }
+          done
+          python3 -I "$PROJECT/tools/check-register.py" "$PROJECT"
+
           # The lock's digest must be the one the bundle actually published.
           LOCK_DIGEST="$(grep '^digest=' "$PROJECT/.causeway-lock" | cut -d= -f2-)"
           BUNDLE_DIGEST="$(python3 -c \
@@ -182,6 +190,12 @@ jobs:
         run: |
           python3 -I tools/evaluate.py --conform
           ./tools/test-evaluate.sh
+
+      # ADR 0067. The register check passes a record that ties and names each
+      # way one does not.
+      - name: The register check finds a record that does not tie
+        if: '!cancelled()'
+        run: ./tools/test-check-register.sh
 
       - name: Drift detection actually detects drift
         if: '!cancelled()'

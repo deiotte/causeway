@@ -212,5 +212,8 @@ otherwise (ADR 0063).
 | Closing rows on a system that already exists | `causeway-backfill` skill |
 | Moving a project to a new Causeway release | `causeway-upgrade` skill |
 | A practitioner's field knowledge | `causeway-field-note` skill |
+| Writing or revising an ADR | `causeway-adr-author` agent; `skills/decision-spine/reference/writing-an-adr.md` |
+| Whether the decision record ties | `python3 tools/check-register.py` |
+| A security review of a change, against the project's `TH-` rows | `causeway-security-reviewer` agent |
 | Topic rules (security, secrets, tests, dependencies, inference, agents) | `rules/` |
 | Build DNA's own open items | `docs/build-dna/open-items.md` |

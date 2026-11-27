@@ -119,6 +119,8 @@ The process layer's content.
 | [0061](0061-load-a-rules-card-and-read-the-argument-on-demand.md) | Load a rules card and read the argument on demand — AGENTS.md becomes a numbered card, and the reasoning moves to docs/build-dna/ | Accepted |
 | [0064](0064-backfill-systems-that-already-exist-and-upgrade-in-one-pull-request.md) | Backfill systems that already exist, and upgrade in one pull request — two skills for the adoption Causeway actually gets | Accepted |
 | [0065](0065-the-pull-request-is-the-unit-and-the-merge-is-the-approval.md) | The pull request is the unit of work, it lands as one commit, and the approver's merge is the approval | Accepted |
+| [0067](0067-check-that-a-projects-decision-record-ties.md) | Check that a project's decision record ties — a shipped register check, warn-only, read by doctor | Accepted |
+| [0068](0068-write-adrs-that-are-true-about-the-tree-and-ship-an-author-agent.md) | Write ADRs that are true about the tree — a writing procedure in the Decision Spine, and an adr-author agent installed where Claude Code looks | Accepted |
 
 ### Decision Spine
 
@@ -212,6 +214,7 @@ Roles, intake, and front doors.
 | [0066](0066-let-an-agent-push-a-branch-without-a-prompt.md) | Let an agent push a branch without a prompt — the merge is the human step, and branch protection guards main | Accepted |
 | [0059](0059-check-known-vulnerabilities-and-static-analysis.md) | Check known vulnerabilities against a remediation window, and static analysis for unjustified errors — two advisory gate checks | Accepted |
 | [0060](0060-hold-everyday-code-and-review-to-a-security-floor.md) | Hold everyday code and review to a security floor — a broader security rule, a patch-window rule, and security prompts in the PR and ADR templates | Accepted |
+| [0069](0069-review-changes-against-the-projects-own-threat-list.md) | Review changes against the project's own threat list — a security-reviewer agent that reads the Survey's TH- rows | Accepted |
 
 ### Publication and governance
 

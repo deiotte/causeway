@@ -195,6 +195,13 @@ These are the reason the spine works. Enforce them even when the user pushes.
    unrecoverable exposure, say plainly that it needs the ISSM and a date in the
    ADR, not a design discussion.
 
+8. **An ADR never describes the system as doing something it does not do.**
+   Before writing one, read the code it governs and the register it joins;
+   *Evidence* cites paths that exist, or says plainly that it is not built yet;
+   *Consequences* include the costs. `reference/writing-an-adr.md` is the
+   procedure, and the `causeway-adr-author` agent follows it when the record is
+   more than a stub. Run `tools/check-register.py` before handing it back.
+
 ---
 
 ## Anti-patterns
@@ -224,6 +231,7 @@ These are the reason the spine works. Enforce them even when the user pushes.
 | `reference/placement.md` | Before scoping, when `tier` or `criticality_class` does not exist yet or is being challenged. How a system arrives at both, and how a placement changes. |
 | `reference/gate-profiles.md` | Gate, CI, promotion, or Tactical Authorization questions. |
 | `reference/references.md` | Someone asks why a row exists or what to read on it. |
+| `reference/writing-an-adr.md` | Before writing or revising any ADR. Reading the code first, the number and the name, status as a claim about the tree, and what lands in the same pull request. |
 
 The spine is the design layer. `AGENTS.md` at the repo root is the process
 layer. They meet at the ADR and nowhere else — if you find yourself explaining

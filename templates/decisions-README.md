@@ -89,9 +89,10 @@ By family, not by number: the number says when, the family says what it is about
 One row per ADR, added in the pull request that adds the file. A superseded ADR
 keeps its row and gains a pointer.
 
-Nothing checks this index in a consuming project yet — the same gap Build DNA
-open item 6 records for `open-items.json`. A row missing here is a decision
-nobody can find from the front, and the reviewer is the check.
+`tools/check-register.py` warns when an ADR has no row here, and checks
+`open-items.json` against the ADRs it names (ADR 0067). It is warn-only; a row
+missing here is a decision nobody can find from the front, and the reviewer is
+still the check that matters.
 
 ### [FAMILY — e.g. "Data model", "Integration boundary", "Platform"]
 

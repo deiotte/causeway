@@ -4,7 +4,7 @@
   "$not_gate_input": "No gate check reads this file. The gate has 29 checks and none of them is 'the index is current' — see AGENTS.md open item 6, which records that gap rather than closing it by assertion.",
   "$attribution": "opened_by and closed_by are null where the record does not state them: null for 21 items of 45, across 4 registers whose history predates this index. Two rounds of renumbering ran through that history, and inventing an attribution to fill a cell would be manufacturing exactly the evidence this repository refuses to manufacture elsewhere. Null means 'not attributable from the record', not 'nobody opened it'. Every item opened from v1.10.0 forward carries its ADR. These three numbers are anchored in tools/validate.py and derive from the items below — the first version of this sentence said six registers, a count left over from a draft that included two README lists deliberately excluded from the index, and nothing checked it. ADR 0027.",
   "schema_version": "1.0",
-  "standard_version": "3.0.1",
+  "standard_version": "3.1.0",
   "registers": {
     "build-dna": {
       "document": "docs/build-dna/open-items.md",
@@ -122,7 +122,7 @@
       "blocked_on": [
         "gate-check-decision"
       ],
-      "$note": "The field-note clause of the candidate check — no note undisposed past an age the project chose — has its instrument since ADR 0048 (standard v2.8.0): tools/field-notes.sh reports age against the project's own respond_within_days, and doctor.sh summarises it. Still advisory; the age is the project's, and the check is still not in the gate. Field evidence at standard v3.0.0: an adopting project derives the index from ADR frontmatter (scripts/check-decisions.py --write) and fails CI on disagreement; see the entry."
+      "$note": "The field-note clause of the candidate check — no note undisposed past an age the project chose — has its instrument since ADR 0048 (standard v2.8.0): tools/field-notes.sh reports age against the project's own respond_within_days, and doctor.sh summarises it. Still advisory; the age is the project's, and the check is still not in the gate. Field evidence at standard v3.0.0: an adopting project derives the index from ADR frontmatter (scripts/check-decisions.py --write) and fails CI on disagreement; see the entry. Standard v3.1.0 ships the candidate warn-only as tools/check-register.py (ADR 0067), reported by doctor as decisions.register; still not a gate check."
     },
     {
       "id": "build-dna-7",
