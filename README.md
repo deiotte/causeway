@@ -70,19 +70,19 @@ Causeway also has architectural opinions: services by default, vendor adapters, 
 
 ## Try the shipped tools on Linux
 
-This example installs the **v3.1.1** archive into an empty, disposable project. Acquisition needs internet access; installation and the diagnostics run offline. Use Bash, Python 3, GNU command-line utilities, tar, curl, and OpenSSH with signing support. The version here is checked against `VERSION` by `tools/validate.py`, so it moves with every release.
+This example installs the **v3.1.0** archive into an empty, disposable project. Acquisition needs internet access; installation and the diagnostics run offline. Use Bash, Python 3, GNU command-line utilities, tar, curl, and OpenSSH with signing support. The version here is checked against `VERSION` by `tools/validate.py`, so it moves with every release.
 
 ```bash
 mkdir causeway-trial
 cd causeway-trial
 
-curl -fLO https://github.com/deiotte/causeway/releases/download/v3.1.1/causeway-3.1.1.tar.gz
-curl -fLO https://github.com/deiotte/causeway/releases/download/v3.1.1/causeway-3.1.1.tar.gz.sha256
-sha256sum -c causeway-3.1.1.tar.gz.sha256
-tar -xzf causeway-3.1.1.tar.gz
+curl -fLO https://github.com/deiotte/causeway/releases/download/v3.1.0/causeway-3.1.0.tar.gz
+curl -fLO https://github.com/deiotte/causeway/releases/download/v3.1.0/causeway-3.1.0.tar.gz.sha256
+sha256sum -c causeway-3.1.0.tar.gz.sha256
+tar -xzf causeway-3.1.0.tar.gz
 
 mkdir project
-bash causeway-3.1.1/tools/sync.sh "$PWD/project" --require-release
+bash causeway-3.1.0/tools/sync.sh "$PWD/project" --require-release
 cd project
 bash tools/check-drift.sh
 bash tools/verify-release.sh
@@ -112,7 +112,7 @@ The signature verifies against the bundled public key. Establish trust in that k
 The source repository carries the fuller synthetic example described above:
 
 ```bash
-git clone --branch v3.1.1 --depth 1 https://github.com/deiotte/causeway.git causeway-source
+git clone --branch v3.1.0 --depth 1 https://github.com/deiotte/causeway.git causeway-source
 cd causeway-source
 bash tools/test-impact.sh
 ```

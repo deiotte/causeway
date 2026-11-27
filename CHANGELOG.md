@@ -27,12 +27,11 @@ at the time, because none were.
 
 ---
 
-## v3.1.1 — 2026-11-27
+## Unreleased
 
-A patch to the register check v3.1.0 shipped. The first projects to run it found
-three places where it disagreed with a record that was correct. Nothing anyone owes
-changed: no gate check, verdict, input contract, profile cell or spine row moved, and
-Build DNA stays at 2.0. ADR 0070.
+For the next patch release. The register check v3.1.0 shipped disagreed with three
+records that were correct. Nothing anyone owes changes: no gate check, verdict, input
+contract, profile cell or spine row moves, and Build DNA stays at 2.0. ADR 0070.
 
 - **Ranges under *Unused numbers* count.** `0001 to 0008`, `0001–0008` and the like
   now cover every number between their ends. v3.1.0 found only the two ends and warned
@@ -44,8 +43,8 @@ Build DNA stays at 2.0. ADR 0070.
 - **A correction is not a duplicate.** An ADR that corrects another (Build DNA 8.4)
   and restates its rows no longer warns that two live ADRs close one row.
 
-**Upgrading.** Re-sync from the v3.1.1 archive with the `causeway-upgrade` skill.
-`upgrade-starters.sh` offers the one-line change to `decisions/open-items.json`.
+**Upgrading.** Re-sync from the next release's archive with the `causeway-upgrade`
+skill. `upgrade-starters.sh` offers the one-line change to `decisions/open-items.json`.
 
 ---
 

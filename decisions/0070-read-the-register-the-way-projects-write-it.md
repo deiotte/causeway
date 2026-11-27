@@ -83,5 +83,5 @@ Each is the checker asking for a record the standard does not ask for.
   offered change to `decisions/open-items.json`, the way every starter change does
   (ADR 0046).
 
-Ships in v3.1.1, a patch: no gate check, verdict, input contract, profile cell or
-spine row moves.
+Ships in the next patch release: no gate check, verdict, input contract, profile
+cell or spine row moves.
