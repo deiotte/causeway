@@ -29,6 +29,16 @@
 `tools/sync.sh` also installs each of these as `.claude/skills/causeway-<name>/`,
 where Claude Code discovers it without this list.
 
+## Agents available in this repo
+
+- `agents/adr-author.md` — drafts or revises an ADR in `decisions/` after reading
+  the code it governs. Hand it any ADR that is more than a stub.
+- `agents/security-reviewer.md` — reviews a change against the project's own
+  threat list (the Survey's `TH-` rows) and `rules/security.md`. Reads; never
+  edits or approves.
+
+`tools/sync.sh` installs each as `.claude/agents/causeway-<name>.md`.
+
 ## Precedence
 
 managed policy > this file / project rules > user (~/.claude/CLAUDE.md)

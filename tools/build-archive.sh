@@ -96,10 +96,13 @@ ARCHIVE_FILES=(
   # .claude/settings.json. Vendored with the rule that explains it. ADR 0058.
   "templates/agent-settings.json"
   "skills/decision-spine/reference/references.md"
+  "skills/decision-spine/reference/writing-an-adr.md"
   "skills/field-note/SKILL.md"
   "skills/survey/SKILL.md"
   "skills/backfill/SKILL.md"
   "skills/upgrade/SKILL.md"
+  "agents/adr-author.md"
+  "agents/security-reviewer.md"
   "rules/security.md"
   "rules/secrets.md"
   "rules/database.md"
@@ -137,6 +140,7 @@ ARCHIVE_FILES=(
   "tools/field-notes.sh"
   "tools/impact.sh"
   "tools/evaluate.py"
+  "tools/check-register.py"
   # The setup page and its tests. ADR 0052.
   "tools/setup/setup.py"
   "tools/setup/env_schema.py"
@@ -167,6 +171,10 @@ done < <(find docs/build-dna -name '*.md' | LC_ALL=C sort)
 while IFS= read -r o; do
   ARCHIVE_FILES+=("$o")
 done < <(find adapters/claude-skills -name 'SKILL.md' | LC_ALL=C sort)
+# The agent pointers, found the same way. ADR 0068.
+while IFS= read -r o; do
+  ARCHIVE_FILES+=("$o")
+done < <(find adapters/claude-agents -name '*.md' | LC_ALL=C sort)
 
 # The signature material, when this tree has been signed. Carried *inside* the
 # archive rather than published beside it, so that the whole trust chain is one

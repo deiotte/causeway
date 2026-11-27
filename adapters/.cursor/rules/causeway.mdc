@@ -32,3 +32,8 @@ already made into Ground rows and closed spine rows without re-arguing them.
 
 When asked to upgrade, re-sync or re-pin Causeway, read `skills/upgrade/SKILL.md`.
 It produces one reviewable pull request from the signed release archive.
+
+When writing or revising an ADR, read `agents/adr-author.md` and follow it: read
+the code the decision governs first, and never describe the system as doing
+something it does not do. When reviewing a change for security, read
+`agents/security-reviewer.md` and review against the project's own `TH-` rows.

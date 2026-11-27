@@ -82,6 +82,15 @@ comes to reference a different item than the one it closed.
    is not the prose parsing this item feared: the derivation reads frontmatter,
    which is structured by construction. It is the strongest candidate for this
    item's check and wants a second project before it is promoted upstream.
+   v3.1.0 ships that candidate as a tool rather than a gate check (ADR 0067):
+   `tools/check-register.py` reads a consuming project's ADRs and index and
+   reports what does not tie, and doctor reports its result as
+   `decisions.register` without failing on it. Run against the adopted projects
+   for that ADR, it found a fault in the standard's own starters: the seeded index
+   named a register heading the seeded `CLAUDE.md` did not have. Still owed before
+   this item closes: a second project running it in CI for a release, a number in
+   `checks.json`, the clause that every ADR naming an open item has a row, and the
+   field-note age clause.
 7. **Nothing checks a count stated in an ADR.** Every derived count in a living
    document is anchored — the README's, and the index's own sentences about itself.
    An ADR's are not, and ADRs 0025 and 0026 shipped six wrong ones between them,

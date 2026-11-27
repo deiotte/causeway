@@ -1540,7 +1540,8 @@ check("every file the archive declares exists",
 # The Build DNA argument files and the Claude Code skill pointers are found the
 # same way (ADRs 0061 and 0062).
 def _globbed(path: str) -> bool:
-    return path.startswith(("overlays/", "docs/build-dna/", "adapters/claude-skills/"))
+    return path.startswith(("overlays/", "docs/build-dna/", "adapters/claude-skills/",
+                            "adapters/claude-agents/"))
 
 # The statement and its signature are appended only when the tree has been
 # signed, so they cannot appear in the static list. They must still be named in

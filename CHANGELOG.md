@@ -27,6 +27,47 @@ at the time, because none were.
 
 ---
 
+## v3.1.0 — 2026-11-27
+
+Three practices adopting projects built for themselves, brought upstream with the
+project-specific parts removed. A minor release: nothing anyone owes changed. No gate
+check, verdict, input contract, profile cell or spine row moved; gate configuration
+stays at 0.9, the spine at 0.8, and Build DNA at 2.0 (the card gains three rows in
+*Where the rest lives* and no rule).
+
+- **A register check for consuming projects** (ADR 0067). `tools/check-register.py`
+  reads `decisions/` and `decisions/open-items.json` and reports violations (an ADR the
+  gate cannot parse, a row the spine does not have, supersession or correction named one
+  way, a supersession with no S1–S5 cause, a row dropped by a supersession, an item
+  pointing at an ADR nobody wrote, counts that do not derive) and warnings (two live
+  ADRs on one row, an unlisted skipped number, an ADR missing from the index). It reuses
+  `evaluate.py`'s parser. Exit 1 on violations, 0 on warnings unless `--strict`.
+  `doctor.sh` reports it as `decisions.register` and never fails on it. Build DNA open
+  item 6 stays open: it is a tool, not a gate check.
+- **The seeded `CLAUDE.md` has an *Open items* heading.** The seeded open-items index
+  has always named that heading as its `project` register; the seeded `CLAUDE.md` never
+  had it, so every fresh sync started with a register pointing at nothing. The register
+  check found it. `upgrade-starters.sh` offers the change.
+- **Writing an ADR that is true about the tree** (ADR 0068). New
+  `skills/decision-spine/reference/writing-an-adr.md` and Decision Spine hard rule 8:
+  read the code before describing it, cite paths that exist or say it is not built yet,
+  include the consequences you dislike, one register. New `agents/adr-author.md`
+  follows it.
+- **A security reviewer that reads the project's own threat list** (ADR 0069). New
+  `agents/security-reviewer.md` reviews a change against the Survey's `TH-` rows, S3.3
+  and the inbound interfaces, then `rules/security.md` and its neighbours. Read-only;
+  it reports and never approves. With no threat list, saying so is its first finding.
+- **Agents install where Claude Code looks** (ADR 0068). `render-adapters.sh` generates
+  `adapters/claude-agents/causeway-<name>.md` pointers from each agent's frontmatter and
+  fails CI when they are stale; `sync.sh` installs them under `.claude/agents/`. All four
+  adapters name the agents.
+
+**Upgrading.** Re-sync from the v3.1.0 archive with the `causeway-upgrade` skill. Then
+run `python3 tools/check-register.py`. A project that recorded its supersession cause in
+a field of its own will see a violation naming the field to move it to.
+
+---
+
 ## v3.0.1 — 2026-11-18
 
 A patch to the agent starter settings that v3.0.0 began seeding. Nothing anyone owes

@@ -68,6 +68,7 @@ BUNDLE_FILES=(
   # .claude/settings.json. Vendored with the rule that explains it. ADR 0058.
   "templates/agent-settings.json"
   "skills/decision-spine/reference/references.md"
+  "skills/decision-spine/reference/writing-an-adr.md"
   # The practitioner capture path. The skill defines what an interview may and
   # may not put in a practitioner's mouth, and the template defines the shape a
   # note has to reach before it can be promoted. Both are digested for the same
@@ -85,6 +86,11 @@ BUNDLE_FILES=(
   # Brownfield intake and the upgrade procedure. ADR 0064.
   "skills/backfill/SKILL.md"
   "skills/upgrade/SKILL.md"
+  # The agents. Digested for the reason the skills are: a project that edited
+  # its copy would still be running something it called the standard's reviewer.
+  # ADRs 0068 and 0069.
+  "agents/adr-author.md"
+  "agents/security-reviewer.md"
   "templates/adr-template.md"
   "templates/adr-waiver-template.md"
   "templates/adr-retroactive-template.md"
@@ -108,6 +114,8 @@ BUNDLE_FILES=(
   "tools/impact.sh"
   # The reference evaluator. ADR 0063.
   "tools/evaluate.py"
+  # The register check, beside the parser it reuses. ADR 0067.
+  "tools/check-register.py"
   # The setup page and its tests. ADR 0052.
   "tools/setup/setup.py"
   "tools/setup/env_schema.py"

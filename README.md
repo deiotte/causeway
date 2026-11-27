@@ -70,19 +70,19 @@ Causeway also has architectural opinions: services by default, vendor adapters, 
 
 ## Try the shipped tools on Linux
 
-This example installs the **v3.0.1** archive into an empty, disposable project. Acquisition needs internet access; installation and the diagnostics run offline. Use Bash, Python 3, GNU command-line utilities, tar, curl, and OpenSSH with signing support. The version here is checked against `VERSION` by `tools/validate.py`, so it moves with every release.
+This example installs the **v3.1.0** archive into an empty, disposable project. Acquisition needs internet access; installation and the diagnostics run offline. Use Bash, Python 3, GNU command-line utilities, tar, curl, and OpenSSH with signing support. The version here is checked against `VERSION` by `tools/validate.py`, so it moves with every release.
 
 ```bash
 mkdir causeway-trial
 cd causeway-trial
 
-curl -fLO https://github.com/deiotte/causeway/releases/download/v3.0.1/causeway-3.0.1.tar.gz
-curl -fLO https://github.com/deiotte/causeway/releases/download/v3.0.1/causeway-3.0.1.tar.gz.sha256
-sha256sum -c causeway-3.0.1.tar.gz.sha256
-tar -xzf causeway-3.0.1.tar.gz
+curl -fLO https://github.com/deiotte/causeway/releases/download/v3.1.0/causeway-3.1.0.tar.gz
+curl -fLO https://github.com/deiotte/causeway/releases/download/v3.1.0/causeway-3.1.0.tar.gz.sha256
+sha256sum -c causeway-3.1.0.tar.gz.sha256
+tar -xzf causeway-3.1.0.tar.gz
 
 mkdir project
-bash causeway-3.0.1/tools/sync.sh "$PWD/project" --require-release
+bash causeway-3.1.0/tools/sync.sh "$PWD/project" --require-release
 cd project
 bash tools/check-drift.sh
 bash tools/verify-release.sh
@@ -90,7 +90,7 @@ bash tools/doctor.sh --json
 python3 tools/evaluate.py --coverage
 ```
 
-The 58-file consumer bundle now carries the rules card and its argument in `docs/build-dna/`, the reference evaluator, and the backfill and upgrade skills; the sync also installs Claude Code skill pointers under `.claude/skills/causeway-*` and seeds `.claude/settings.json`. This install path is exercised on every pull request against an archive signed with a throwaway key (`tools/test-release-archive.sh`); the last download of a published archive that a review exercised end to end was v2.10.0. On a fresh sync, doctor reports:
+The 62-file consumer bundle now carries the rules card and its argument in `docs/build-dna/`, the reference evaluator, the register check, the backfill and upgrade skills, and two agents (an ADR author and a security reviewer); the sync also installs Claude Code skill pointers under `.claude/skills/causeway-*`, agent pointers under `.claude/agents/causeway-*`, and seeds `.claude/settings.json`. This install path is exercised on every pull request against an archive signed with a throwaway key (`tools/test-release-archive.sh`); the last download of a published archive that a review exercised end to end was v2.10.0. On a fresh sync, doctor reports:
 
 ```json
 {
@@ -112,7 +112,7 @@ The signature verifies against the bundled public key. Establish trust in that k
 The source repository carries the fuller synthetic example described above:
 
 ```bash
-git clone --branch v3.0.1 --depth 1 https://github.com/deiotte/causeway.git causeway-source
+git clone --branch v3.1.0 --depth 1 https://github.com/deiotte/causeway.git causeway-source
 cd causeway-source
 bash tools/test-impact.sh
 ```
@@ -155,7 +155,7 @@ Review date: **2026-10-30**. Security-review baseline: [`5e74d00`](https://githu
 
 | Locally executed evidence | Result | What it supports |
 |---|---|---|
-| `tools/validate.py` | 904 assertions passed | Internal agreement among the standard's artifacts and guarded references |
+| `tools/validate.py` | 925 assertions passed | Internal agreement among the standard's artifacts and guarded references |
 | Bundle and adapter checks | Passed | Manifest reproduction and shipped skill pointers |
 | Setup parser, launch, HTTP, and file-write tests | 50 run; one expected skip, no failures | Covered loopback-origin checks, token handling, private atomic writes, `.env` git exclusion, and existing setup behavior |
 | Credential scan / release-authorization suites | 21 / 14 passed; no failures | Synthetic provider-shaped fixtures found in tree and history without echoing them; suppressions exact and named; only a stable release tag on main is authorized. The scan of this repository's tree and history found nothing. Repository settings that hold the signing key (ADR 0054) are not verifiable from a checkout |
@@ -176,6 +176,7 @@ Release signatures attest the declared contract bundle identity. The bundle dige
 | `docs/build-dna/` | The argument behind each rule, one file per section, and Build DNA's open items |
 | `rules/` | Topic-specific engineering guidance |
 | `skills/` | Survey, Decision Spine, placement, policy references, and field-note methods |
+| `agents/` | Subagent instructions: an ADR author and a security reviewer |
 | `templates/` | Project starters, Recon and its register, Survey, ADRs, waivers, and field notes |
 | `gate/` | Product evaluator contract |
 | `conformance/` | Bounded evaluator compatibility fixtures |

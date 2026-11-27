@@ -659,6 +659,38 @@ else
   finding feedback.field_notes ok "domain/field-notes/" "No field notes yet, so no answer is owed."
 fi
 
+# ── The decision record ties ─────────────────────────────────────────────────
+#
+# tools/check-register.py: every ADR parses, every pointer resolves both ways,
+# every open-item count derives. Doctor reports its result as one finding and,
+# like everything here, never fails on it. A project makes it blocking by
+# running the check in its own CI. ADR 0067.
+
+if ! ls decisions/[0-9]*.md >/dev/null 2>&1 && [ ! -f decisions/open-items.json ]; then
+  finding decisions.register ok "decisions/" "No ADRs and no open-items index yet, so nothing to tie."
+elif [ ! -f tools/check-register.py ] || ! command -v python3 >/dev/null 2>&1; then
+  finding decisions.register unverified "decisions/" \
+    "tools/check-register.py or python3 is not here, so the record was not read." \
+    "Re-sync to get tools/check-register.py, and run it on a machine with python3."
+else
+  rg="$(python3 -I tools/check-register.py . --json 2>/dev/null | python3 -c '
+import json, sys
+d = json.load(sys.stdin)
+print(d["adrs"], len(d["violations"]), len(d["warnings"]), sep="|")' 2>/dev/null)"
+  IFS='|' read -r rg_adrs rg_v rg_w <<< "$rg"
+  if [ -z "$rg" ]; then
+    finding decisions.register unverified "decisions/" \
+      "tools/check-register.py could not read the record." "Run python3 tools/check-register.py to see why."
+  elif [ "$rg_v" -gt 0 ]; then
+    finding decisions.register incomplete "decisions/" \
+      "$rg_v violation(s) and $rg_w warning(s) across $rg_adrs ADR(s): a pointer that resolves one way, a row the spine does not have, or a count nobody recomputed." \
+      "Run python3 tools/check-register.py for the list. Each line names the file and what to change."
+  else
+    finding decisions.register ok "decisions/" \
+      "$rg_adrs ADR(s) and the open-items index tie$([ "$rg_w" -gt 0 ] && echo ", with $rg_w warning(s) — python3 tools/check-register.py lists them")."
+  fi
+fi
+
 # ── Gate evaluator ───────────────────────────────────────────────────────────
 #
 # ADOPTING.md asks for an engine that evaluates gate/checks.json, or an honest
