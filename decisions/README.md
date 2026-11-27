@@ -215,6 +215,7 @@ Roles, intake, and front doors.
 | [0059](0059-check-known-vulnerabilities-and-static-analysis.md) | Check known vulnerabilities against a remediation window, and static analysis for unjustified errors — two advisory gate checks | Accepted |
 | [0060](0060-hold-everyday-code-and-review-to-a-security-floor.md) | Hold everyday code and review to a security floor — a broader security rule, a patch-window rule, and security prompts in the PR and ADR templates | Accepted |
 | [0069](0069-review-changes-against-the-projects-own-threat-list.md) | Review changes against the project's own threat list — a security-reviewer agent that reads the Survey's TH- rows | Accepted |
+| [0070](0070-read-the-register-the-way-projects-write-it.md) | Read the register the way projects write it — ranges of unused numbers, a recorded lapse, and corrections that restate their rows | Accepted |
 
 ### Publication and governance
 

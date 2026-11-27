@@ -171,8 +171,44 @@ expect "an ADR missing from the index is a warning" 0 "has no row linking 0002" 
   "sed -i '/0002-correct/d' decisions/README.md"
 expect "two live ADRs on one row is a warning" 0 "SA-1.1 is also closed by ADR 0002" \
   "sed -i 's/^spine_rows: \[\]/spine_rows: [SA-1.1]/' decisions/0002-correct-the-region-count.md"
+expect "an item that lapsed with no reason is a violation" 1 "lapsed must say why" \
+  "sed -i 's/\"status\": \"open\"/\"status\": \"closed\", \"lapsed\": \"\"/; s/\"open\": 1, \"closed\": 0/\"open\": 0, \"closed\": 1/' decisions/open-items.json"
+expect "an open item that says it lapsed is a violation" 1 "says it lapsed but is open" \
+  "sed -i 's/\"status\": \"open\"/\"status\": \"open\", \"lapsed\": \"Nobody needs a queue now.\"/' decisions/open-items.json"
+expect "an item that lapsed and names a closing ADR is a violation" 1 "it closed or it lapsed" \
+  "sed -i 's/\"status\": \"open\"/\"status\": \"closed\", \"lapsed\": \"Nobody needs a queue now.\"/; s/\"closed_by\": null/\"closed_by\": \"0003\"/; s/\"open\": 1, \"closed\": 0/\"open\": 0, \"closed\": 1/' decisions/open-items.json"
+
 expect "the template's example left in the index is a warning" 0 "REPLACE example" \
   "sed -i 's/\"Pick the queue\"/\"REPLACE — delete this example\"/' decisions/open-items.json"
+
+# ── Records that tie, written the ways people write them ────────────────────
+clean() {
+  local desc="$1"; shift
+  base "$P"
+  ( cd "$P" && eval "$@" )
+  local out code=0
+  out="$("${CHECK[@]}" "$P" 2>&1)" || code=$?
+  if [ "$code" -eq 0 ] && echo "$out" | grep -q "the record ties"; then ok "$desc"
+  else bad "$desc" "exit $code; output: $(echo "$out" | tail -4)"; fi
+}
+
+skip_to_0009() {
+  sed 's/^adr: "0003"/adr: "0009"/; s/^spine_rows: .*/spine_rows: []/; s/^supersedes: .*/supersedes:/' \
+    decisions/0003-run-on-the-second-fabric.md > decisions/0009-x.md
+  echo '| [0009](0009-x.md) |' >> decisions/README.md
+}
+clean "a range under Unused numbers covers every number in it (0004 to 0008)" \
+  "skip_to_0009; sed -i 's/^None yet\./0004 to 0008: written elsewhere before adoption./' decisions/README.md"
+clean "a range with a dash covers every number in it (0004-0008)" \
+  "skip_to_0009; sed -i 's/^None yet\./0004–0008 were never written./' decisions/README.md"
+clean "single numbers and a range mix (0004, 0005 and 0006 to 0008)" \
+  "skip_to_0009; sed -i 's/^None yet\./0004, 0005 and 0006 to 0008 were never written./' decisions/README.md"
+expect "a range that stops short still warns on the number past it" 0 "0008 is skipped" \
+  "skip_to_0009; sed -i 's/^None yet\./0004 to 0007 were never written./' decisions/README.md"
+clean "a closed item that says why it lapsed ties" \
+  "sed -i 's/\"status\": \"open\"/\"status\": \"closed\", \"lapsed\": \"The queue was retired with the service.\"/; s/\"open\": 1, \"closed\": 0/\"open\": 0, \"closed\": 1/' decisions/open-items.json"
+clean "a correction that restates the rows of the record it corrects is not a duplicate" \
+  "sed -i 's/^status: Superseded/status: Accepted/; s/^superseded_by: \"0003\"/superseded_by:/' decisions/0001-run-on-the-fabric.md; sed -i 's/^spine_rows: \[\]/spine_rows: [SA-1.1, SA-4.1]/' decisions/0002-correct-the-region-count.md; rm decisions/0003-run-on-the-second-fabric.md; sed -i '/0003-run/d' decisions/README.md; sed -i 's/\"opened_by\": \"0003\"/\"opened_by\": \"0001\"/' decisions/open-items.json"
 
 base "$P"; sed -i '/0002-correct/d' "$P/decisions/README.md"
 code=0; "${CHECK[@]}" "$P" --strict >/dev/null 2>&1 || code=$?

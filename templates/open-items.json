@@ -24,6 +24,7 @@
     "opened_in": "the version of the register's document, or null",
     "closed_by": "ADR number, or null. An item closed by nothing lapsed rather than closed",
     "closed_in": "the version it closed in, or null",
+    "lapsed": "optional, closed items only. One sentence saying why the item closed with no ADR and no answering document: it stopped mattering, its owner left, the system it was about was retired. A closed item needs closed_by, answered_by or lapsed, and lapsed never sits beside closed_by",
     "$note": "optional. Anything a reader of this file needs that the prose entry does not carry"
   },
   "items": [
