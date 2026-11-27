@@ -7,7 +7,7 @@
     "spine_version": "0.8",
     "gate_config_version": "0.9"
   },
-  "digest": "sha256:004e5871e120bf14c5141f0c0c9292712ef75c99d2586203aa2f259e278d4807",
+  "digest": "sha256:04be3656548e15db5bd4603988b54a32218b48cd927b255a784269968b248b60",
   "digest_algorithm": "sha256-of-sorted-file-digest-lines",
   "files": [
     { "path": "AGENTS.md", "sha256": "f55d6590df85e9f214f53c11a78d9dd486452d96f860db50fb4cf56783a4a7a4" },
@@ -60,7 +60,7 @@
     { "path": "templates/recon.md", "sha256": "eadd3a82171155d61d1a0109dfab5291342bee867fca8c69433635b3b817652c" },
     { "path": "templates/survey.md", "sha256": "b8b78090ff603e18681aefeb2368afe2b0c7a84aeb8bde8ff96b731efb8b9c17" },
     { "path": "tools/check-drift.sh", "sha256": "d787ad5df079693a35a44a7cad28b133b524a53aeddca354e99e0be59635b75f" },
-    { "path": "tools/check-register.py", "sha256": "510d15e4123f45c86b5965362662c5f70579bd8dff0b4a728a54a00882f7dca4" },
+    { "path": "tools/check-register.py", "sha256": "fb7aa90171163f52c86eea536e33ca9df38962fe2b1731e0e822f07948074870" },
     { "path": "tools/doctor.sh", "sha256": "9fe0d77562eee8f054bd20113844355b025840f40de64c10485faa12d51c1b4f" },
     { "path": "tools/evaluate.py", "sha256": "abfa25a6bb3cc1f89e403e251beda74cec87d201a2ca3075441891d9cd9dc9e8" },
     { "path": "tools/field-notes.sh", "sha256": "483ac26d781815d43ad66a1b4e21737ab69f74461f2bd51601588f4551f2af16" },

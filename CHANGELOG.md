@@ -27,6 +27,27 @@ at the time, because none were.
 
 ---
 
+## Unreleased
+
+For the next patch release. The register check v3.1.0 shipped disagreed with three
+records that were correct. Nothing anyone owes changes: no gate check, verdict, input
+contract, profile cell or spine row moves, and Build DNA stays at 2.0. ADR 0070.
+
+- **Ranges under *Unused numbers* count.** `0001 to 0008`, `0001–0008` and the like
+  now cover every number between their ends. v3.1.0 found only the two ends and warned
+  about every number in between.
+- **An item can record that it lapsed.** The violation for a closed item with no
+  closing ADR told people to say it lapsed, and no field could. `lapsed` is a new
+  optional item field: one sentence saying why. It is a violation when empty, on an
+  open item, or beside a `closed_by`. `templates/open-items.json` describes it.
+- **A correction is not a duplicate.** An ADR that corrects another (Build DNA 8.4)
+  and restates its rows no longer warns that two live ADRs close one row.
+
+**Upgrading.** Re-sync from the next release's archive with the `causeway-upgrade`
+skill. `upgrade-starters.sh` offers the one-line change to `decisions/open-items.json`.
+
+---
+
 ## v3.1.0 — 2026-11-27
 
 Three practices adopting projects built for themselves, brought upstream with the

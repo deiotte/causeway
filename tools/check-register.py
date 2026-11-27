@@ -14,7 +14,9 @@ Two levels, and the difference is the point:
   violation  the record says something false, or something the gate cannot read.
              Exit 1.
   warning    the record is legal and probably not what you meant: two live ADRs
-             on one row, a skipped number with no line under *Unused numbers*,
+             on one row (other than a correction and the record it corrects),
+             a skipped number with no line under *Unused numbers* (singly or in a
+             range such as "0001 to 0008"),
              an ADR missing from the index, the template's example still in the
              open-items index. Exit 0, unless --strict.
 
@@ -94,6 +96,28 @@ def heading_present(doc: Path, heading: str) -> bool:
                           doc.read_text(encoding="utf-8", errors="replace"), re.MULTILINE))
 
 
+# A range is how people write a run of skipped numbers: "0001 to 0008",
+# "0001–0008", "0001-0008", "0001 through 0008". Both ends are four digits, so a
+# date or a count in the same sentence is not mistaken for one.
+RANGE = re.compile(r"(?<!\d)(\d{4})\s*(?:to|through|thru|–|—|-|\.\.)\s*(\d{4})(?!\d)")
+NUMBER = re.compile(r"(?<!\d)(\d{4})(?!\d)")
+
+
+def unused_numbers(readme_text: str) -> set[int]:
+    """Every ADR number listed under *Unused numbers*, singly or as a range."""
+    m = re.search(r"^#+\s+Unused numbers\s*$(.*?)(?=^#+\s|\Z)", readme_text, re.MULTILINE | re.DOTALL)
+    if not m:
+        return set()
+    text = m.group(1)
+    found: set[int] = set()
+    for a, b in RANGE.findall(text):
+        lo, hi = sorted((int(a), int(b)))
+        if hi - lo <= 1000:              # a typo should not list the whole register
+            found.update(range(lo, hi + 1))
+    found.update(int(n) for n in NUMBER.findall(text))
+    return found
+
+
 # ── The ADRs ─────────────────────────────────────────────────────────────────
 
 def check_adrs(project: Path, ev, rows: dict, rep: Report) -> dict:
@@ -129,6 +153,14 @@ def check_adrs(project: Path, ev, rows: dict, rep: Report) -> dict:
             continue
         adrs[num] = (p.name, fm)
 
+    def corrects_pair(a: str, b: str) -> bool:
+        """A correction restates the record it corrects, rows and all, and both
+        stay live (Build DNA 8.4). That is one decision written twice on purpose,
+        not two decisions on one row."""
+        fa, fb = adrs[a][1], adrs[b][1]
+        return (b in as_list(fa.get("corrects")) or b in as_list(fa.get("corrected_by"))
+                or a in as_list(fb.get("corrects")) or a in as_list(fb.get("corrected_by")))
+
     claimed: dict[str, str] = {}
     for num, (name, fm) in sorted(adrs.items()):
         for r in as_list(fm.get("spine_rows")) if isinstance(fm.get("spine_rows"), list) else []:
@@ -136,7 +168,9 @@ def check_adrs(project: Path, ev, rows: dict, rep: Report) -> dict:
                 rep.violation(name, f"{r} is not a row in the vendored spine — an invented row "
                                     "ID is worse than none, because everything downstream trusts it")
             elif fm.get("status") in LIVE:
-                if r in claimed:
+                if r in claimed and corrects_pair(num, claimed[r]):
+                    pass
+                elif r in claimed:
                     rep.warning(name, f"{r} is also closed by ADR {claimed[r]}. Legal, and usually "
                                       "a supersession that was never written down")
                 else:
@@ -187,14 +221,11 @@ def check_adrs(project: Path, ev, rows: dict, rep: Report) -> dict:
     # A skipped number is allowed and stays skipped, with a line saying why.
     readme = dec / "README.md"
     readme_text = readme.read_text(encoding="utf-8", errors="replace") if readme.is_file() else ""
-    unused = ""
-    m = re.search(r"^#+\s+Unused numbers\s*$(.*?)(?=^#+\s|\Z)", readme_text, re.MULTILINE | re.DOTALL)
-    if m:
-        unused = m.group(1)
+    unused = unused_numbers(readme_text)
     if adrs:
         nums = sorted(int(n) for n in adrs)
         for gap in sorted(set(range(1, nums[-1] + 1)) - set(nums)):
-            if f"{gap:04d}" not in unused:
+            if gap not in unused:
                 rep.warning("decisions/", f"{gap:04d} is skipped and decisions/README.md does not list "
                                           "it under Unused numbers — the next reader goes looking for it")
     if not readme.is_file():
@@ -263,9 +294,19 @@ def check_open_items(project: Path, adrs: dict, rep: Report) -> dict | None:
                 rep.violation(tag, f"{role} names ADR {ref}, which is not in decisions/")
         if st == "open" and it.get("closed_by"):
             rep.violation(tag, "open, but already names the ADR that closed it")
-        if st == "closed" and not it.get("closed_by") and not it.get("answered_by"):
-            rep.violation(tag, "closed by nothing — name the closing ADR, or answered_by, or say "
-                               "it lapsed; an item closed by nothing lapsed rather than closed")
+        lapsed = it.get("lapsed")
+        if lapsed is not None and not (isinstance(lapsed, str) and lapsed.strip()):
+            rep.violation(tag, "lapsed must say why, in a sentence — an empty lapse is the silence "
+                               "it exists to replace")
+        elif lapsed and st != "closed":
+            rep.violation(tag, f"says it lapsed but is {st} — a lapsed item is closed, by nothing")
+        elif lapsed and it.get("closed_by"):
+            rep.violation(tag, f"says it lapsed and names ADR {it['closed_by']} as closing it — it "
+                               "closed or it lapsed, not both")
+        if st == "closed" and not it.get("closed_by") and not it.get("answered_by") and not lapsed:
+            rep.violation(tag, "closed by nothing — name the closing ADR in closed_by, the document "
+                               "that answered it in answered_by, or say why it lapsed in lapsed; an "
+                               "item closed by nothing lapsed rather than closed")
         ans = it.get("answered_by")
         if isinstance(ans, dict):
             doc = project / str(ans.get("document") or "")
